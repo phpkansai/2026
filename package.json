@@ -1,0 +1,17 @@
+{
+  "name": "phpcon-kansai-2026-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host",
+    "build": "astro build",
+    "preview": "astro preview --host",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^7.3.5",
+    "sharp": "^0.35.5",
+    "yaml": "^2.9.1"
+  }
+}

@@ -1,0 +1,91 @@
+# =============================================================
+# サイト全体の設定
+# URLや文言はここを書き換えれば反映されます（再ビルドが必要）
+# =============================================================
+
+# 公開URL（決まったら設定。OGPやcanonicalに使われます。末尾スラッシュなし）
+url: ""
+
+event:
+  name: "PHPカンファレンス関西2026"
+  name_en: "PHP Conference Kansai 2026"
+  date_label: "2027年1月16日(土)"
+  date_iso: "2027-01-16"
+  description: "PHPカンファレンス関西2026 は 2027年1月16日(土) 京都リサーチパークで開催されます。"
+
+venue:
+  name: "京都リサーチパーク 4号館"
+  postal: "〒600-8815"
+  address: "京都府京都市下京区中堂寺粟田町93"
+  access: |
+    駅からのアクセス駅からのアクセス駅からのアクセス駅からのアクセス駅からのアクセス駅からのアクセス
+  # Googleマップの埋め込みURL（APIキー不要）
+  map_embed_url: "https://www.google.com/maps?q=%E4%BA%AC%E9%83%BD%E3%83%AA%E3%82%B5%E3%83%BC%E3%83%81%E3%83%91%E3%83%BC%E3%82%AF4%E5%8F%B7%E9%A4%A8&hl=ja&z=16&output=embed"
+  map_link_url: "https://maps.google.com/?q=京都リサーチパーク4号館"
+
+# fortee 連携（イベントスラッグ。APIのURLは https://fortee.jp/<slug>/api/... ）
+fortee:
+  slug: "phpcon-kansai2026"
+  base_url: "https://fortee.jp"
+
+# ボタンや外部リンク（ダミー → 決まり次第差し替え）
+links:
+  register: "https://fortee.jp/phpcon-kansai2026"          # 参加申し込み
+  proposal: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"  # forteeで応募する
+  timetable_external: "https://fortee.jp/phpcon-kansai2026/timetable"   # タイムテーブル（外部）
+  x: "https://x.com/phpcon_kansai"
+  note: "https://note.com/phpcon_kansai"
+
+# タイムテーブルのナビ先: auto | internal | external
+#   auto     … forteeのタイムテーブルにデータがあればサイト内 /timetable/ 、無ければ外部リンク
+#   internal … 常にサイト内 /timetable/
+#   external … 常に links.timetable_external
+timetable:
+  mode: auto
+
+news:
+  # トップページに表示する最大件数
+  limit: 5
+
+message:
+  title: "次は、ここから始まる。"
+  lead:
+    - "超スピードで変わり続けるエンジニアの世界で"
+    - "「次」を始めるための発見と繋がりをみつける場所をめざす"
+  body: |
+    ダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキスト
+  signature:
+    - "PHPカンファレンス関西2026"
+    - "実行委員長　加納悠史"
+
+proposal:
+  title: "プロポーザル"
+  body: |
+    ダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキスト
+  button_label: "forteeで応募する"
+
+# スポンサーのランク定義（表示順 = この順。columns は PC での1行あたりの枚数）
+sponsor_tiers:
+  - id: platinum
+    label: "プラチナスポンサー"
+    columns: 1
+  - id: gold
+    label: "ゴールドスポンサー"
+    columns: 2
+  - id: silver
+    label: "シルバースポンサー"
+    columns: 3
+  - id: bronze
+    label: "ブロンズスポンサー"
+    columns: 4
+
+footer:
+  organizer: "PHPカンファレンス関西2026実行委員会"
+  copyright: "Copyright © Kansai PHP Users Group"
+  past_events:
+    - { label: "2015", url: "https://2015.kphpug.jp/" }
+    - { label: "2016", url: "https://2016.kphpug.jp/" }
+    - { label: "2017", url: "https://2017.kphpug.jp/" }
+    - { label: "2018", url: "https://2018.kphpug.jp/" }
+    - { label: "2024", url: "https://2024.kphpug.jp/" }
+    - { label: "2025", url: "https://2025.kphpug.jp/" }

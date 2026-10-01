@@ -1,0 +1,196 @@
+---
+/**
+ * タイムテーブル（fortee API のデータを表示）。
+ * データが無い間は「準備中」を表示する「箱」。
+ */
+import { site } from '../lib/data';
+import { fetchTimetable, type ForteeTimetableItem } from '../lib/fortee';
+
+const items = await fetchTimetable();
+
+const fmtTime = (iso: string) => {
+  const d = new Date(iso);
+  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  return `${String(jst.getUTCHours()).padStart(2, '0')}:${String(jst.getUTCMinutes()).padStart(2, '0')}`;
+};
+const endOf = (i: ForteeTimetableItem) =>
+  fmtTime(new Date(new Date(i.starts_at).getTime() + i.length_min * 60000).toISOString());
+
+// トラック順 → 開始時刻順
+const tracks = [...new Map(items.map((i) => [i.track.name, i.track])).values()].sort(
+  (a, b) => a.sort - b.sort,
+);
+const byTrack = tracks.map((t) => ({
+  track: t,
+  items: items
+    .filter((i) => i.track.name === t.name)
+    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()),
+}));
+---
+
+{
+  items.length === 0 ? (
+    <div class="tt__empty">
+      <p>タイムテーブルは準備中です。</p>
+      <p>
+        <a href={site.links.proposal} target="_blank" rel="noopener noreferrer" class="btn">
+          プロポーザルを応募する
+        </a>
+      </p>
+    </div>
+  ) : (
+    <div class="tt">
+      {byTrack.map(({ track, items }) => (
+        <section class="tt__track">
+          <h2 class="tt__track-title">{track.name}</h2>
+          <ol class="tt__list">
+            {items.map((i) => (
+              <li class:list={['tt__item', `tt__item--${i.type}`]}>
+                <div class="tt__time">
+                  <time datetime={i.starts_at}>{fmtTime(i.starts_at)}</time>
+                  <span>–</span>
+                  <span>{endOf(i)}</span>
+                </div>
+                <div class="tt__body">
+                  <p class="tt__title">
+                    {i.url ? (
+                      <a href={i.url} target="_blank" rel="noopener noreferrer">
+                        {i.title}
+                      </a>
+                    ) : (
+                      i.title
+                    )}
+                  </p>
+                  {i.speaker && (
+                    <p class="tt__speaker">
+                      {i.speaker.avatar_url && (
+                        <img src={i.speaker.avatar_url} alt="" width="28" height="28" loading="lazy" />
+                      )}
+                      <span>{i.speaker.name}</span>
+                      {i.speaker.twitter && (
+                        <a href={`https://x.com/${i.speaker.twitter}`} target="_blank" rel="noopener noreferrer">
+                          @{i.speaker.twitter}
+                        </a>
+                      )}
+                    </p>
+                  )}
+                  {i.tags && i.tags.length > 0 && (
+                    <ul class="tt__tags">
+                      {i.tags.map((t) => (
+                        <li style={`color:${t.color_text ?? '#fff'};background:${t.color_background ?? 'var(--c-purple)'}`}>
+                          {t.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .tt__empty {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--c-text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .tt {
+    display: grid;
+    gap: 40px;
+  }
+
+  .tt__track-title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--c-purple);
+    margin-bottom: 12px;
+  }
+
+  .tt__list {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .tt__item {
+    display: grid;
+    grid-template-columns: 8.5em 1fr;
+    gap: 16px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--c-line);
+  }
+
+  .tt__item--timeslot {
+    background: rgba(133, 104, 205, 0.06);
+  }
+
+  .tt__time {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--c-purple-dark);
+    white-space: nowrap;
+    display: flex;
+    gap: 4px;
+  }
+
+  .tt__title {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .tt__title a {
+    color: var(--c-text);
+    text-decoration-color: var(--c-pink);
+  }
+
+  .tt__speaker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--c-text-muted);
+  }
+
+  .tt__speaker img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .tt__speaker a {
+    color: var(--c-purple);
+    font-size: 12px;
+  }
+
+  .tt__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .tt__tags li {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+
+  @media (max-width: 600px) {
+    .tt__item {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+</style>

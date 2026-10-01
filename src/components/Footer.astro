@@ -1,0 +1,174 @@
+---
+import { site } from '../lib/data';
+import { slot } from '../lib/slots';
+import XIcon from './icons/XIcon.astro';
+import NoteIcon from './icons/NoteIcon.astro';
+
+const skyline = slot('skyline');
+const mascot = slot('footer-mascot') ?? slot('hero-mascot');
+---
+
+<footer class="footer">
+  <div class="footer__skyline" aria-hidden="true">
+    {
+      skyline ? (
+        <img src={skyline} alt="" />
+      ) : (
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" fill="var(--c-purple)">
+          <path d="M0 120V96C180 40 400 8 600 8s420 32 600 88v24z" />
+        </svg>
+      )
+    }
+  </div>
+
+  <div class="footer__body">
+    <div class="container footer__inner">
+      {
+        mascot ? (
+          <span class="footer__mascot-wrap"><img class="footer__mascot" src={mascot} alt="" width="88" height="45" /></span>
+        ) : (
+          <div class="footer__mascot placeholder" aria-hidden="true" />
+        )
+      }
+      <p class="footer__title">{site.event.name}</p>
+
+      <ul class="footer__social">
+        <li>
+          <a href={site.links.x} target="_blank" rel="noopener noreferrer" aria-label="X (旧Twitter)">
+            <XIcon />
+          </a>
+        </li>
+        <li>
+          <a href={site.links.note} target="_blank" rel="noopener noreferrer" aria-label="note">
+            <NoteIcon />
+          </a>
+        </li>
+      </ul>
+
+      <ul class="footer__links">
+        <li><a href="/coc/">行動規範</a></li>
+      </ul>
+
+      <ul class="footer__past">
+        {
+          site.footer.past_events.map((ev) => (
+            <li>
+              <a href={ev.url} target="_blank" rel="noopener noreferrer">
+                {ev.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="footer__org">{site.footer.organizer}</p>
+      <p class="footer__copy">{site.footer.copyright}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--c-bg-pink);
+  }
+
+  .footer__skyline {
+    line-height: 0;
+    background: var(--c-bg-pink);
+  }
+
+  .footer__skyline img,
+  .footer__skyline svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .footer__skyline svg {
+    height: clamp(48px, 9vw, 120px);
+  }
+
+  .footer__body {
+    background: var(--c-purple);
+    color: var(--c-white);
+    padding: 24px 0 40px;
+    text-align: center;
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .footer__mascot-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--c-white);
+    box-shadow: 0 6px 20px rgba(43, 37, 56, 0.18);
+  }
+
+  .footer__mascot {
+    width: 88px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .footer__mascot.placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+  }
+
+  .footer__title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  .footer__social {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer__social a {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    color: var(--c-white);
+    transition: transform 0.2s;
+  }
+
+  .footer__social a:hover {
+    transform: scale(1.15);
+  }
+
+  .footer__links a,
+  .footer__past a {
+    color: var(--c-white);
+    font-size: 13px;
+  }
+
+  .footer__past {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
+  }
+
+  .footer__org {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .footer__copy {
+    font-size: 12px;
+    opacity: 0.85;
+  }
+</style>

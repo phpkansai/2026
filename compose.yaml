@@ -1,0 +1,22 @@
+services:
+  # 開発サーバー: docker compose up → http://localhost:4321
+  web:
+    build: .
+    ports:
+      - "4321:4321"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    command: npm run dev
+
+  # 静的HTMLの書き出し: docker compose run --rm build → dist/ に出力
+  build:
+    build: .
+    profiles: ["build"]
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    command: npm run build
+
+volumes:
+  node_modules:

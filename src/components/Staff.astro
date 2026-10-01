@@ -1,0 +1,172 @@
+---
+import { Image } from 'astro:assets';
+import { staffConfig } from '../lib/data';
+import { staffImages } from '../lib/assets';
+import { fetchStaff } from '../lib/fortee';
+
+interface Member {
+  name: string;
+  role: string;
+  url?: string;
+  /** 外部URL（fortee のアバター）*/
+  avatarUrl?: string;
+  /** src/assets/staff のファイル名 */
+  image?: string;
+}
+
+const grouped = await fetchStaff();
+const hidden = new Set(staffConfig.hide ?? []);
+
+const members: Member[] = [];
+for (const [role, list] of Object.entries(grouped)) {
+  for (const s of list) {
+    if (hidden.has(s.name)) continue;
+    members.push({ name: s.name, role, url: s.url, avatarUrl: s.avatar_url });
+  }
+}
+for (const e of staffConfig.extra ?? []) {
+  const isUrl = e.image?.startsWith('http');
+  members.push({
+    name: e.name,
+    role: e.role ?? 'スタッフ',
+    url: e.url,
+    avatarUrl: isUrl ? e.image : undefined,
+    image: isUrl ? undefined : e.image,
+  });
+}
+
+const order = staffConfig.role_order ?? [];
+const rank = (role: string) => {
+  const i = order.indexOf(role);
+  return i === -1 ? order.length : i;
+};
+members.sort((a, b) => rank(a.role) - rank(b.role));
+
+const showRole = (role: string) => role !== 'コアスタッフ' && role !== 'スタッフ';
+---
+
+<section class="section section--pink staff" id="staff">
+  <div class="container staff__inner">
+    <h2 class="section-title section-title--purple">スタッフ</h2>
+
+    {members.length === 0 && <p class="staff__empty">準備中です。</p>}
+
+    <ul class="staff__grid">
+      {
+        members.map((m) => {
+          const local = m.image ? staffImages.get(m.image) : undefined;
+          const avatar = local ? (
+            <Image src={local} alt="" width={160} height={160} />
+          ) : m.avatarUrl ? (
+            <img src={m.avatarUrl} alt="" width="160" height="160" loading="lazy" />
+          ) : (
+            <span class="staff__ph" aria-hidden="true" />
+          );
+          const body = (
+            <>
+              <span class="staff__avatar">{avatar}</span>
+              <span class="staff__name">{m.name}</span>
+              {showRole(m.role) && <span class="staff__role">{m.role}</span>}
+            </>
+          );
+          return (
+            <li class="staff__item">
+              {m.url ? (
+                <a href={m.url} target="_blank" rel="noopener noreferrer">
+                  {body}
+                </a>
+              ) : (
+                <div>{body}</div>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .staff__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .staff__empty {
+    color: var(--c-text-muted);
+  }
+
+  .staff__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 120px);
+    justify-content: center;
+    gap: 32px 40px;
+    width: 100%;
+  }
+
+  .staff__item a,
+  .staff__item > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--c-text);
+  }
+
+  .staff__avatar {
+    display: block;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--c-placeholder);
+    transition: transform 0.15s;
+  }
+
+  .staff__item a:hover .staff__avatar {
+    transform: scale(1.06);
+  }
+
+  .staff__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .staff__ph {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .staff__name {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .staff__role {
+    font-size: 11px;
+    color: var(--c-purple);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .staff__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px 12px;
+    }
+    .staff__avatar {
+      width: 84px;
+      height: 84px;
+    }
+    .staff__name {
+      font-size: 12px;
+    }
+  }
+</style>

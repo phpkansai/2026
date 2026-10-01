@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Timetable from '../components/Timetable.astro';
+import { site } from '../lib/data';
+---
+
+<Base title="タイムテーブル" subpage description={`${site.event.name} タイムテーブル`}>
+  <section class="section section--pink">
+    <div class="container">
+      <div class="card">
+        <h1 class="section-title section-title--purple">タイムテーブル</h1>
+        <p class="date">{site.event.date_label}　{site.venue.name}</p>
+        <Timetable />
+        <p class="back"><a href="/">トップページへ戻る</a></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .date {
+    text-align: center;
+    margin: 12px 0 32px;
+    font-weight: 700;
+    color: var(--c-text-muted);
+  }
+  .back {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .back a {
+    color: var(--c-purple);
+  }
+</style>

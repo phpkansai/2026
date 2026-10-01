@@ -1,0 +1,28 @@
+---
+import { site } from '../lib/data';
+const { proposal, links } = site;
+---
+
+<section class="section section--pink proposal" id="proposal">
+  <div class="container--narrow proposal__inner">
+    <h2 class="section-title section-title--purple">{proposal.title}</h2>
+    <p class="proposal__body">{proposal.body.trim()}</p>
+    <a class="btn btn--lg" href={links.proposal} target="_blank" rel="noopener noreferrer">
+      {proposal.button_label}
+    </a>
+  </div>
+</section>
+
+<style>
+  .proposal__inner {
+    text-align: center;
+  }
+
+  .proposal__body {
+    margin-top: 28px;
+    margin-bottom: 36px;
+    font-size: 13px;
+    line-height: 2;
+    text-align: left;
+  }
+</style>

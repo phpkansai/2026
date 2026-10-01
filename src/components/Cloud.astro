@@ -1,0 +1,31 @@
+---
+/**
+ * 雲の装飾。public/images/cloud.(svg|png) があればそれを、無ければ簡易SVGを表示。
+ * style で位置・幅を指定して使う。
+ */
+import { slot } from '../lib/slots';
+
+interface Props {
+  class?: string;
+  style?: string;
+  /** 色（画像スロット未設定時の簡易SVG用） */
+  color?: string;
+  flip?: boolean;
+  /** 紫背景の上に置くときに薄くする */
+  dim?: boolean;
+}
+const { class: className = '', style = '', color = 'currentColor', flip = false, dim = false } = Astro.props;
+const img = slot('cloud');
+---
+
+<div class:list={['cloud', className, { 'cloud--dim': dim }]} style={style} aria-hidden="true">
+  {
+    img ? (
+      <img src={img} alt="" style={flip ? 'transform: scaleX(-1)' : undefined} />
+    ) : (
+      <svg viewBox="0 0 320 110" fill={color} style={flip ? 'transform: scaleX(-1)' : undefined}>
+        <path d="M30 95c-16 0-28-11-28-26 0-13 9-23 22-26-1-3-1-5-1-8 0-17 13-30 30-30 11 0 20 5 26 14 6-10 17-17 30-17 20 0 36 16 36 36 0 2 0 4-1 6 4-3 9-4 14-4 15 0 27 12 27 27 0 2 0 3-1 5h61c15 0 27 12 27 27 0 15-12 26-27 26z" />
+      </svg>
+    )
+  }
+</div>

@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import CocContent from '../components/CocContent.astro';
+---
+
+<Base title="行動規範" subpage description="PHPカンファレンス関西2026 行動規範・プライバシーポリシー">
+  <section class="section section--pink">
+    <div class="container--narrow">
+      <div class="card">
+        <h1 class="section-title section-title--purple">行動規範</h1>
+        <CocContent />
+        <p class="back"><a href="/">トップページへ戻る</a></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .back {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .back a {
+    color: var(--c-purple);
+  }
+</style>

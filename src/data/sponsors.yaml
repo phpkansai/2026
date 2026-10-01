@@ -1,0 +1,56 @@
+# =============================================================
+# スポンサー一覧
+#   - 1社 = 1ブロック。追加はブロックを足す、削除はブロックを消すだけ。
+#   - 表示順はこのファイルの並び順（同じランク内）。
+#   - tier: platinum / gold / silver / bronze （site.yaml の sponsor_tiers）
+#   - logo: src/assets/sponsors/ に置いた画像ファイル名（png / svg / jpg / webp）
+#           未設定 or ファイルが無い場合は社名入りのグレーの枠で表示されます。
+# =============================================================
+
+# --- ゴールド ---
+- name: "株式会社サムライズム"
+  tier: gold
+  url: "https://samuraism.com/"
+  logo: "samuraism.png"
+
+- name: "株式会社 サブスパイア"
+  tier: gold
+  url: "https://subspire.co.jp/"
+  logo: "subspire.png"
+
+# --- シルバー ---
+- name: "株式会社カオナビ"
+  tier: silver
+  url: "https://corp.kaonavi.jp/"
+  logo: "kaonavi.png"
+
+- name: "株式会社coco"
+  tier: silver
+  url: "https://thecoco.jp/"
+  logo: "coco.png"
+
+- name: "株式会社YUZURIHA（gigmatch）"
+  tier: silver
+  url: "https://yzrh.jp/"
+  logo: "yuzuriha.png"
+
+# --- ブロンズ ---
+- name: "VAddy"
+  tier: bronze
+  url: "https://vaddy.net/ja/"
+  logo: "vaddy.png"
+
+- name: "株式会社フュージョンズ"
+  tier: bronze
+  url: "https://fusions.co.jp/"
+  logo: "fusions.png"
+
+- name: "ピクシブ株式会社"
+  tier: bronze
+  url: "https://www.pixiv.co.jp/"
+  logo: "pixiv.png"
+
+- name: "株式会社Shimoning"
+  tier: bronze
+  url: "https://shimoning.com"
+  logo: "shimoning.png"

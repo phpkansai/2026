@@ -1,0 +1,118 @@
+---
+import { site, localNews } from '../lib/data';
+import { fetchNews } from '../lib/fortee';
+import Cloud from './Cloud.astro';
+
+interface Item {
+  date: Date;
+  title: string;
+  url?: string;
+}
+
+const fromFortee = (await fetchNews()).map<Item>((n) => ({
+  date: new Date(n.published),
+  title: n.title,
+  url: n.url,
+}));
+const fromLocal = localNews.map<Item>((n) => ({
+  date: new Date(`${n.date}T00:00:00+09:00`),
+  title: n.title,
+  url: n.url,
+}));
+
+const items = [...fromFortee, ...fromLocal]
+  .filter((i) => !Number.isNaN(i.date.getTime()))
+  .sort((a, b) => b.date.getTime() - a.date.getTime())
+  .slice(0, site.news.limit);
+
+const DOW = ['日', '月', '火', '水', '木', '金', '土'];
+const fmt = (d: Date) => {
+  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const y = jst.getUTCFullYear();
+  const m = String(jst.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(jst.getUTCDate()).padStart(2, '0');
+  return `${y}/${m}/${day}(${DOW[jst.getUTCDay()]})`;
+};
+---
+
+<section class="section section--purple news" id="news">
+  <Cloud class="news__cloud" color="#a08ad9" dim style="right:4%;top:6%;width:clamp(150px,17vw,260px)" />
+  <div class="container--narrow">
+    <div class="card news__card">
+      <h2 class="section-title section-title--purple">NEWS</h2>
+      {
+        items.length > 0 ? (
+          <ul class="news__list">
+            {items.map((item) => (
+              <li class="news__item">
+                <time class="news__date" datetime={item.date.toISOString()}>
+                  {fmt(item.date)}
+                </time>
+                <p class="news__title">
+                  {item.url ? (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer">
+                      {item.title}
+                    </a>
+                  ) : (
+                    item.title
+                  )}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="news__empty">お知らせはまだありません。</p>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .news__card {
+    padding-inline: clamp(20px, 5vw, 48px);
+  }
+
+  .news__list {
+    margin-top: 28px;
+    border-top: 1px solid var(--c-line);
+  }
+
+  .news__item {
+    display: grid;
+    grid-template-columns: 9.5em 1fr;
+    gap: 8px 24px;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--c-line);
+    font-size: 13px;
+  }
+
+  .news__date {
+    font-weight: 700;
+    color: var(--c-text);
+    white-space: nowrap;
+  }
+
+  .news__title a {
+    color: var(--c-text);
+    text-decoration-color: var(--c-pink);
+  }
+
+  .news__title a:hover {
+    color: var(--c-pink-dark);
+  }
+
+  .news__empty {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--c-text-muted);
+    font-size: 14px;
+  }
+
+  @media (max-width: 600px) {
+    .news__item {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+</style>

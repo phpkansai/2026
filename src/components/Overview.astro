@@ -1,0 +1,108 @@
+---
+import { site } from '../lib/data';
+const { venue, event } = site;
+---
+
+<section class="section section--purple overview" id="overview">
+  <div class="container--narrow">
+    <div class="card">
+      <h2 class="section-title section-title--purple">開催概要</h2>
+      <dl class="overview__dl">
+        <div class="overview__row">
+          <dt>開催日時</dt>
+          <dd><strong>{event.date_label}</strong></dd>
+        </div>
+        <div class="overview__row">
+          <dt>開催場所</dt>
+          <dd>
+            <strong>{venue.name}</strong><br />
+            <strong>{venue.postal}　{venue.address}</strong>
+            <p class="overview__access">{venue.access.trim()}</p>
+          </dd>
+        </div>
+      </dl>
+      <div class="overview__map">
+        <iframe
+          src={venue.map_embed_url}
+          title={`${venue.name}の地図`}
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+      <p class="overview__maplink">
+        <a href={venue.map_link_url} target="_blank" rel="noopener noreferrer">Googleマップで開く</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .overview {
+    padding-top: 0;
+  }
+
+  .overview__dl {
+    margin-top: 32px;
+    border-top: 1px solid var(--c-line);
+  }
+
+  .overview__row {
+    display: grid;
+    grid-template-columns: 8em 1fr;
+    gap: 6px 24px;
+    padding: 18px 4px;
+    border-bottom: 1px solid var(--c-line);
+    font-size: 13px;
+  }
+
+  .overview__row dt {
+    font-weight: 700;
+    color: var(--c-purple);
+    text-align: right;
+    padding-top: 2px;
+  }
+
+  .overview__row dd strong {
+    font-weight: 700;
+  }
+
+  .overview__access {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--c-text-muted);
+  }
+
+  .overview__map {
+    margin-top: 32px;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #eee;
+  }
+
+  .overview__map iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .overview__maplink {
+    margin-top: 10px;
+    text-align: right;
+    font-size: 12px;
+  }
+
+  .overview__maplink a {
+    color: var(--c-purple);
+  }
+
+  @media (max-width: 600px) {
+    .overview__row {
+      grid-template-columns: 1fr;
+    }
+    .overview__row dt {
+      text-align: left;
+    }
+  }
+</style>

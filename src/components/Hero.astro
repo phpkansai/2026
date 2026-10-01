@@ -1,0 +1,235 @@
+---
+import { site } from '../lib/data';
+import { slot } from '../lib/slots';
+import Cloud from './Cloud.astro';
+
+const logo = slot('hero-logo');
+const mascot = logo ? null : slot('hero-mascot');
+const title = logo ? null : slot('hero-title');
+---
+
+<section class="hero" id="top">
+  <Cloud class="hero__cloud hero__cloud--1" color="#e7d3f3" />
+  <Cloud class="hero__cloud hero__cloud--2" color="#e7d3f3" />
+
+  <div class="hero__inner">
+    {logo && (
+      <h1 class="hero__logo">
+        <img src={logo} alt={site.event.name_en} width="632" height="270" />
+      </h1>
+    )}
+    <div class="hero__mascot" hidden={!!logo}>
+      {
+        mascot ? (
+          <img src={mascot} alt="" width="200" height="140" />
+        ) : (
+          <div class="hero__mascot-ph" aria-hidden="true">
+            <svg viewBox="0 0 200 140" fill="var(--c-purple)">
+              <ellipse cx="110" cy="80" rx="70" ry="48" />
+              <circle cx="60" cy="60" r="34" />
+              <path d="M38 80c-14 8-22 30-14 46 8-10 20-14 30-12" />
+              <circle cx="70" cy="52" r="4" fill="#fff" />
+              <path d="M50 24c10-14 30-14 40 0-10-6-30-6-40 0z" fill="#fff" opacity=".9" />
+            </svg>
+          </div>
+        )
+      }
+    </div>
+
+    <h1 class="hero__title" hidden={!!logo}>
+      {
+        title ? (
+          <img src={title} alt={site.event.name_en} width="560" height="140" />
+        ) : (
+          <span class="hero__title-text">
+            <span class="hero__title-php">PHP</span>
+            <span class="hero__title-rest">
+              <span class="hero__title-conf">Conference</span>
+              <span class="hero__title-kansai">
+                KANSAI <em>2026</em>
+              </span>
+            </span>
+          </span>
+        )
+      }
+    </h1>
+
+    <p class="hero__date">
+      <span class="hero__date-text">
+        <small>2027年</small>1<small>月</small>16<small>日</small>
+        <span class="hero__dow">土</span>
+      </span>
+      <span class="hero__venue">{site.venue.name.replace(/\s*\d+号館$/, '')}</span>
+    </p>
+
+    <a class="btn btn--lg" href={site.links.register} target="_blank" rel="noopener noreferrer">
+      参加申し込み
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(32px, 6vw, 72px) 16px clamp(56px, 8vw, 96px);
+    background: linear-gradient(180deg, #f3e4fd 0%, var(--c-bg-lavender) 35%, var(--c-bg-pink) 100%);
+    text-align: center;
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* Cloud は子コンポーネントなので :global で指定する */
+  .hero :global(.hero__cloud) {
+    width: clamp(150px, 17vw, 260px);
+  }
+  .hero :global(.hero__cloud--1) {
+    left: 8%;
+    top: 16%;
+  }
+  .hero :global(.hero__cloud--2) {
+    right: 6%;
+    top: 60%;
+  }
+
+  .hero__logo {
+    line-height: 0;
+  }
+
+  .hero__logo img {
+    width: clamp(280px, 56vw, 600px);
+    height: auto;
+    margin-inline: auto;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  .hero__mascot img,
+  .hero__mascot-ph {
+    width: clamp(140px, 22vw, 200px);
+    height: auto;
+    margin-inline: auto;
+  }
+
+  .hero__title {
+    line-height: 1;
+  }
+
+  .hero__title img {
+    width: clamp(280px, 60vw, 560px);
+    height: auto;
+  }
+
+  .hero__title-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-head);
+    font-weight: 800;
+    color: var(--c-text);
+    letter-spacing: -0.02em;
+  }
+
+  .hero__title-php {
+    font-size: clamp(64px, 13vw, 120px);
+  }
+
+  .hero__title-rest {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    text-align: left;
+  }
+
+  .hero__title-conf {
+    font-size: clamp(22px, 4.6vw, 44px);
+    letter-spacing: 0;
+  }
+
+  .hero__title-kansai {
+    font-size: clamp(22px, 4.6vw, 44px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero__title-kansai em {
+    font-style: normal;
+    font-size: 0.75em;
+    color: var(--c-white);
+    background: var(--c-pink);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  .hero__date {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 16px;
+    padding: 10px 28px;
+    border-radius: var(--radius-sm);
+    background: var(--c-white);
+    box-shadow: var(--shadow);
+    font-family: var(--font-head);
+    font-weight: 800;
+    color: var(--c-text);
+    line-height: 1.2;
+  }
+
+  .hero__date-text {
+    font-size: clamp(26px, 4vw, 34px);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+
+  .hero__date-text small {
+    font-size: 0.5em;
+    margin-inline: 2px;
+  }
+
+  .hero__dow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    height: 1.2em;
+    font-size: 0.5em;
+    margin-left: 4px;
+    color: var(--c-white);
+    background: var(--c-purple);
+    border-radius: 4px;
+    align-self: center;
+  }
+
+  .hero__venue {
+    font-size: clamp(18px, 3vw, 24px);
+  }
+
+  @media (max-width: 600px) {
+    .hero :global(.hero__cloud) {
+      width: 40vw;
+    }
+    .hero :global(.hero__cloud--1) {
+      left: -6%;
+      top: 3%;
+    }
+    .hero :global(.hero__cloud--2) {
+      right: -6%;
+      top: auto;
+      bottom: 4%;
+    }
+  }
+</style>

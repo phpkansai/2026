@@ -1,0 +1,59 @@
+---
+import { site } from '../lib/data';
+import Cloud from './Cloud.astro';
+const { message } = site;
+---
+
+<section class="section section--purple message" id="message">
+  <Cloud class="message__cloud" color="#a08ad9" dim style="left:2%;bottom:8%;width:clamp(150px,17vw,260px)" />
+  <Cloud class="message__cloud" color="#a08ad9" dim style="right:-6%;top:10%;width:clamp(150px,17vw,260px)" />
+  <div class="container--narrow message__inner">
+    <h2 class="message__title">{message.title}</h2>
+    <p class="message__lead">
+      {message.lead.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
+    </p>
+    <p class="message__body">{message.body.trim()}</p>
+    <p class="message__sign">
+      {message.signature.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
+    </p>
+  </div>
+</section>
+
+<style>
+  .message {
+    padding-top: 0;
+  }
+
+  .message__inner {
+    text-align: center;
+  }
+
+  .message__title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: clamp(26px, 4.6vw, 38px);
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+
+  .message__lead {
+    margin-top: 28px;
+    font-weight: 700;
+    font-size: clamp(15px, 2.2vw, 18px);
+    line-height: 1.9;
+  }
+
+  .message__body {
+    margin-top: 28px;
+    font-size: 13px;
+    line-height: 2;
+    text-align: left;
+  }
+
+  .message__sign {
+    margin-top: 28px;
+    font-size: 13px;
+    text-align: right;
+    line-height: 1.8;
+  }
+</style>
