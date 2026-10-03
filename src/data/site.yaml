@@ -4,7 +4,7 @@
 # =============================================================
 
 # 公開URL（決まったら設定。OGPやcanonicalに使われます。末尾スラッシュなし）
-url: ""
+url: "https://2026.kphpug.jp"
 
 event:
   name: "PHPカンファレンス関西2026"
@@ -28,13 +28,29 @@ fortee:
   slug: "phpcon-kansai2026"
   base_url: "https://fortee.jp"
 
+# ヒーローのボタンとナビ末尾のリンク（同じ文言・同じ飛び先）
+# 現在はページ内のリンク集「絶賛募集中！」へスクロールする。
+# 参加申し込みが始まったら label を「参加申し込み」、href を links.register のURLに変える想定。
+cta:
+  label: "プロポーザル・スポンサー募集中！"
+  href: "#recruit"
+
 # ボタンや外部リンク（ダミー → 決まり次第差し替え）
 links:
-  register: "https://fortee.jp/phpcon-kansai2026"          # 参加申し込み
+  register: "https://fortee.jp/phpcon-kansai2026"          # 参加申し込み（未使用。cta.href に入れると使われる）
   proposal: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"  # forteeで応募する
   timetable_external: "https://fortee.jp/phpcon-kansai2026/timetable"   # タイムテーブル（外部）
   x: "https://x.com/phpcon_kansai"
   note: "https://note.com/phpcon_kansai"
+
+# セクションの表示 / 非表示（true で表示）。非表示にするとナビのリンクも消えます。
+sections:
+  news: true
+  proposal: false     # プロポーザル
+  sponsors: false     # スポンサー
+  staff: false        # スタッフ
+  recruit: true       # リンク集「絶賛募集中！」
+  timetable: false    # ナビの「タイムテーブル」リンク（/timetable/ ページ自体は生成されます）
 
 # タイムテーブルのナビ先: auto | internal | external
 #   auto     … forteeのタイムテーブルにデータがあればサイト内 /timetable/ 、無ければ外部リンク
@@ -52,11 +68,49 @@ message:
   lead:
     - "超スピードで変わり続けるエンジニアの世界で"
     - "「次」を始めるための発見と繋がりをみつける場所をめざす"
-  body: |
-    ダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキスト
+  # 実行委員長の挨拶（1要素 = 1段落）
+  body:
+    - "PHPカンファレンス関西は、関西のPHPerが集まり、技術や経験を共有する技術カンファレンスです。2024年の大阪、2025年の神戸に続き、2026年は京都で開催します。関西の三大都市を巡ることで、「関西の」カンファレンスとして、より多くの人を巻き込んでいきたいと考えています。"
+    - "AIの発展で、私たちの仕事のスタイルは大きく変わりました。しかし、AIから引き出せる答えは、問いを立てる側の知識に左右されます。何を聞くべきか、返ってきた答えは妥当かを判断するには、自分の外側にある知識と出会い、守備範囲を広げていくことが欠かせません。セッションや登壇、廊下での立ち話といった双方向のコミュニケーションこそ、カンファレンスの価値だと考えています。"
+    - "今年のテーマは「次は、ここから始まる」。関西で知識と人が交わる場をつくること、変化をチカラに変えること、カンファレンス初心者も含めてまわりを巻き込むこと。この3つを軸に、自分の知識を広げ、次に来る変化を自分のものにできる場を目指します。"
+    - "ぜひ京都で、「次」を始めるきっかけを一緒に見つけましょう。皆さまのご参加をお待ちしています。"
   signature:
     - "PHPカンファレンス関西2026"
     - "実行委員長　加納悠史"
+
+# 開催概要（実行委員長の挨拶の下に表示する参加資格と会場カード）
+overview:
+  eligibility:
+    label: "参加資格"
+    body:
+      - "PHPを使っている人、PHPを使っていた人、PHPに興味がある人など、PHPに関係する人全てに参加資格があります。"
+      - "自身の情報アップデートのためにもぜひお越しください！！"
+  # 会場・アクセスのカード（日時・住所・地図）を開催概要の下に表示するか
+  show_venue_card: true
+
+# スタッフとフッターの間のリンク集
+recruit:
+  title: "絶賛募集中！"
+  items:
+    - icon: proposal          # proposal / sponsor / request
+      title: "プロポーザル"
+      deadline: "締切：2026年10月18日（日）"
+      button: "forteeで応募"
+      url: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"
+    - icon: sponsor
+      title: "スポンサー"
+      deadline: "締切：2026年11月6日（金）"
+      button: "資料を見る"
+      url: "https://docs.google.com/presentation/d/1L8lzrsSyK7unjY8-43bz7bi_nQ_M-DJkz5hGH_EkiD8/edit?slide=id.g33ec3a8be6e_0_102#slide=id.g33ec3a8be6e_0_102"
+    - icon: request
+      title: "リクエストトーク"
+      wide: true               # 1列で中央に大きく表示
+      description: |
+        リクエストトークとは、自分がカンファレンスで聞いてみたいトークをリクエストできるしくみです。
+        いままで登壇したことがない人も、あまりカンファレンスに参加したことがなかった人も、
+        リクエストトークを使ってカンファレンスづくりに参加してみよう！
+      button: "リクエストする"
+      url: "https://requestalk-2026.kphpug.jp/"
 
 proposal:
   title: "プロポーザル"

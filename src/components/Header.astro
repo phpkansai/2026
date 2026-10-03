@@ -18,10 +18,16 @@ const timetableExternal = timetableHref.startsWith('http');
 const navItems = [
   { label: '開催概要', href: anchor('overview') },
   { label: '行動規範', href: '/coc/' },
-  { label: 'タイムテーブル', href: timetableHref, external: timetableExternal },
-  { label: 'スポンサー', href: anchor('sponsors') },
-  { label: 'スタッフ', href: anchor('staff') },
-];
+  { label: 'タイムテーブル', href: timetableHref, external: timetableExternal, show: site.sections.timetable },
+  { label: 'スポンサー', href: anchor('sponsors'), show: site.sections.sponsors },
+  { label: 'スタッフ', href: anchor('staff'), show: site.sections.staff },
+  {
+    label: site.cta.label,
+    href: site.cta.href.startsWith('#') ? anchor(site.cta.href.slice(1)) : site.cta.href,
+    external: site.cta.href.startsWith('http'),
+    show: site.cta.href !== '#recruit' || site.sections.recruit,
+  },
+].filter((item) => item.show !== false);
 ---
 
 <header class="header" id="site-header">
@@ -72,10 +78,6 @@ const navItems = [
         </li>
       </ul>
     </nav>
-
-    <a class="btn btn--sm header__cta" href={site.links.register} target="_blank" rel="noopener noreferrer">
-      参加申し込み
-    </a>
 
     <button
       class="header__toggle"
@@ -205,10 +207,6 @@ const navItems = [
     color: var(--c-purple);
   }
 
-  .header__cta {
-    white-space: nowrap;
-  }
-
   .header__toggle {
     display: none;
     width: 40px;
@@ -239,11 +237,6 @@ const navItems = [
       height: 26px;
     }
 
-    .header__cta {
-      padding-inline: 14px;
-      font-size: 12px;
-    }
-
     .header__toggle {
       display: flex;
     }
@@ -271,6 +264,7 @@ const navItems = [
 
     .header__list {
       flex-direction: column;
+      align-items: stretch;
       gap: 0;
     }
 
@@ -302,13 +296,6 @@ const navItems = [
     }
     .header.is-open .header__toggle span:nth-child(3) {
       transform: translateY(-7px) rotate(-45deg);
-    }
-  }
-
-  @media (max-width: 400px) {
-    .header__cta {
-      padding-inline: 12px;
-      font-size: 12px;
     }
   }
 </style>

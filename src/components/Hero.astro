@@ -2,8 +2,12 @@
 import { site } from '../lib/data';
 import { slot } from '../lib/slots';
 import Cloud from './Cloud.astro';
+import ArrowDownwardIcon from './icons/ArrowDownwardIcon.astro';
+
+const ctaExternal = site.cta.href.startsWith('http');
 
 const logo = slot('hero-logo');
+const dateImg = slot('hero-date');
 const mascot = logo ? null : slot('hero-mascot');
 const title = logo ? null : slot('hero-title');
 ---
@@ -54,7 +58,12 @@ const title = logo ? null : slot('hero-title');
       }
     </h1>
 
-    <p class="hero__date">
+    {dateImg && (
+      <p class="hero__date-img">
+        <img src={dateImg} alt={`${site.event.date_label} ${site.venue.name}`} width="632" height="65" />
+      </p>
+    )}
+    <p class="hero__date" hidden={!!dateImg}>
       <span class="hero__date-text">
         <small>2027年</small>1<small>月</small>16<small>日</small>
         <span class="hero__dow">土</span>
@@ -62,8 +71,18 @@ const title = logo ? null : slot('hero-title');
       <span class="hero__venue">{site.venue.name.replace(/\s*\d+号館$/, '')}</span>
     </p>
 
-    <a class="btn btn--lg" href={site.links.register} target="_blank" rel="noopener noreferrer">
-      参加申し込み
+    <a
+      class="btn btn--lg hero__cta"
+      href={site.cta.href}
+      target={ctaExternal ? '_blank' : undefined}
+      rel={ctaExternal ? 'noopener noreferrer' : undefined}
+    >
+      {site.cta.label}
+      {!ctaExternal && (
+        <span class="hero__cta-arrow">
+          <ArrowDownwardIcon />
+        </span>
+      )}
     </a>
   </div>
 </section>
@@ -170,6 +189,39 @@ const title = logo ? null : slot('hero-title');
     background: var(--c-pink);
     border-radius: 6px;
     padding: 2px 8px;
+  }
+
+  .hero__cta {
+    white-space: nowrap;
+  }
+
+  .hero__cta-arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 600px) {
+    .hero__cta {
+      font-size: 15px;
+      padding-inline: 24px;
+      min-height: 52px;
+    }
+    .hero__cta-arrow {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .hero__date-img {
+    line-height: 0;
+    filter: drop-shadow(0 8px 24px rgba(75, 54, 137, 0.12));
+  }
+
+  .hero__date-img img {
+    width: clamp(280px, 46vw, 500px);
+    height: auto;
+    margin-inline: auto;
   }
 
   .hero__date {

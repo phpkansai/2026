@@ -1,0 +1,129 @@
+---
+/**
+ * スタッフとフッターの間のリンク集（募集中のもの）。内容は site.yaml の recruit。
+ */
+import { site } from '../lib/data';
+import RecruitIcon from './icons/RecruitIcon.astro';
+import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
+const { recruit } = site;
+---
+
+<section class="section recruit" id="recruit">
+  <div class="container recruit__inner">
+    <h2 class="section-title section-title--purple">{recruit.title}</h2>
+    <ul class="recruit__grid">
+      {
+        recruit.items.map((item) => (
+          <li class:list={['recruit__item', { 'recruit__item--wide': item.wide }]}>
+            <span class="recruit__icon">
+              <RecruitIcon name={item.icon} />
+            </span>
+            <h3 class="recruit__title">{item.title}</h3>
+            {item.deadline && <p class="recruit__deadline">{item.deadline}</p>}
+            {item.description && <p class="recruit__desc" set:html={item.description.trim().replace(/\n/g, '<br />')} />}
+            <a class="btn recruit__btn" href={item.url} target="_blank" rel="noopener noreferrer">
+              {item.button}
+              <span class="recruit__arrow"><ArrowOutwardIcon /></span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .recruit {
+    background: var(--c-bg-pink);
+  }
+
+  .recruit__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+  }
+
+  .recruit__grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    max-width: 960px;
+  }
+
+  .recruit__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    padding: 40px 28px 44px;
+    background: var(--c-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .recruit__item--wide {
+    grid-column: 1 / -1;
+  }
+
+  .recruit__icon {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    color: var(--c-purple);
+    margin-bottom: 4px;
+  }
+
+  .recruit__title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: var(--c-text);
+  }
+
+  .recruit__deadline {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .recruit__desc {
+    font-size: 14px;
+    line-height: 1.9;
+    max-width: 760px;
+  }
+
+  .recruit__btn {
+    margin-top: 10px;
+    min-width: 300px;
+    min-height: 56px;
+    font-size: 18px;
+  }
+
+  .recruit__arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 700px) {
+    .recruit__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .recruit__item {
+      padding: 32px 20px 36px;
+    }
+    .recruit__btn {
+      min-width: 240px;
+      min-height: 50px;
+      font-size: 16px;
+    }
+    .recruit__desc :global(br) {
+      display: none;
+    }
+  }
+</style>

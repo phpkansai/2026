@@ -13,6 +13,7 @@ export type SlotName =
   | 'hero-logo'     // ヒーローのロゴ一式（マスコット＋タイトル文字が1枚になったもの）。あれば hero-mascot / hero-title は使われない
   | 'hero-mascot'   // ヒーロー上部のマスコット（hero-logo が無い場合）
   | 'hero-title'    // ヒーローのタイトルロゴ（hero-logo が無い場合）
+  | 'hero-date'     // ヒーローの日付・会場画像（白い角丸背景込み）。無ければテキストで表示
   | 'cloud'         // 雲の装飾（1枚。各所で使い回し）
   | 'skyline'       // フッター上の京都の街並みシルエット（横長）
   | 'footer-mascot' // フッターのマスコット

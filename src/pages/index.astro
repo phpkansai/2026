@@ -7,14 +7,20 @@ import Overview from '../components/Overview.astro';
 import Proposal from '../components/Proposal.astro';
 import Sponsors from '../components/Sponsors.astro';
 import Staff from '../components/Staff.astro';
+import Recruit from '../components/Recruit.astro';
+import { site } from '../lib/data';
+
+// 各セクションの表示 / 非表示は src/data/site.yaml の sections で切り替える
+const show = site.sections;
 ---
 
 <Base>
   <Hero />
-  <News />
+  {show.news && <News />}
   <Message />
   <Overview />
-  <Proposal />
-  <Sponsors />
-  <Staff />
+  {show.proposal && <Proposal />}
+  {show.sponsors && <Sponsors />}
+  {show.staff && <Staff />}
+  {show.recruit && <Recruit />}
 </Base>

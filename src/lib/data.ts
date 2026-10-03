@@ -33,6 +33,7 @@ export interface SiteConfig {
     map_link_url: string;
   };
   fortee: { slug: string; base_url: string };
+  cta: { label: string; href: string };
   links: {
     register: string;
     proposal: string;
@@ -40,9 +41,33 @@ export interface SiteConfig {
     x: string;
     note: string;
   };
+  sections: {
+    news: boolean;
+    proposal: boolean;
+    sponsors: boolean;
+    staff: boolean;
+    recruit: boolean;
+    timetable: boolean;
+  };
   timetable: { mode: 'auto' | 'internal' | 'external' };
   news: { limit: number };
-  message: { title: string; lead: string[]; body: string; signature: string[] };
+  message: { title: string; lead: string[]; body: string[]; signature: string[] };
+  overview: {
+    eligibility: { label: string; body: string[] };
+    show_venue_card: boolean;
+  };
+  recruit: {
+    title: string;
+    items: {
+      icon: 'proposal' | 'sponsor' | 'request' | string;
+      title: string;
+      deadline?: string;
+      description?: string;
+      button: string;
+      url: string;
+      wide?: boolean;
+    }[];
+  };
   proposal: { title: string; body: string; button_label: string };
   sponsor_tiers: SponsorTier[];
   footer: {

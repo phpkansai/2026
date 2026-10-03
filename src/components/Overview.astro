@@ -1,39 +1,60 @@
 ---
 import { site } from '../lib/data';
-const { venue, event } = site;
+const { venue, event, overview } = site;
+// 開催概要の本文は実行委員長の挨拶（Message）に統合済み。ここは参加資格と会場カードのみ。
 ---
 
-<section class="section section--purple overview" id="overview">
+<section class="section section--purple overview" id="venue">
   <div class="container--narrow">
-    <div class="card">
-      <h2 class="section-title section-title--purple">開催概要</h2>
-      <dl class="overview__dl">
-        <div class="overview__row">
-          <dt>開催日時</dt>
-          <dd><strong>{event.date_label}</strong></dd>
-        </div>
-        <div class="overview__row">
-          <dt>開催場所</dt>
-          <dd>
-            <strong>{venue.name}</strong><br />
-            <strong>{venue.postal}　{venue.address}</strong>
-            <p class="overview__access">{venue.access.trim()}</p>
-          </dd>
-        </div>
-      </dl>
-      <div class="overview__map">
-        <iframe
-          src={venue.map_embed_url}
-          title={`${venue.name}の地図`}
-          loading="lazy"
-          allowfullscreen
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+    <hr class="overview__hr" />
+
+    <div class="overview__elig">
+      <p class="overview__elig-label">{overview.eligibility.label}</p>
+      <div class="overview__elig-body">
+        {overview.eligibility.body.map((p) => <p>{p}</p>)}
       </div>
-      <p class="overview__maplink">
-        <a href={venue.map_link_url} target="_blank" rel="noopener noreferrer">Googleマップで開く</a>
-      </p>
     </div>
+
+    {
+      overview.show_venue_card && (
+        <div class="card overview__venue">
+          <h3 class="overview__venue-title">会場・アクセス</h3>
+          <dl class="overview__dl">
+            <div class="overview__row">
+              <dt>開催日時</dt>
+              <dd>
+                <strong>{event.date_label}</strong>
+              </dd>
+            </div>
+            <div class="overview__row">
+              <dt>開催場所</dt>
+              <dd>
+                <strong>{venue.name}</strong>
+                <br />
+                <strong>
+                  {venue.postal}　{venue.address}
+                </strong>
+                <p class="overview__access">{venue.access.trim()}</p>
+              </dd>
+            </div>
+          </dl>
+          <div class="overview__map">
+            <iframe
+              src={venue.map_embed_url}
+              title={`${venue.name}の地図`}
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+            />
+          </div>
+          <p class="overview__maplink">
+            <a href={venue.map_link_url} target="_blank" rel="noopener noreferrer">
+              Googleマップで開く
+            </a>
+          </p>
+        </div>
+      )
+    }
   </div>
 </section>
 
@@ -42,8 +63,56 @@ const { venue, event } = site;
     padding-top: 0;
   }
 
+  .overview__hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    margin: 0 0 36px;
+  }
+
+  .overview__elig {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .overview__elig-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    border-radius: 6px;
+    background: var(--c-bg-pink);
+    color: var(--c-purple);
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.06em;
+  }
+
+  .overview__elig-body {
+    font-size: 15px;
+    line-height: 1.9;
+    display: grid;
+    gap: 8px;
+  }
+
+  /* ---- 会場・アクセスのカード ---- */
+  .overview__venue {
+    margin-top: 56px;
+  }
+
+  .overview__venue-title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    color: var(--c-purple);
+  }
+
   .overview__dl {
-    margin-top: 32px;
+    margin-top: 28px;
     border-top: 1px solid var(--c-line);
   }
 
@@ -61,10 +130,6 @@ const { venue, event } = site;
     color: var(--c-purple);
     text-align: right;
     padding-top: 2px;
-  }
-
-  .overview__row dd strong {
-    font-weight: 700;
   }
 
   .overview__access {
@@ -98,6 +163,16 @@ const { venue, event } = site;
   }
 
   @media (max-width: 600px) {
+    .overview__elig-body {
+      font-size: 14px;
+    }
+    .overview__elig {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .overview__elig-label {
+      min-height: 52px;
+    }
     .overview__row {
       grid-template-columns: 1fr;
     }

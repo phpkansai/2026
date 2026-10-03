@@ -4,7 +4,7 @@ import Cloud from './Cloud.astro';
 const { message } = site;
 ---
 
-<section class="section section--purple message" id="message">
+<section class="section section--purple message" id="overview">
   <Cloud class="message__cloud" color="#a08ad9" dim style="left:2%;bottom:8%;width:clamp(150px,17vw,260px)" />
   <Cloud class="message__cloud" color="#a08ad9" dim style="right:-6%;top:10%;width:clamp(150px,17vw,260px)" />
   <div class="container--narrow message__inner">
@@ -12,7 +12,9 @@ const { message } = site;
     <p class="message__lead">
       {message.lead.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
     </p>
-    <p class="message__body">{message.body.trim()}</p>
+    <div class="message__body">
+      {message.body.map((p) => <p>{p}</p>)}
+    </div>
     <p class="message__sign">
       {message.signature.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
     </p>
@@ -44,10 +46,12 @@ const { message } = site;
   }
 
   .message__body {
-    margin-top: 28px;
-    font-size: 13px;
-    line-height: 2;
+    margin-top: 32px;
+    font-size: 15px;
+    line-height: 1.9;
     text-align: left;
+    display: grid;
+    gap: 12px;
   }
 
   .message__sign {
