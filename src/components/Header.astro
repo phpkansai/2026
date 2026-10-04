@@ -98,10 +98,20 @@ const navItems = [
     top: 0;
     z-index: 100;
     height: var(--header-h);
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 1px 0 rgba(75, 54, 137, 0.08);
+    /* FV（ヒーロー）の上では背景と同化して透けて見え、紫の上では文字が読める */
+    background: var(--c-bg-pink);
+    transition: transform 0.25s ease;
+  }
+
+  /* 下スクロールで隠れ、上スクロールで現れる */
+  .header.is-hidden:not(.is-open) {
+    transform: translateY(-100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header {
+      transition: none;
+    }
   }
 
   .header__inner {
@@ -172,7 +182,7 @@ const navItems = [
     display: inline-flex;
     align-items: center;
     line-height: 1;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     text-decoration: none;
     color: var(--c-text);
@@ -197,8 +207,11 @@ const navItems = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 34px;
+    height: 34px;
+    padding: 8px;
+    border-radius: 50%;
+    background: var(--c-white);
     color: var(--c-text);
     transition: color 0.15s;
   }
@@ -248,7 +261,7 @@ const navItems = [
       align-items: stretch;
       gap: 0;
       padding: 8px 16px 24px;
-      background: rgba(255, 255, 255, 0.98);
+      background: var(--c-bg-pink);
       box-shadow: 0 16px 32px rgba(75, 54, 137, 0.15);
       transform: translateY(-8px);
       opacity: 0;
@@ -284,8 +297,9 @@ const navItems = [
     }
 
     .header__social a {
-      width: 24px;
-      height: 24px;
+      width: 40px;
+      height: 40px;
+      padding: 10px;
     }
 
     .header.is-open .header__toggle span:nth-child(1) {
@@ -316,5 +330,34 @@ const navItems = [
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') setOpen(false);
     });
+
+    // 下スクロールで隠し、上スクロールで表示する
+    const THRESHOLD = 8; // この量以上動いたときだけ判定（細かい揺れを無視）
+    let lastY = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const diff = y - lastY;
+      if (Math.abs(diff) >= THRESHOLD) {
+        const headerH = header.offsetHeight;
+        if (diff > 0 && y > headerH) {
+          header.classList.add('is-hidden');
+        } else if (diff < 0 || y <= headerH) {
+          header.classList.remove('is-hidden');
+        }
+        lastY = y;
+      }
+      ticking = false;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(onScroll);
+        }
+      },
+      { passive: true },
+    );
   }
 </script>

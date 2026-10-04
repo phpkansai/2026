@@ -1,7 +1,6 @@
 ---
 import { site, localNews } from '../lib/data';
 import { fetchNews } from '../lib/fortee';
-import Cloud from './Cloud.astro';
 
 interface Item {
   date: Date;
@@ -36,10 +35,9 @@ const fmt = (d: Date) => {
 ---
 
 <section class="section section--purple news" id="news">
-  <Cloud class="news__cloud" color="#a08ad9" dim style="right:4%;top:6%;width:clamp(150px,17vw,260px)" />
   <div class="container--narrow">
     <div class="card news__card">
-      <h2 class="section-title section-title--purple">NEWS</h2>
+      <h2 class="section-title section-title--purple">お知らせ</h2>
       {
         items.length > 0 ? (
           <ul class="news__list">
@@ -84,7 +82,7 @@ const fmt = (d: Date) => {
     gap: 8px 24px;
     padding: 16px 4px;
     border-bottom: 1px solid var(--c-line);
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .news__date {

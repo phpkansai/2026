@@ -41,7 +41,7 @@ npm run preview  # dist/ の内容を確認
 | プロポーザル | `Proposal.astro` | `sections.proposal` | `proposal.*`、`links.proposal` |
 | スポンサー | `Sponsors.astro` | `sections.sponsors` | `sponsors.yaml` ＋ `src/assets/sponsors/` のロゴ |
 | スタッフ | `Staff.astro` | `sections.staff` | fortee のスタッフAPI ＋ `staff.yaml` |
-| リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`（プロポーザル / スポンサー / リクエストトーク） |
+| リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`（プロポーザル / スポンサー / リクエストーク） |
 | フッター | `Footer.astro` | 常時 | 丘の背景、マスコット、SNS、過去開催リンク、`footer.*` |
 
 ## ディレクトリ構成

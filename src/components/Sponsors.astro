@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import { site, sponsors } from '../lib/data';
 import { sponsorLogos } from '../lib/assets';
-import Cloud from './Cloud.astro';
 
 const tiers = site.sponsor_tiers
   .map((tier) => ({
@@ -20,8 +19,6 @@ if (unknown.length > 0) {
 ---
 
 <section class="section section--purple sponsors" id="sponsors">
-  <Cloud class="sponsors__cloud" color="#a08ad9" dim style="right:6%;top:26%;width:clamp(150px,17vw,260px)" />
-  <Cloud class="sponsors__cloud" color="#a08ad9" dim style="left:2%;bottom:20%;width:clamp(150px,17vw,260px)" />
   <div class="container sponsors__inner">
     <h2 class="section-title section-title--white">スポンサー</h2>
 

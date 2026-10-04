@@ -1,12 +1,9 @@
 ---
 import { site } from '../lib/data';
-import Cloud from './Cloud.astro';
 const { message } = site;
 ---
 
 <section class="section section--purple message" id="overview">
-  <Cloud class="message__cloud" color="#a08ad9" dim style="left:2%;bottom:8%;width:clamp(150px,17vw,260px)" />
-  <Cloud class="message__cloud" color="#a08ad9" dim style="right:-6%;top:10%;width:clamp(150px,17vw,260px)" />
   <div class="container--narrow message__inner">
     <h2 class="message__title">{message.title}</h2>
     <p class="message__lead">
@@ -24,6 +21,8 @@ const { message } = site;
 <style>
   .message {
     padding-top: 0;
+    /* 下の区切り線（参加資格）までの余白は、線から参加資格までの余白と同じ 36px */
+    padding-bottom: 36px;
   }
 
   .message__inner {
@@ -47,7 +46,7 @@ const { message } = site;
 
   .message__body {
     margin-top: 32px;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.9;
     text-align: left;
     display: grid;

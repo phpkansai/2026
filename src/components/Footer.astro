@@ -139,9 +139,14 @@ const mascot = slot('footer-mascot') ?? slot('hero-mascot');
 
   .footer__social a {
     display: inline-flex;
-    width: 24px;
-    height: 24px;
-    color: var(--c-white);
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    border-radius: 50%;
+    background: var(--c-white);
+    color: var(--c-text);
     transition: transform 0.2s;
   }
 
