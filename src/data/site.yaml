@@ -18,7 +18,7 @@ venue:
   postal: "〒600-8815"
   address: "京都府京都市下京区中堂寺粟田町93"
   access: |
-    駅からのアクセス駅からのアクセス駅からのアクセス駅からのアクセス駅からのアクセス駅からのアクセス
+    JR嵯峨野線（山陰線）2駅（約5分）　丹波口駅下車 西へ徒歩5分
   # Googleマップの埋め込みURL（APIキー不要）
   map_embed_url: "https://www.google.com/maps?q=%E4%BA%AC%E9%83%BD%E3%83%AA%E3%82%B5%E3%83%BC%E3%83%81%E3%83%91%E3%83%BC%E3%82%AF4%E5%8F%B7%E9%A4%A8&hl=ja&z=16&output=embed"
   map_link_url: "https://maps.google.com/?q=京都リサーチパーク4号館"
