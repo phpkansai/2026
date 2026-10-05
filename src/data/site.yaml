@@ -137,8 +137,8 @@ footer:
   organizer: "PHPカンファレンス関西2026実行委員会"
   copyright: "Copyright © Kansai PHP Users Group"
   past_events:
-    - { label: "2015", url: "https://2015.kphpug.jp/" }
-    - { label: "2016", url: "https://2016.kphpug.jp/" }
+    - { label: "2015", url: "https://conference.kphpug.jp/2015/" }
+    - { label: "2016", url: "https://conference.kphpug.jp/2016/" }
     - { label: "2017", url: "https://2017.kphpug.jp/" }
     - { label: "2018", url: "https://2018.kphpug.jp/" }
     - { label: "2024", url: "https://2024.kphpug.jp/" }
