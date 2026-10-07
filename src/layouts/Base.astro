@@ -20,6 +20,12 @@ const canonical = base ? `${base}${Astro.url.pathname}` : undefined;
 const ogp = slot('ogp');
 const ogImage = ogp && base ? `${base}${ogp}` : undefined;
 const favicon = slot('favicon') ?? '/favicon-32.png';
+// アクセス解析: IDが設定されていて、かつ本番ビルドのときだけタグを出す（開発中の閲覧を計測しない）
+// GTM（GTM-XXXXXXX）を優先。GA4 の測定ID（G-XXXXXXXXXX）は GTM を使わない場合の直接埋め込み用。
+const gtmId = site.analytics?.gtm_container_id?.trim() || '';
+const gaId = site.analytics?.ga_measurement_id?.trim() || '';
+const gtmEnabled = Boolean(gtmId) && import.meta.env.PROD;
+const gaEnabled = Boolean(gaId) && import.meta.env.PROD;
 ---
 
 <!doctype html>
@@ -43,6 +49,37 @@ const favicon = slot('favicon') ?? '/favicon-32.png';
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {
+      gtmEnabled && (
+        <script is:inline define:vars={{ gtmId }}>
+          (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+            var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+          })(window, document, 'script', 'dataLayer', gtmId);
+        </script>
+      )
+    }
+    {
+      gaEnabled && (
+        <>
+          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+          <script is:inline define:vars={{ gaId }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', gaId);
+          </script>
+        </>
+      )
+    }
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -51,6 +88,18 @@ const favicon = slot('favicon') ?? '/favicon-32.png';
     />
   </head>
   <body>
+    {
+      gtmEnabled && (
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style="display:none;visibility:hidden"
+          />
+        </noscript>
+      )
+    }
     <Header subpage={subpage} />
     <main>
       <slot />

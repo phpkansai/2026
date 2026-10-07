@@ -43,6 +43,22 @@ links:
   x: "https://x.com/phpcon_kansai"
   note: "https://note.com/phpcon_kansai"
 
+# アクセス解析
+# gtm_container_id … Google タグマネージャーのコンテナID（GTM-XXXXXXX）。入れると全ページに GTM が入ります。
+#                     GA4 の測定ID（G-XXXXXXXXXX）は GTM の管理画面で「Google タグ」として設定します。
+# ga_measurement_id … GTM を使わず GA4 を直接入れたいときだけ使う（G-XXXXXXXXXX）。GTM と併用すると二重計測になるので空にしておく。
+# どちらも空なら何も出力しません。本番ビルド（npm run build）のときだけ有効で、開発サーバーでは送信しません。
+# 来年以降も同じコンテナ・同じプロパティを使い回す想定です（年はホスト名で区別できます）。
+analytics:
+  gtm_container_id: ""
+  ga_measurement_id: "G-ZHZR7DH1FC"
+
+# 短縮URL（印刷物のQRコード用）
+# /go/<キー>/ にアクセスすると to の URL へ転送します。印刷後でも飛び先や UTM を変えられます。
+# UTM の付け方は docs/utm.md を参照。
+redirects:
+  flyer: "/?utm_source=flyer&utm_medium=qr&utm_campaign=cfp"
+
 # セクションの表示 / 非表示（true で表示）。非表示にするとナビのリンクも消えます。
 sections:
   news: true

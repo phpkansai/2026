@@ -152,12 +152,21 @@ fortee の NEWS に投稿すれば再ビルドで反映されます。fortee を
 | `proposal.*` | プロポーザルセクションの本文・ボタン |
 | `recruit.*` | リンク集 |
 | `footer.*` | 運営団体名・コピーライト・過去開催リンク |
+| `analytics.gtm_container_id` | Google タグマネージャーのコンテナID（`GTM-XXXXXXX`）。空なら計測しない。本番ビルドのときだけタグが入る |
+| `analytics.ga_measurement_id` | GTM を使わず GA4 を直接入れる場合の測定ID（`G-XXXXXXXXXX`）。GTM と併用しない |
+| `redirects.<キー>` | 短縮URL `/go/<キー>/` の転送先（印刷物のQRコード用）。UTM の付け方は [docs/utm.md](docs/utm.md) |
 
 ### デザイン画像を差し込む
 
 `public/images/` に決まったファイル名で置くだけです。一覧は [public/images/README.md](public/images/README.md) を参照してください。
 現在入っているもの: ヒーローロゴ、日付、ヘッダーロゴ、雲、フッターマスコット、OGP、favicon。
 **街並みシルエット（`skyline.*`）は未着**で、今は単純な丘の形を表示しています。
+
+### アクセス解析（GA4）と UTM
+
+`site.yaml` の `analytics.gtm_container_id` に GTM のコンテナIDを入れると全ページにタグが入ります。GA4 の測定IDは GTM 側で「Google タグ」として設定してください。
+SNS・note・fortee・チラシなど導線ごとに付けるパラメーターのルールと発行済みURLの一覧は [docs/utm.md](docs/utm.md) にまとめています。
+来年以降も同じ GA4 プロパティと同じルールをそのまま使う前提です。
 
 ## fortee 連携について
 

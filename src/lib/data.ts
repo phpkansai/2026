@@ -41,6 +41,8 @@ export interface SiteConfig {
     x: string;
     note: string;
   };
+  analytics: { gtm_container_id?: string; ga_measurement_id?: string };
+  redirects: Record<string, string>;
   sections: {
     news: boolean;
     proposal: boolean;
