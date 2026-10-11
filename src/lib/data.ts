@@ -71,6 +71,13 @@ export interface SiteConfig {
     }[];
   };
   proposal: { title: string; body: string; button_label: string };
+  proposal_countdown: {
+    deadline: string;
+    deadline_label: string;
+    about: string[];
+    theme: string;
+    requestalk: { body: string; link_label: string; url: string };
+  };
   sponsor_tiers: SponsorTier[];
   footer: {
     organizer: string;

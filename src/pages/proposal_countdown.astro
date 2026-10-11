@@ -1,0 +1,532 @@
+---
+/**
+ * プロポーザル募集締切カウントダウン (/proposal_countdown/)
+ * 締切・本文は site.yaml の proposal_countdown。
+ * 応募数・新着はビルド時の値で初期表示し、ブラウザで fortee API を10秒ごとに取り直す。
+ */
+import Base from '../layouts/Base.astro';
+import Cloud from '../components/Cloud.astro';
+import ArrowOutwardIcon from '../components/icons/ArrowOutwardIcon.astro';
+import { site } from '../lib/data';
+import { fetchProposals, proposalsApiUrl, type ForteeProposal } from '../lib/fortee';
+
+const cd = site.proposal_countdown;
+const LATEST_LIMIT = 3;
+
+const latest = (list: ForteeProposal[]) =>
+  [...list].sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()).slice(0, LATEST_LIMIT);
+
+const proposals = await fetchProposals();
+const initialLatest = latest(proposals);
+// ビルド時点で締切を過ぎていれば、最初から終了状態で出力する
+const closedAtBuild = Date.now() >= new Date(cd.deadline).getTime();
+
+const units = [
+  { key: 'days', label: '日' },
+  { key: 'hours', label: '時間' },
+  { key: 'minutes', label: '分' },
+  { key: 'seconds', label: '秒' },
+];
+
+const pageTitle = 'プロポーザル募集締切カウントダウン';
+const description = `${site.event.name}のプロポーザル募集は${cd.deadline_label}までです！`;
+---
+
+<Base title={pageTitle} subpage description={description}>
+  <div
+    class:list={['pc', { 'is-closed': closedAtBuild }]}
+    data-deadline={cd.deadline}
+    data-api={proposalsApiUrl}
+    data-limit={LATEST_LIMIT}
+  >
+    <section class="section section--pink pc-hero">
+      <Cloud class="pc-hero__cloud pc-hero__cloud--1" color="#e7d3f3" />
+      <Cloud class="pc-hero__cloud pc-hero__cloud--2" color="#e7d3f3" flip />
+
+      <div class="container--narrow pc-hero__inner">
+        <p class="pc-hero__event">{site.event.name}</p>
+        <h1 class="section-title section-title--purple">
+          <span class="pc-nowrap">プロポーザル募集</span><span class="pc-nowrap">締切カウントダウン</span>
+        </h1>
+
+        <div class="pc-closed" role="status">
+          <p class="pc-closed__title">募集は終了しました</p>
+          <p>プロポーザルの募集期間は終了しました。たくさんのご応募ありがとうございました。</p>
+        </div>
+
+        <ol class="pc-timer" aria-label="締切までの残り時間">
+          {
+            units.map((u) => (
+              <li class="pc-timer__cell">
+                <span class="pc-timer__num" data-unit={u.key}>
+                  {u.key === 'days' ? '0' : '00'}
+                </span>
+                <span class="pc-timer__label">{u.label}</span>
+              </li>
+            ))
+          }
+        </ol>
+
+        <p class="pc-hero__deadline">
+          プロポーザル募集は<strong>{cd.deadline_label}</strong>までです！
+        </p>
+
+        <a class="btn btn--lg pc-btn" href={site.links.proposal} target="_blank" rel="noopener noreferrer" data-cfp>
+          <span data-cfp-label>forteeで応募する</span>
+          <span class="pc-btn__arrow"><ArrowOutwardIcon /></span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section section--purple pc-stats">
+      <div class="container--narrow">
+        <div class="card pc-stats__card">
+          <h2 class="section-title section-title--purple">現在のプロポーザル応募数</h2>
+          <p class="pc-count">
+            <span class="pc-count__num" data-count>{proposals.length}</span>
+            <span class="pc-count__unit">件</span>
+          </p>
+
+          <h2 class="section-title section-title--purple pc-latest__title">新着プロポーザル</h2>
+          <ul class="pc-latest" data-latest>
+            {
+              initialLatest.map((p) => (
+                <li class="pc-latest__item">
+                  <a href={p.url} target="_blank" rel="noopener noreferrer">
+                    <span class="pc-latest__name">{p.title}</span>
+                    <span class="pc-latest__speaker">発表者：{p.speaker.name}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="pc-latest__empty" data-latest-empty hidden={initialLatest.length > 0}>
+            プロポーザルはまだありません。
+          </p>
+          <p class="pc-latest__error" data-error hidden>最新の情報を取得できませんでした。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--pink pc-about">
+      <div class="container--narrow">
+        <div class="card">
+          <h2 class="section-title section-title--purple">プロポーザル募集について</h2>
+          <div class="prose pc-about__body">
+            {cd.about.map((p) => <p>{p}</p>)}
+            <h3>開催テーマ</h3>
+            <p>{cd.theme}</p>
+            <h3>トークテーマに迷ったら</h3>
+            <p>{cd.requestalk.body}</p>
+            <p>
+              <a href={cd.requestalk.url} target="_blank" rel="noopener noreferrer">{cd.requestalk.link_label}</a>
+            </p>
+          </div>
+
+          <p class="pc-about__cta">
+            <a class="btn btn--lg pc-btn" href={site.links.proposal} target="_blank" rel="noopener noreferrer" data-cfp>
+              <span data-cfp-label>forteeで応募する</span>
+              <span class="pc-btn__arrow"><ArrowOutwardIcon /></span>
+            </a>
+          </p>
+          <p class="back"><a href="/">トップページへ戻る</a></p>
+        </div>
+      </div>
+    </section>
+
+    <div class="pc-toast" role="status" aria-live="polite" data-toast hidden>
+      新しいプロポーザルが投稿されました！
+    </div>
+  </div>
+</Base>
+
+<script>
+  interface Proposal {
+    uuid: string;
+    url: string;
+    title: string;
+    speaker: { name: string };
+    created: string;
+  }
+
+  const root = document.querySelector<HTMLElement>('.pc');
+  if (root) {
+    const deadline = new Date(root.dataset.deadline ?? '').getTime();
+    const api = root.dataset.api ?? '';
+    const limit = Number(root.dataset.limit ?? 3);
+    const POLL_MS = 10_000;
+    const TOAST_MS = 3_000;
+
+    // ---- カウントダウン ----
+    const nums = Object.fromEntries(
+      [...root.querySelectorAll<HTMLElement>('[data-unit]')].map((el) => [el.dataset.unit, el]),
+    );
+    const cfpButtons = root.querySelectorAll<HTMLAnchorElement>('[data-cfp]');
+
+    const setClosed = () => {
+      root.classList.add('is-closed');
+      cfpButtons.forEach((a) => {
+        a.setAttribute('aria-disabled', 'true');
+        a.tabIndex = -1;
+        a.querySelector('[data-cfp-label]')!.textContent = '募集は終了しました';
+      });
+    };
+    cfpButtons.forEach((a) =>
+      a.addEventListener('click', (e) => {
+        if (root.classList.contains('is-closed')) e.preventDefault();
+      }),
+    );
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+    let timer = 0;
+    const tick = () => {
+      const diff = Math.max(0, deadline - Date.now());
+      const sec = Math.floor(diff / 1000);
+      nums.days.textContent = String(Math.floor(sec / 86400));
+      nums.hours.textContent = pad(Math.floor((sec % 86400) / 3600));
+      nums.minutes.textContent = pad(Math.floor((sec % 3600) / 60));
+      nums.seconds.textContent = pad(sec % 60);
+      if (diff <= 0) {
+        setClosed();
+        window.clearInterval(timer);
+      }
+    };
+    tick();
+    timer = window.setInterval(tick, 1000);
+
+    // ---- 応募数・新着 ----
+    const countEl = root.querySelector<HTMLElement>('[data-count]')!;
+    const listEl = root.querySelector<HTMLElement>('[data-latest]')!;
+    const emptyEl = root.querySelector<HTMLElement>('[data-latest-empty]')!;
+    const errorEl = root.querySelector<HTMLElement>('[data-error]')!;
+    const toastEl = root.querySelector<HTMLElement>('[data-toast]')!;
+
+    const renderLatest = (proposals: Proposal[]) => {
+      const items = [...proposals]
+        .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime())
+        .slice(0, limit)
+        .map((p) => {
+          const li = document.createElement('li');
+          li.className = 'pc-latest__item';
+          const a = document.createElement('a');
+          a.href = p.url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          const title = document.createElement('span');
+          title.className = 'pc-latest__name';
+          title.textContent = p.title;
+          const speaker = document.createElement('span');
+          speaker.className = 'pc-latest__speaker';
+          speaker.textContent = `発表者：${p.speaker?.name ?? ''}`;
+          a.append(title, speaker);
+          li.append(a);
+          return li;
+        });
+      listEl.replaceChildren(...items);
+      emptyEl.hidden = items.length > 0;
+    };
+
+    let toastTimer = 0;
+    const showToast = () => {
+      toastEl.hidden = false;
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => (toastEl.hidden = true), TOAST_MS);
+    };
+
+    // 最初のブラウザ取得を基準にする（ビルド時の件数との差ではトーストを出さない）
+    let previous: number | null = null;
+    const load = async () => {
+      if (document.hidden) return;
+      try {
+        const res = await fetch(api, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as { proposals?: Proposal[] };
+        const proposals = data.proposals ?? [];
+        errorEl.hidden = true;
+        // 件数が変わったときだけ描き直す（ちらつき防止）
+        if (proposals.length !== previous) {
+          if (previous !== null && proposals.length > previous) showToast();
+          countEl.textContent = String(proposals.length);
+          renderLatest(proposals);
+          previous = proposals.length;
+        }
+      } catch (e) {
+        console.warn('[fortee] プロポーザルの取得に失敗しました', e);
+        errorEl.hidden = false;
+      }
+    };
+    load();
+    window.setInterval(load, POLL_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) load();
+    });
+  }
+</script>
+
+<style>
+  /* ---- 上段：カウントダウン ---- */
+  .pc-hero__inner {
+    text-align: center;
+  }
+
+  .pc-hero :global(.pc-hero__cloud) {
+    width: clamp(150px, 17vw, 260px);
+  }
+  .pc-hero :global(.pc-hero__cloud--1) {
+    left: 6%;
+    top: 10%;
+  }
+  .pc-hero :global(.pc-hero__cloud--2) {
+    right: 4%;
+    bottom: 8%;
+  }
+
+  .pc-hero__event {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--c-pink);
+    margin-bottom: 8px;
+  }
+
+  .pc-nowrap {
+    display: inline-block;
+  }
+
+  .pc-timer {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(8px, 2vw, 20px);
+    margin-top: 40px;
+  }
+
+  .pc-timer__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: clamp(14px, 3vw, 28px) 4px;
+    background: var(--c-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .pc-timer__num {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: clamp(34px, 8vw, 64px);
+    line-height: 1.1;
+    color: var(--c-purple);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pc-timer__label {
+    font-weight: 700;
+    font-size: clamp(12px, 2vw, 15px);
+    color: var(--c-text-muted);
+  }
+
+  .pc-hero__deadline {
+    margin-top: 32px;
+    font-weight: 700;
+    font-size: clamp(15px, 2.2vw, 18px);
+  }
+
+  .pc-hero__deadline strong {
+    color: var(--c-pink-dark);
+  }
+
+  .pc-btn {
+    margin-top: 28px;
+    min-width: 300px;
+  }
+
+  .pc-btn__arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  /* 締切後 */
+  .pc-closed {
+    display: none;
+    margin-top: 32px;
+    padding: 20px 24px;
+    background: var(--c-white);
+    border: 2px solid var(--c-pink);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+  }
+
+  .pc-closed__title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--c-pink-dark);
+    margin-bottom: 4px;
+  }
+
+  .is-closed .pc-closed {
+    display: block;
+  }
+
+  .is-closed .pc-btn {
+    background: var(--c-placeholder);
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+  }
+
+  .is-closed .pc-btn__arrow {
+    display: none;
+  }
+
+  /* ---- 中段：応募数・新着 ---- */
+  .pc-stats__card {
+    padding-inline: clamp(20px, 5vw, 48px);
+  }
+
+  .pc-count {
+    margin-top: 12px;
+    text-align: center;
+    font-family: var(--font-head);
+    font-weight: 800;
+    color: var(--c-pink);
+    line-height: 1.2;
+  }
+
+  .pc-count__num {
+    font-size: clamp(56px, 12vw, 88px);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pc-count__unit {
+    margin-left: 4px;
+    font-size: 20px;
+    color: var(--c-text);
+  }
+
+  .pc-latest__title {
+    margin-top: 40px;
+  }
+
+  .pc-latest {
+    margin-top: 20px;
+    border-top: 1px solid var(--c-line);
+  }
+
+  .pc-latest :global(.pc-latest__item) {
+    border-bottom: 1px solid var(--c-line);
+  }
+
+  .pc-latest :global(.pc-latest__item a) {
+    display: block;
+    padding: 16px 4px;
+    text-decoration: none;
+    color: var(--c-text);
+  }
+
+  .pc-latest :global(.pc-latest__name) {
+    display: block;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-color: var(--c-pink);
+  }
+
+  .pc-latest :global(.pc-latest__item a:hover .pc-latest__name) {
+    color: var(--c-pink-dark);
+  }
+
+  .pc-latest :global(.pc-latest__speaker) {
+    display: block;
+    margin-top: 2px;
+    font-size: 14px;
+    color: var(--c-text-muted);
+  }
+
+  .pc-latest__empty,
+  .pc-latest__error {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--c-text-muted);
+    font-size: 14px;
+  }
+
+  .pc-latest__error {
+    color: var(--c-pink-dark);
+  }
+
+  /* ---- 下段：募集について ---- */
+  .pc-about__body {
+    margin-top: 12px;
+  }
+
+  .pc-about__cta {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .back {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .back a {
+    color: var(--c-purple);
+  }
+
+  /* ---- トースト ---- */
+  .pc-toast {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 200;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    background: var(--c-purple);
+    color: var(--c-white);
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+    animation: pc-toast-in 0.25s ease;
+  }
+
+  .pc-toast[hidden] {
+    display: none;
+  }
+
+  @keyframes pc-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pc-hero :global(.pc-hero__cloud) {
+      width: 40vw;
+    }
+    .pc-hero :global(.pc-hero__cloud--1) {
+      left: -8%;
+      top: 2%;
+    }
+    .pc-hero :global(.pc-hero__cloud--2) {
+      right: -8%;
+      bottom: 2%;
+    }
+    .pc-btn {
+      min-width: 0;
+      width: 100%;
+      padding-inline: 24px;
+      font-size: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pc-toast {
+      animation: none;
+    }
+  }
+</style>

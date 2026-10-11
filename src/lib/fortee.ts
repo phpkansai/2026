@@ -86,6 +86,30 @@ export async function fetchTimetable(): Promise<ForteeTimetableItem[]> {
   return data.timetable ?? [];
 }
 
+// ---- PROPOSALS ----
+export interface ForteeProposal {
+  uuid: string;
+  url: string;
+  title: string;
+  abstract?: string;
+  accepted: boolean;
+  speaker: {
+    name: string;
+    kana?: string;
+    twitter?: string;
+    avatar_url?: string;
+  };
+  created: string; // ISO
+}
+
+/** プロポーザルAPIのURL（ブラウザからの取得にも使う） */
+export const proposalsApiUrl = `${BASE}/proposals`;
+
+export async function fetchProposals(): Promise<ForteeProposal[]> {
+  const data = await getJson<{ proposals: ForteeProposal[] }>('proposals', { proposals: [] });
+  return data.proposals ?? [];
+}
+
 /** タイムテーブルのナビ先を決める */
 export async function resolveTimetableHref(): Promise<string> {
   const mode = site.timetable.mode;
