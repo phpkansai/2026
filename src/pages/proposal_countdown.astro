@@ -18,8 +18,8 @@ const latest = (list: ForteeProposal[]) =>
 
 const proposals = await fetchProposals();
 const initialLatest = latest(proposals);
-// ビルド時点で締切を過ぎていれば、最初から終了状態で出力する
-const closedAtBuild = Date.now() >= new Date(cd.deadline).getTime();
+// ビルド時点で締切＋猶予を過ぎていれば、最初から終了状態で出力する
+const closedAtBuild = Date.now() >= new Date(cd.deadline).getTime() + cd.grace_minutes * 60_000;
 
 const units = [
   { key: 'days', label: '日' },
@@ -36,6 +36,7 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
   <div
     class:list={['pc', { 'is-closed': closedAtBuild }]}
     data-deadline={cd.deadline}
+    data-grace-minutes={cd.grace_minutes}
     data-api={proposalsApiUrl}
     data-limit={LATEST_LIMIT}
   >
@@ -152,10 +153,12 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
   const root = document.querySelector<HTMLElement>('.pc');
   if (root) {
     const deadline = new Date(root.dataset.deadline ?? '').getTime();
+    // 「募集は終了しました」を出す時刻。締切ちょうどではなく猶予（アディショナルタイム）の後にする
+    const closeAt = deadline + Number(root.dataset.graceMinutes ?? 0) * 60_000;
     const api = root.dataset.api ?? '';
     const limit = Number(root.dataset.limit ?? 3);
     const POLL_MS = 10_000;
-    const TOAST_MS = 3_000;
+    const TOAST_MS = 5_000;
 
     // ---- カウントダウン ----
     const nums = Object.fromEntries(
@@ -186,7 +189,8 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
       nums.hours.textContent = pad(Math.floor((sec % 86400) / 3600));
       nums.minutes.textContent = pad(Math.floor((sec % 3600) / 60));
       nums.seconds.textContent = pad(sec % 60);
-      if (diff <= 0) {
+      // カウントダウンは締切で 0 になるが、終了表示と応募ボタンの無効化は猶予が過ぎてから
+      if (Date.now() >= closeAt) {
         setClosed();
         window.clearInterval(timer);
       }
@@ -485,11 +489,13 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
     z-index: 200;
     padding: 12px 20px;
     border-radius: var(--radius-sm);
-    background: var(--c-purple);
+    /* 紫セクションの上でも埋もれないよう、ボタンと同じピンク＋白フチ */
+    background: var(--c-pink);
+    border: 2px solid var(--c-white);
     color: var(--c-white);
     font-weight: 700;
     font-size: 14px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 6px 18px rgba(255, 77, 139, 0.35);
     animation: pc-toast-in 0.25s ease;
   }
 
