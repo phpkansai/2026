@@ -10,14 +10,18 @@ interface Props {
   description?: string;
   /** トップページ以外は true（ナビのアンカーが /#xxx になる） */
   subpage?: boolean;
+  /** OGP画像のパス（未指定なら public/images/ogp.*） */
+  ogImage?: string;
+  /** 検索エンジンに登録しない（同じ内容の別URLなど） */
+  noindex?: boolean;
 }
 
-const { title, description = site.event.description, subpage = false } = Astro.props;
+const { title, description = site.event.description, subpage = false, ogImage: ogImageProp, noindex = false } = Astro.props;
 const pageTitle = title ? `${title} | ${site.event.name}` : site.event.name;
 
 const base = site.url?.replace(/\/$/, '') ?? '';
 const canonical = base ? `${base}${Astro.url.pathname}` : undefined;
-const ogp = slot('ogp');
+const ogp = ogImageProp ?? slot('ogp');
 const ogImage = ogp && base ? `${base}${ogp}` : undefined;
 const favicon = slot('favicon') ?? '/favicon-32.png';
 // アクセス解析: IDが設定されていて、かつ本番ビルドのときだけタグを出す（開発中の閲覧を計測しない）
@@ -39,6 +43,7 @@ const gaEnabled = Boolean(gaId) && import.meta.env.PROD;
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {canonical && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.event.name} />
     <meta property="og:title" content={pageTitle} />

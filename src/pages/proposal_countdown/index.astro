@@ -1,0 +1,16 @@
+---
+/**
+ * プロポーザル募集締切カウントダウン (/proposal_countdown/)
+ * 本体は components/ProposalCountdown.astro。残り日数ごとのシェア用ページは share/[key].astro。
+ */
+import Base from '../../layouts/Base.astro';
+import ProposalCountdown from '../../components/ProposalCountdown.astro';
+import { site } from '../../lib/data';
+import { ogImagePath } from '../../lib/proposal-share';
+
+const description = `${site.event.name}のプロポーザル募集は${site.proposal_countdown.deadline_label}までです！`;
+---
+
+<Base title="プロポーザル募集締切カウントダウン" subpage description={description} ogImage={ogImagePath('open')}>
+  <ProposalCountdown />
+</Base>

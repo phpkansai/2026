@@ -1,0 +1,27 @@
+---
+/**
+ * シェア用のカウントダウンページ (/proposal_countdown/share/7/ など)
+ * 中身は /proposal_countdown/ と同じで、OGP（タイトル・画像）だけ残り日数に合わせて変える。
+ * X などは URL ごとに OGP をキャッシュするので、日数ごとに URL を分けている。
+ */
+import Base from '../../../layouts/Base.astro';
+import ProposalCountdown from '../../../components/ProposalCountdown.astro';
+import { site } from '../../../lib/data';
+import { shareKeys } from '../../../lib/proposal-ogp';
+import { ogImagePath, shareMessage } from '../../../lib/proposal-share';
+
+export function getStaticPaths() {
+  // 'open' は /proposal_countdown/ そのもの
+  return shareKeys()
+    .filter((key) => key !== 'open')
+    .map((key) => ({ params: { key } }));
+}
+
+const { key } = Astro.params;
+const message = shareMessage(key, new Date(site.proposal_countdown.deadline).getTime());
+const description = `${site.event.name}の${message}`;
+---
+
+<Base title={message} subpage description={description} ogImage={ogImagePath(key)} noindex>
+  <ProposalCountdown />
+</Base>

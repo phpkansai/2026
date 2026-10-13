@@ -1,14 +1,17 @@
 ---
 /**
- * プロポーザル募集締切カウントダウン (/proposal_countdown/)
+ * プロポーザル募集締切カウントダウンの本体。
+ * /proposal_countdown/ と、残り日数ごとのシェア用ページ /proposal_countdown/share/<日数>/ で使う。
  * 締切・本文は site.yaml の proposal_countdown。
  * 応募数・新着はビルド時の値で初期表示し、ブラウザで fortee API を10秒ごとに取り直す。
  */
-import Base from '../layouts/Base.astro';
-import Cloud from '../components/Cloud.astro';
-import ArrowOutwardIcon from '../components/icons/ArrowOutwardIcon.astro';
+import Cloud from './Cloud.astro';
+import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
+import XIcon from './icons/XIcon.astro';
 import { site } from '../lib/data';
 import { fetchProposals, proposalsApiUrl, type ForteeProposal } from '../lib/fortee';
+import { maxShareDays } from '../lib/proposal-ogp';
+import { shareKeyAt, shareMessage, sharePath, xIntentUrl } from '../lib/proposal-share';
 
 const cd = site.proposal_countdown;
 const LATEST_LIMIT = 3;
@@ -28,120 +31,137 @@ const units = [
   { key: 'seconds', label: '秒' },
 ];
 
-const pageTitle = 'プロポーザル募集締切カウントダウン';
-const description = `${site.event.name}のプロポーザル募集は${cd.deadline_label}までです！`;
+// シェアボタンの初期値（ビルド時点）。ブラウザではクリック時の残り日数で作り直す
+const deadlineMs = new Date(cd.deadline).getTime();
+const shareMax = maxShareDays();
+const siteUrl = site.url.replace(/\/$/, '');
+const initialShareKey = shareKeyAt(deadlineMs, Date.now(), shareMax);
+const initialShareText = `${site.event.name}の${shareMessage(initialShareKey, deadlineMs)}`;
+const initialXUrl = xIntentUrl(initialShareText, `${siteUrl}${sharePath(initialShareKey)}`);
 ---
 
-<Base title={pageTitle} subpage description={description}>
-  <div
-    class:list={['pc', { 'is-closed': closedAtBuild }]}
-    data-deadline={cd.deadline}
-    data-grace-minutes={cd.grace_minutes}
-    data-api={proposalsApiUrl}
-    data-limit={LATEST_LIMIT}
-  >
-    <section class="section section--pink pc-hero">
-      <Cloud class="pc-hero__cloud pc-hero__cloud--1" color="#e7d3f3" />
-      <Cloud class="pc-hero__cloud pc-hero__cloud--2" color="#e7d3f3" flip />
+<div
+  class:list={['pc', { 'is-closed': closedAtBuild }]}
+  data-deadline={cd.deadline}
+  data-grace-minutes={cd.grace_minutes}
+  data-api={proposalsApiUrl}
+  data-limit={LATEST_LIMIT}
+  data-share-max={shareMax}
+  data-site-url={siteUrl}
+  data-event-name={site.event.name}
+>
+  <section class="section section--pink pc-hero">
+    <Cloud class="pc-hero__cloud pc-hero__cloud--1" color="#e7d3f3" />
+    <Cloud class="pc-hero__cloud pc-hero__cloud--2" color="#e7d3f3" flip />
 
-      <div class="container--narrow pc-hero__inner">
-        <p class="pc-hero__event">{site.event.name}</p>
-        <h1 class="section-title section-title--purple">
-          <span class="pc-nowrap">プロポーザル募集</span><span class="pc-nowrap">締切カウントダウン</span>
-        </h1>
+    <div class="container--narrow pc-hero__inner">
+      <p class="pc-hero__event">{site.event.name}</p>
+      <h1 class="section-title section-title--purple">
+        <span class="pc-nowrap">プロポーザル募集</span><span class="pc-nowrap">締切カウントダウン</span>
+      </h1>
 
-        <div class="pc-closed" role="status">
-          <p class="pc-closed__title">募集は終了しました</p>
-          <p>プロポーザルの募集期間は終了しました。たくさんのご応募ありがとうございました。</p>
+      <div class="pc-closed" role="status">
+        <p class="pc-closed__title">募集は終了しました</p>
+        <p>プロポーザルの募集期間は終了しました。たくさんのご応募ありがとうございました。</p>
+      </div>
+
+      <ol class="pc-timer" aria-label="締切までの残り時間">
+        {
+          units.map((u) => (
+            <li class="pc-timer__cell">
+              <span class="pc-timer__num" data-unit={u.key}>
+                {u.key === 'days' ? '0' : '00'}
+              </span>
+              <span class="pc-timer__label">{u.label}</span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="pc-hero__deadline">
+        プロポーザル募集は<strong>{cd.deadline_label}</strong>までです！
+      </p>
+
+      <a class="btn btn--lg pc-btn" href={site.links.proposal} target="_blank" rel="noopener noreferrer" data-cfp>
+        <span data-cfp-label>forteeで応募する</span>
+        <span class="pc-btn__arrow"><ArrowOutwardIcon /></span>
+      </a>
+
+      <div class="pc-share">
+        <p class="pc-share__label">カウントダウンをシェアする</p>
+        <div class="pc-share__buttons">
+          <a class="pc-share__btn" href={initialXUrl} target="_blank" rel="noopener noreferrer" data-share-x>
+            <span class="pc-share__icon"><XIcon /></span>
+            ポストする
+          </a>
+          <button type="button" class="pc-share__btn" data-share-copy>リンクをコピー</button>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <ol class="pc-timer" aria-label="締切までの残り時間">
+  <section class="section section--purple pc-stats">
+    <div class="container--narrow">
+      <div class="card pc-stats__card">
+        <h2 class="section-title section-title--purple">現在のプロポーザル応募数</h2>
+        <p class="pc-count">
+          <span class="pc-count__num" data-count>{proposals.length}</span>
+          <span class="pc-count__unit">件</span>
+        </p>
+
+        <h2 class="section-title section-title--purple pc-latest__title">新着プロポーザル</h2>
+        <ul class="pc-latest" data-latest>
           {
-            units.map((u) => (
-              <li class="pc-timer__cell">
-                <span class="pc-timer__num" data-unit={u.key}>
-                  {u.key === 'days' ? '0' : '00'}
-                </span>
-                <span class="pc-timer__label">{u.label}</span>
+            initialLatest.map((p) => (
+              <li class="pc-latest__item">
+                <a href={p.url} target="_blank" rel="noopener noreferrer">
+                  <span class="pc-latest__name">{p.title}</span>
+                  <span class="pc-latest__speaker">発表者：{p.speaker.name}</span>
+                </a>
               </li>
             ))
           }
-        </ol>
-
-        <p class="pc-hero__deadline">
-          プロポーザル募集は<strong>{cd.deadline_label}</strong>までです！
+        </ul>
+        <p class="pc-latest__empty" data-latest-empty hidden={initialLatest.length > 0}>
+          プロポーザルはまだありません。
         </p>
-
-        <a class="btn btn--lg pc-btn" href={site.links.proposal} target="_blank" rel="noopener noreferrer" data-cfp>
-          <span data-cfp-label>forteeで応募する</span>
-          <span class="pc-btn__arrow"><ArrowOutwardIcon /></span>
-        </a>
+        <p class="pc-latest__error" data-error hidden>最新の情報を取得できませんでした。</p>
       </div>
-    </section>
-
-    <section class="section section--purple pc-stats">
-      <div class="container--narrow">
-        <div class="card pc-stats__card">
-          <h2 class="section-title section-title--purple">現在のプロポーザル応募数</h2>
-          <p class="pc-count">
-            <span class="pc-count__num" data-count>{proposals.length}</span>
-            <span class="pc-count__unit">件</span>
-          </p>
-
-          <h2 class="section-title section-title--purple pc-latest__title">新着プロポーザル</h2>
-          <ul class="pc-latest" data-latest>
-            {
-              initialLatest.map((p) => (
-                <li class="pc-latest__item">
-                  <a href={p.url} target="_blank" rel="noopener noreferrer">
-                    <span class="pc-latest__name">{p.title}</span>
-                    <span class="pc-latest__speaker">発表者：{p.speaker.name}</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="pc-latest__empty" data-latest-empty hidden={initialLatest.length > 0}>
-            プロポーザルはまだありません。
-          </p>
-          <p class="pc-latest__error" data-error hidden>最新の情報を取得できませんでした。</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--pink pc-about">
-      <div class="container--narrow">
-        <div class="card">
-          <h2 class="section-title section-title--purple">プロポーザル募集について</h2>
-          <div class="prose pc-about__body">
-            {cd.about.map((p) => <p>{p}</p>)}
-            <h3>開催テーマ</h3>
-            <p>{cd.theme}</p>
-            <h3>トークテーマに迷ったら</h3>
-            <p>{cd.requestalk.body}</p>
-            <p>
-              <a href={cd.requestalk.url} target="_blank" rel="noopener noreferrer">{cd.requestalk.link_label}</a>
-            </p>
-          </div>
-
-          <p class="pc-about__cta">
-            <a class="btn btn--lg pc-btn" href={site.links.proposal} target="_blank" rel="noopener noreferrer" data-cfp>
-              <span data-cfp-label>forteeで応募する</span>
-              <span class="pc-btn__arrow"><ArrowOutwardIcon /></span>
-            </a>
-          </p>
-          <p class="back"><a href="/">トップページへ戻る</a></p>
-        </div>
-      </div>
-    </section>
-
-    <div class="pc-toast" role="status" aria-live="polite" data-toast hidden>
-      新しいプロポーザルが投稿されました！
     </div>
-  </div>
-</Base>
+  </section>
+
+  <section class="section section--pink pc-about">
+    <div class="container--narrow">
+      <div class="card">
+        <h2 class="section-title section-title--purple">プロポーザル募集について</h2>
+        <div class="prose pc-about__body">
+          {cd.about.map((p) => <p>{p}</p>)}
+          <h3>開催テーマ</h3>
+          <p>{cd.theme}</p>
+          <h3>トークテーマに迷ったら</h3>
+          <p>{cd.requestalk.body}</p>
+          <p>
+            <a href={cd.requestalk.url} target="_blank" rel="noopener noreferrer">{cd.requestalk.link_label}</a>
+          </p>
+        </div>
+
+        <p class="pc-about__cta">
+          <a class="btn btn--lg pc-btn" href={site.links.proposal} target="_blank" rel="noopener noreferrer" data-cfp>
+            <span data-cfp-label>forteeで応募する</span>
+            <span class="pc-btn__arrow"><ArrowOutwardIcon /></span>
+          </a>
+        </p>
+        <p class="back"><a href="/">トップページへ戻る</a></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="pc-toast" role="status" aria-live="polite" data-toast hidden></div>
+</div>
 
 <script>
+  import { shareKeyAt, shareMessage, sharePath, xIntentUrl } from '../lib/proposal-share';
+
   interface Proposal {
     uuid: string;
     url: string;
@@ -231,11 +251,35 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
     };
 
     let toastTimer = 0;
-    const showToast = () => {
+    const showToast = (message: string) => {
+      toastEl.textContent = message;
       toastEl.hidden = false;
       window.clearTimeout(toastTimer);
       toastTimer = window.setTimeout(() => (toastEl.hidden = true), TOAST_MS);
     };
+
+    // ---- シェア ----
+    // 押した時点の残り日数のシェア用URLを使う（URLごとに OGP 画像の「あと◯日」が違う）
+    const shareMax = Number(root.dataset.shareMax ?? 0);
+    const siteUrl = root.dataset.siteUrl ?? location.origin;
+    const eventName = root.dataset.eventName ?? '';
+    const currentShare = () => {
+      const key = shareKeyAt(deadline, Date.now(), shareMax);
+      return { url: `${siteUrl}${sharePath(key)}`, text: `${eventName}の${shareMessage(key, deadline)}` };
+    };
+    root.querySelector<HTMLAnchorElement>('[data-share-x]')!.addEventListener('click', (e) => {
+      const { url, text } = currentShare();
+      // 遷移する前に href を差し替える
+      (e.currentTarget as HTMLAnchorElement).href = xIntentUrl(text, url);
+    });
+    root.querySelector('[data-share-copy]')!.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(currentShare().url);
+        showToast('リンクをコピーしました！');
+      } catch {
+        showToast('リンクをコピーできませんでした');
+      }
+    });
 
     // 最初のブラウザ取得を基準にする（ビルド時の件数との差ではトーストを出さない）
     let previous: number | null = null;
@@ -249,7 +293,7 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
         errorEl.hidden = true;
         // 件数が変わったときだけ描き直す（ちらつき防止）
         if (proposals.length !== previous) {
-          if (previous !== null && proposals.length > previous) showToast();
+          if (previous !== null && proposals.length > previous) showToast('新しいプロポーザルが投稿されました！');
           countEl.textContent = String(proposals.length);
           renderLatest(proposals);
           previous = proposals.length;
@@ -352,6 +396,55 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
     height: 22px;
   }
 
+  /* シェア */
+  .pc-share {
+    margin-top: 32px;
+  }
+
+  .pc-share__label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-text-muted);
+  }
+
+  .pc-share__buttons {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .pc-share__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 24px;
+    border: 2px solid var(--c-purple);
+    border-radius: 999px;
+    background: var(--c-white);
+    color: var(--c-purple);
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .pc-share__btn:hover {
+    background: var(--c-purple);
+    color: var(--c-white);
+  }
+
+  .pc-share__icon {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+  }
+
   /* 締切後 */
   .pc-closed {
     display: none;
@@ -383,6 +476,10 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
   }
 
   .is-closed .pc-btn__arrow {
+    display: none;
+  }
+
+  .is-closed .pc-share {
     display: none;
   }
 
@@ -533,6 +630,9 @@ const description = `${site.event.name}のプロポーザル募集は${cd.deadli
   @media (prefers-reduced-motion: reduce) {
     .pc-toast {
       animation: none;
+    }
+    .pc-share__btn {
+      transition: none;
     }
   }
 </style>

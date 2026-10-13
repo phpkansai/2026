@@ -29,6 +29,7 @@ npm run preview  # dist/ の内容を確認
 | `/` | トップ（LP）。下記セクションを縦に並べたもの |
 | `/coc/` | 行動規範・プライバシーポリシー |
 | `/proposal_countdown/` | プロポーザル募集締切カウントダウン。応募数・新着3件をブラウザから fortee API で10秒ごとに更新。締切・本文は `site.yaml` の `proposal_countdown` |
+| `/proposal_countdown/share/<日数>/` | 上と同じ中身で、OGP 画像だけ「あと◯日」になるシェア用ページ（`today` は締切当日）。シェアボタンは押した時点の日数のURLをシェアする。ビルド時点から締切までの日数分を生成し、OGP 画像は `/proposal_countdown/ogp/<日数>.png` に出力（`src/lib/proposal-ogp.ts`） |
 | `/timetable/` | タイムテーブル。fortee にデータが入ると自動で表示される（空の間は「準備中」） |
 
 ### トップページのセクション（上から順）
