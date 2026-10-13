@@ -1,0 +1,31 @@
+# 毎日 0:05 JST に Netlify の Build Hook を叩いて本番を再ビルドする。
+# 目的:
+#   - /proposal_countdown/ の OGP 画像（残り日数ごと）を日付に合わせて更新する
+#   - fortee の NEWS・スタッフ・タイムテーブルの更新をサイトに反映する
+# 事前準備（1回だけ）:
+#   1. Netlify: Site configuration → Build & deploy → Build hooks → Add build hook（branch: main）
+#   2. GitHub: Settings → Secrets and variables → Actions → New repository secret
+#      Name: NETLIFY_BUILD_HOOK_URL / Value: 1. で発行された URL
+# 手動で今すぐ再ビルドしたいときは Actions タブからこのワークフローを "Run workflow" する。
+name: Daily rebuild
+
+on:
+  schedule:
+    # GitHub Actions の cron は UTC。15:05 UTC = 翌 0:05 JST（数分〜十数分遅れることがある）
+    - cron: '5 15 * * *'
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Netlify build hook
+        env:
+          HOOK: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Secret NETLIFY_BUILD_HOOK_URL が未設定です（このファイル冒頭のコメント参照）"
+            exit 1
+          fi
+          curl --fail --silent --show-error -X POST -d '{}' "$HOOK"
+          echo "Netlify のビルドを開始しました"

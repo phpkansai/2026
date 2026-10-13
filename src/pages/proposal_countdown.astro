@@ -9,6 +9,7 @@ import Cloud from '../components/Cloud.astro';
 import ArrowOutwardIcon from '../components/icons/ArrowOutwardIcon.astro';
 import { site } from '../lib/data';
 import { fetchProposals, proposalsApiUrl, type ForteeProposal } from '../lib/fortee';
+import { countdownOgp } from '../lib/countdown-ogp';
 
 const cd = site.proposal_countdown;
 const LATEST_LIMIT = 3;
@@ -28,11 +29,20 @@ const units = [
   { key: 'seconds', label: '秒' },
 ];
 
+// OGP画像を残り日数に合わせて差し替える（public/images/ogp-countdown/<残り日数>.png）。
+// ビルド時の日付で決まるので、毎日 0 時過ぎの自動再ビルドで更新される（.github/workflows/daily-rebuild.yml）。
+const ogp = countdownOgp(cd.deadline);
+
 const pageTitle = 'プロポーザル募集締切カウントダウン';
-const description = `${site.event.name}のプロポーザル募集は${cd.deadline_label}までです！`;
+const description =
+  ogp.daysLeft === null
+    ? `${site.event.name}のプロポーザル募集は${cd.deadline_label}までです！`
+    : ogp.daysLeft === 0
+      ? `${site.event.name}のプロポーザル募集は本日${cd.deadline_label}締切です！`
+      : `${site.event.name}のプロポーザル募集締切まであと${ogp.daysLeft}日！${cd.deadline_label}まで`;
 ---
 
-<Base title={pageTitle} subpage description={description}>
+<Base title={pageTitle} subpage description={description} ogImage={ogp.image ?? undefined}>
   <div
     class:list={['pc', { 'is-closed': closedAtBuild }]}
     data-deadline={cd.deadline}

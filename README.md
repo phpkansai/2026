@@ -28,7 +28,7 @@ npm run preview  # dist/ の内容を確認
 |---|---|
 | `/` | トップ（LP）。下記セクションを縦に並べたもの |
 | `/coc/` | 行動規範・プライバシーポリシー |
-| `/proposal_countdown/` | プロポーザル募集締切カウントダウン。応募数・新着3件をブラウザから fortee API で10秒ごとに更新。締切・本文は `site.yaml` の `proposal_countdown` |
+| `/proposal_countdown/` | プロポーザル募集締切カウントダウン。応募数・新着3件をブラウザから fortee API で10秒ごとに更新。締切・本文は `site.yaml` の `proposal_countdown`。OGP画像は残り日数に応じて `public/images/ogp-countdown/<残り日数>.png` に切り替わる（ビルド時の日付で決まるため毎日自動再ビルド） |
 | `/timetable/` | タイムテーブル。fortee にデータが入ると自動で表示される（空の間は「準備中」） |
 
 ### トップページのセクション（上から順）
@@ -66,6 +66,7 @@ src/
   lib/
     data.ts          … YAML 読み込みと型定義
     fortee.ts        … fortee API からの取得（ビルド時）
+    countdown-ogp.ts … カウントダウンページの OGP 画像を残り日数から選ぶ
     slots.ts         … public/images の画像スロット
     assets.ts        … src/assets の画像をファイル名で引く
   pages/
@@ -177,7 +178,8 @@ SNS・note・fortee・チラシなど導線ごとに付けるパラメーター�
 - `https://fortee.jp/phpcon-kansai2026/api/staff?type=simple`
 - `https://fortee.jp/phpcon-kansai2026/api/timetable`
 
-fortee 側の更新は **再ビルドするまで反映されません**。公開先が決まったら、定期ビルド（例: GitHub Actions の cron）を設定するのがおすすめです。
+fortee 側の更新は **再ビルドするまで反映されません**。そのため `.github/workflows/daily-rebuild.yml` で毎日 0:05 JST に Netlify の Build Hook を叩いて再ビルドしています（カウントダウンページの OGP 画像の日次更新も兼ねる）。
+初回だけ、Netlify で Build Hook を発行し、その URL を GitHub リポジトリの Secrets に `NETLIFY_BUILD_HOOK_URL` として登録してください（手順はワークフローファイル冒頭のコメント参照）。手動で再ビルドしたいときは Actions タブから "Daily rebuild" を Run workflow します。
 
 ## 配色
 
@@ -200,4 +202,4 @@ fortee 側の更新は **再ビルドするまで反映されません**。公�
 - 参加申し込みURLの確定（`links.register`）
 - 街並みシルエット画像の差し替え（`public/images/skyline.svg`）
 - プロポーザル / スポンサー / スタッフ セクションの公開（`sections` を `true` に）
-- 公開先・リポジトリが決まり次第、デプロイ設定（GitHub Actions など）を追加
+- 公開先は Netlify（main へのマージで自動デプロイ）。定期再ビルドは `.github/workflows/daily-rebuild.yml`（要 Secrets 設定）

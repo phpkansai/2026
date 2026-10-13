@@ -10,14 +10,16 @@ interface Props {
   description?: string;
   /** トップページ以外は true（ナビのアンカーが /#xxx になる） */
   subpage?: boolean;
+  /** OGP画像をページごとに差し替えたいとき（/images/... のサイト内パス）。省略時は public/images/ogp.* */
+  ogImage?: string;
 }
 
-const { title, description = site.event.description, subpage = false } = Astro.props;
+const { title, description = site.event.description, subpage = false, ogImage: ogImageOverride } = Astro.props;
 const pageTitle = title ? `${title} | ${site.event.name}` : site.event.name;
 
 const base = site.url?.replace(/\/$/, '') ?? '';
 const canonical = base ? `${base}${Astro.url.pathname}` : undefined;
-const ogp = slot('ogp');
+const ogp = ogImageOverride ?? slot('ogp');
 const ogImage = ogp && base ? `${base}${ogp}` : undefined;
 const favicon = slot('favicon') ?? '/favicon-32.png';
 // アクセス解析: IDが設定されていて、かつ本番ビルドのときだけタグを出す（開発中の閲覧を計測しない）
