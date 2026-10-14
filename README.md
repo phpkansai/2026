@@ -104,7 +104,7 @@ sections:
 ```yaml
 - icon: proposal            # proposal / sponsor / request（アイコンの種類）
   title: "プロポーザル"
-  deadline: "締切：2026年10月18日（日）"
+  deadline: "締切：2026年10月31日（土）"
   button: "forteeで応募"
   url: "https://..."
   # wide: true              # 1列で横いっぱいに表示したいとき
