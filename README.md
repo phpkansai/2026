@@ -40,9 +40,11 @@ npm run preview  # dist/ の内容を確認
 | 開催概要（実行委員長の挨拶） | `Message.astro` | 常時 | `message.*`。ナビの「開催概要」はここに飛ぶ |
 | 参加資格・会場 | `Overview.astro` | 常時（会場カードは `overview.show_venue_card`） | `overview.eligibility`、`venue.*`（Googleマップ埋め込み） |
 | プロポーザル | `Proposal.astro` | `sections.proposal` | `proposal.*`、`links.proposal` |
-| スポンサー | `Sponsors.astro` | `sections.sponsors` | `sponsors.yaml` ＋ `src/assets/sponsors/` のロゴ |
-| スタッフ | `Staff.astro` | `sections.staff` | fortee のスタッフAPI ＋ `staff.yaml` |
 | リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`（プロポーザル / スポンサー / リクエストーク） |
+| スポンサー | `Sponsors.astro` | `sections.sponsors` | fortee のスポンサーAPI（ランク分け・ロゴ）＋ `sponsors.yaml`（ロゴ補完・手動追加）。見出し文言は `sponsors.*`、ランクは `sponsor_tiers` |
+| スピーカー | `Speakers.astro` | `sections.speakers` | fortee の採択済みプロポーザルから自動生成。文言は `speakers.*` |
+| 個人スポンサー | `IndividualSponsors.astro` | `sections.individual_sponsors` | fortee のスポンサーAPIのうち `individual_sponsors.plans` のプラン。文言は `individual_sponsors.*` |
+| スタッフ | `Staff.astro` | `sections.staff` | fortee のスタッフAPI ＋ `staff.yaml`（実行委員長・副実行委員長の指定、追加・非表示）。文言は `staff.*` |
 | フッター | `Footer.astro` | 常時 | 丘の背景、マスコット、SNS、過去開催リンク、`footer.*` |
 
 ## ディレクトリ構成
@@ -51,9 +53,9 @@ npm run preview  # dist/ の内容を確認
 src/
   data/
     site.yaml        … イベント情報・各種URL・文言・セクション表示切替・スポンサーランク・リンク集・フッター
-    sponsors.yaml    … スポンサー一覧（追加・削除はここ）
+    sponsors.yaml    … スポンサーの補助設定（fortee にロゴが無いときのロゴ指定、fortee 未登録スポンサーの追加）
     news.yaml        … サイト独自のお知らせ（fortee のNEWSと合算表示）
-    staff.yaml       … スタッフの補助設定（fortee 未登録者の追加・非表示・並び順）
+    staff.yaml       … スタッフの補助設定（実行委員長・副実行委員長の指定、fortee 未登録者の追加・非表示・グループの並び順）
   assets/
     sponsors/        … スポンサーロゴ画像（自動でリサイズ・WebP化）
     staff/           … fortee 未登録スタッフの写真
@@ -62,10 +64,13 @@ src/
     Cloud.astro      … 雲の装飾（public/images/cloud.svg を表示）
     CocContent.astro … 行動規範の本文（ページからもモーダルからも使えるよう分離）
     Timetable.astro  … タイムテーブル本体（fortee API）
+    PeopleGrid.astro … 丸いアイコン＋名前の人物グリッド（スピーカー / 個人スポンサー / スタッフで共用）
   layouts/Base.astro … 共通レイアウト（head・OGP・ヘッダー・フッター）
   lib/
     data.ts          … YAML 読み込みと型定義
     fortee.ts        … fortee API からの取得（ビルド時）
+    people.ts        … 人物カードの型と、X の URL から @ハンドルを取り出すヘルパー
+    dummy.ts         … 開発サーバー専用のダミーデータ（preview.dummy_data）
     countdown-ogp.ts … カウントダウンページの OGP 画像を残り日数から選ぶ
     slots.ts         … public/images の画像スロット
     assets.ts        … src/assets の画像をファイル名で引く
@@ -90,12 +95,20 @@ public/
 ```yaml
 sections:
   news: true
-  proposal: false   # プロポーザル
-  sponsors: false   # スポンサー
-  staff: false      # スタッフ
-  recruit: true     # リンク集「絶賛募集中！」
-  timetable: false  # ナビの「タイムテーブル」リンク
+  proposal: false            # プロポーザル
+  recruit: true              # リンク集「絶賛募集中！」
+  sponsors: true             # スポンサー
+  speakers: true             # スピーカー
+  individual_sponsors: true  # 個人スポンサー
+  staff: true                # スタッフ
+  timetable: false           # ナビの「タイムテーブル」リンク
 ```
+
+### データがまだ無いセクションの見た目を確認する（開発サーバーのみ）
+
+`site.yaml` の `preview.dummy_data` を `true` にすると、**開発サーバー（`npm run dev` / `docker compose up`）でだけ**、
+データが空のところ（スピーカー、個人スポンサー、当日スタッフ、スポンサーの空ランクなど）がグレーの仮要素で埋まります。
+`npm run build` には影響しないので、true のままでも公開物にダミーは出ません。
 
 ### リンク集「絶賛募集中！」を変える
 
@@ -113,23 +126,46 @@ sections:
 
 ### スポンサーを追加・削除する
 
+**fortee のスポンサー管理画面で登録・削除**すれば、再ビルド時に自動で反映されます（社名・URL・ロゴは fortee のもの）。
+fortee のプラン名（gold / silver / bronze など）は `site.yaml` の `sponsor_tiers[].plans` でサイト上のランクに対応づけています。
+新しいプラン名を fortee 側で作ったら、ここに追加してください（対応の無いプランはビルドログに警告が出て表示されません）。
+個人スポンサーは `individual_sponsors.plans` に挙げたプラン名の人が、丸いアイコンで別セクションに出ます。
+
+fortee にロゴがまだ無い会社に仮ロゴを出したいとき、または fortee を使わず手で載せたいときは `sponsors.yaml` を使います。
+
 1. `src/assets/sponsors/` にロゴ画像を置く（例: `example.png`）
-2. `src/data/sponsors.yaml` に追記する
+2. `src/data/sponsors.yaml` に追記する（fortee に同じ社名があればロゴ・URLの補完に、無ければ追加表示になります）
 
 ```yaml
-- name: "株式会社サンプル"
+- name: "株式会社サンプル"   # fortee の社名と同じにする
   tier: gold           # platinum / gold / silver / bronze
   url: "https://example.com/"
   logo: "example.png"  # 1. で置いたファイル名
 ```
 
-削除は該当ブロックを消すだけです。ロゴが未着の間は社名入りのグレー枠が表示されます。
+ロゴがどこにも無い間は社名入りのグレー枠が表示されます。
 ランクごとの1行あたりの枚数や見出しは `site.yaml` の `sponsor_tiers` で変えられます。
+
+### スピーカーを載せる
+
+fortee でプロポーザルを**採択**すると、再ビルド時に自動でスピーカーセクションに載ります（名前・@ハンドル・アバターは fortee のもの、リンク先はプロポーザル）。手作業は不要です。
 
 ### スタッフを追加・削除する
 
 **fortee のスタッフ管理画面で登録・削除**すれば、再ビルド時に自動で反映されます（名前・リンク・アバターは fortee のもの）。
-fortee に登録しない人を載せたい場合だけ `src/data/staff.yaml` の `extra` に追記します。
+fortee のグループ名（コアスタッフ / 当日スタッフ …）がそのまま小見出しになり、並び順は `staff.yaml` の `role_order` です。
+
+実行委員長・副実行委員長は `staff.yaml` の `leaders` に X のハンドルで指定します。該当する人が fortee のどのグループにいても、先頭に大きく役職バッジ付きで表示されます。
+
+```yaml
+leaders:
+  - role: "実行委員長"
+    twitter: "YKanoh65"
+  - role: "副実行委員長"
+    twitter: "ippey_s"
+```
+
+fortee に登録しない人を載せたい場合だけ `extra` に追記します。fortee に同じハンドルか同じ名前の人が登録されると `extra` 側は自動で無視されるので、二重表示にはなりません。
 
 ### お知らせを出す
 
@@ -153,6 +189,8 @@ fortee の NEWS に投稿すれば再ビルドで反映されます。fortee を
 | `venue.*` | 会場名・住所・アクセス・Googleマップ埋め込みURL |
 | `proposal.*` | プロポーザルセクションの本文・ボタン |
 | `recruit.*` | リンク集 |
+| `sponsors.*` / `speakers.*` / `individual_sponsors.*` / `staff.*` | 各セクションの見出し・説明文（`description` は1要素1行）・空のときの文言 |
+| `preview.dummy_data` | 開発サーバーでだけ、空のセクションをダミーで埋める |
 | `footer.*` | 運営団体名・コピーライト・過去開催リンク |
 | `analytics.gtm_container_id` | Google タグマネージャーのコンテナID（`GTM-XXXXXXX`）。空なら計測しない。本番ビルドのときだけタグが入る |
 | `analytics.ga_measurement_id` | GTM を使わず GA4 を直接入れる場合の測定ID（`G-XXXXXXXXXX`）。GTM と併用しない |
@@ -176,6 +214,8 @@ SNS・note・fortee・チラシなど導線ごとに付けるパラメーター�
 
 - `https://fortee.jp/phpcon-kansai2026/api/news`
 - `https://fortee.jp/phpcon-kansai2026/api/staff?type=simple`
+- `https://fortee.jp/phpcon-kansai2026/api/sponsors`（スポンサー・個人スポンサー。ロゴは fortee にアップロードされると `avatar` として付く）
+- `https://fortee.jp/phpcon-kansai2026/api/proposals/accepted`（スピーカー）
 - `https://fortee.jp/phpcon-kansai2026/api/timetable`
 
 fortee 側の更新は **再ビルドするまで反映されません**。そのため `.github/workflows/daily-rebuild.yml` で毎日 0:05 JST に Netlify の Build Hook を叩いて再ビルドしています（カウントダウンページの OGP 画像の日次更新も兼ねる）。
@@ -201,5 +241,6 @@ fortee 側の更新は **再ビルドするまで反映されません**。そ�
 
 - 参加申し込みURLの確定（`links.register`）
 - 街並みシルエット画像の差し替え（`public/images/skyline.svg`）
-- プロポーザル / スポンサー / スタッフ セクションの公開（`sections` を `true` に）
+- スポンサーロゴの fortee へのアップロード（無い間は社名入りのグレー枠）
+- 副実行委員長の fortee スタッフ登録（登録されるまで `staff.yaml` の `extra` で暫定表示）
 - 公開先は Netlify（main へのマージで自動デプロイ）。定期再ビルドは `.github/workflows/daily-rebuild.yml`（要 Secrets 設定）

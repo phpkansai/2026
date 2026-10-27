@@ -1,17 +1,30 @@
 # =============================================================
 # スタッフ（fortee のスタッフAPIが基本。ここは補助設定）
-#   extra … fortee に登録していない人を追加したい場合
-#           image は src/assets/staff/ のファイル名、または URL
-#   hide  … fortee 由来の人を非表示にしたい場合（名前で指定）
-#   role_order … グループの表示順（fortee のグループ名）
+#   leaders    … 先頭に大きく出す人（実行委員長・副実行委員長）。X のハンドル（@ 無し）で指定。
+#                fortee のスタッフのうちこのハンドルの人が、fortee 上のグループに関係なく先頭に役職バッジ付きで表示されます。
+#                fortee 側のグループ名が role と同じ場合（例: グループ「実行委員長」）も同じ扱いになります。
+#   role_order … グループ（fortee のグループ名）の表示順。ここに無いグループは末尾に出ます。
+#   extra      … fortee に登録していない人を追加したい場合。
+#                image は src/assets/staff/ のファイル名、または URL。role はグループ名（leaders の role なら先頭に出ます）。
+#                fortee に同じハンドル or 同じ名前の人が登録されたら、extra の方は自動で無視されます（二重表示しない）。
+#   hide       … fortee 由来の人を非表示にしたい場合（名前で指定）
 # =============================================================
-role_order:
-  - "実行委員長"
-  - "副委員長"
-  - "コアスタッフ"
-  - "スタッフ"
+leaders:
+  - role: "実行委員長"
+    twitter: "YKanoh65"
+  - role: "副実行委員長"
+    twitter: "ippey_s"
 
-extra: []
+role_order:
+  - "コアスタッフ"
+  - "当日スタッフ"
+
+extra:
+  # 副実行委員長（fortee 2026 のスタッフに未登録のため暫定。登録されたら自動で無視されるので、そのとき消してOK）
+  - name: "SUMIDA, Ippei"
+    role: "副実行委員長"
+    url: "https://twitter.com/ippey_s"
+    image: "https://fortee.jp/files/phpcon-kansai2025/avatar/0328f74b-085e-4900-96e2-d8c6734942ff.jpg"
 #  - name: "山田 太郎"
 #    role: "コアスタッフ"
 #    url: "https://x.com/example"

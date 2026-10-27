@@ -62,11 +62,19 @@ redirects:
 # セクションの表示 / 非表示（true で表示）。非表示にするとナビのリンクも消えます。
 sections:
   news: true
-  proposal: false     # プロポーザル
-  sponsors: false     # スポンサー
-  staff: false        # スタッフ
-  recruit: true       # リンク集「絶賛募集中！」
-  timetable: false    # ナビの「タイムテーブル」リンク（/timetable/ ページ自体は生成されます）
+  proposal: false             # プロポーザル
+  recruit: true               # リンク集「絶賛募集中！」
+  sponsors: true              # スポンサー（fortee ＋ sponsors.yaml）
+  speakers: true              # スピーカー（fortee の採択済みプロポーザル）
+  individual_sponsors: true   # 個人スポンサー（fortee のスポンサーのうち individual_sponsors.plans のプラン）
+  staff: true                 # スタッフ（fortee ＋ staff.yaml）
+  timetable: false            # ナビの「タイムテーブル」リンク（/timetable/ ページ自体は生成されます）
+
+# 開発サーバー（npm run dev / docker compose up）でのみ有効な見た目確認用の設定。
+# dummy_data: true にすると、データがまだ無いセクション（スピーカー・個人スポンサー・当日スタッフ・空のスポンサーランクなど）を
+# グレーの仮要素で埋めて表示します。npm run build（本番）では無視されるので、true のままでも公開には影響しません。
+preview:
+  dummy_data: true
 
 # タイムテーブルのナビ先: auto | internal | external
 #   auto     … forteeのタイムテーブルにデータがあればサイト内 /timetable/ 、無ければ外部リンク
@@ -156,19 +164,59 @@ proposal_countdown:
     url: "https://requestalk-2026.kphpug.jp/"
 
 # スポンサーのランク定義（表示順 = この順。columns は PC での1行あたりの枚数）
+# plans … fortee のプラン名（管理画面で付けた名前）。この名前のプランに入っている会社をこのランクとして表示します。
+#         省略時は id と label に一致するプランを拾います。大文字小文字は区別しません。
 sponsor_tiers:
   - id: platinum
     label: "プラチナスポンサー"
     columns: 1
+    plans: ["platinum", "プラチナ", "プラチナスポンサー"]
   - id: gold
     label: "ゴールドスポンサー"
     columns: 2
+    plans: ["gold", "ゴールド", "ゴールドスポンサー"]
   - id: silver
     label: "シルバースポンサー"
     columns: 3
+    plans: ["silver", "シルバー", "シルバースポンサー"]
   - id: bronze
     label: "ブロンズスポンサー"
     columns: 4
+    plans: ["bronze", "ブロンズ", "ブロンズスポンサー"]
+
+# スポンサーセクションの見出しと説明文（description は1要素 = 1行）
+sponsors:
+  title: "スポンサー"
+  description:
+    - "PHPカンファレンス関西2026は、スポンサー企業様のご協力により開催されます。"
+    - "スポンサー企業様のご支援を心より感謝申し上げます。"
+  empty: "スポンサー募集中です。"
+
+# 個人スポンサー（fortee のスポンサーのうち、plans に挙げたプラン名の人を丸いアイコンで表示）
+individual_sponsors:
+  title: "個人スポンサー"
+  description:
+    - "PHPカンファレンス関西2026にご支援いただいた個人スポンサーの皆様です。"
+    - "温かいご支援をありがとうございます！"
+  empty: "個人スポンサー募集中です。"
+  plans: ["individual", "個人", "個人スポンサー"]
+
+# スピーカー（fortee の採択済みプロポーザルから自動で作られます）
+speakers:
+  title: "スピーカー"
+  description:
+    - "PHPカンファレンス関西2026では、PHPに関する様々なトピックについて、"
+    - "公募で選ばれたスピーカーによる講演を行います。"
+    - "スピーカーの皆様のご協力に感謝申し上げます。"
+  empty: "スピーカーは採択が決まり次第、掲載します。"
+
+# スタッフ（fortee のスタッフ ＋ staff.yaml。実行委員長・副実行委員長の指定は staff.yaml の leaders）
+staff:
+  title: "スタッフ"
+  description:
+    - "PHPカンファレンス関西2026は、関西のPHPコミュニティの有志スタッフによって運営されています。"
+    - "当日は会場でお気軽にお声がけください。"
+  empty: "準備中です。"
 
 footer:
   organizer: "PHPカンファレンス関西2026実行委員会"

@@ -1,32 +1,113 @@
 ---
+/**
+ * スポンサー一覧。fortee のスポンサーAPI（プランごと）をランクに振り分けて表示する。
+ * sponsors.yaml は fortee にロゴが無いときのロゴ補完と、fortee 未登録のスポンサーの追加に使う。
+ * 個人スポンサーのプラン（site.yaml の individual_sponsors.plans）はここでは表示しない（IndividualSponsors.astro）。
+ */
 import { Image } from 'astro:assets';
-import { site, sponsors } from '../lib/data';
+import type { ImageMetadata } from 'astro';
+import { site, sponsors as localSponsors } from '../lib/data';
 import { sponsorLogos } from '../lib/assets';
+import { fetchSponsorPlans, type ForteeSponsorPlan } from '../lib/fortee';
+import { normalizeName } from '../lib/people';
+import { dummyEnabled } from '../lib/dummy';
+import Cloud from './Cloud.astro';
+
+interface Card {
+  name: string;
+  url?: string;
+  /** fortee のロゴURL */
+  logoUrl?: string;
+  /** src/assets/sponsors のロゴ */
+  logo?: ImageMetadata;
+  dummy?: boolean;
+}
+
+const norm = (s: string) => s.trim().toLowerCase();
+const planNames = (plan: ForteeSponsorPlan) =>
+  [plan.name, plan.name_en].filter((n): n is string => Boolean(n)).map(norm);
+
+const individualPlans = new Set((site.individual_sponsors?.plans ?? []).map(norm));
+const tierOfPlan = (plan: ForteeSponsorPlan) =>
+  site.sponsor_tiers.find((t) => {
+    const names = (t.plans ?? [t.id, t.label]).map(norm);
+    return planNames(plan).some((n) => names.includes(n));
+  });
+
+const plans = await fetchSponsorPlans();
+const localByName = new Map(localSponsors.map((s) => [normalizeName(s.name), s]));
+const usedLocal = new Set<string>();
+const tierItems = new Map<string, Card[]>(site.sponsor_tiers.map((t) => [t.id, []]));
+
+const localLogo = (file: string | undefined, name: string) => {
+  if (!file) return undefined;
+  const logo = sponsorLogos.get(file);
+  if (!logo) console.warn(`[sponsors] ロゴ画像が見つかりません: src/assets/sponsors/${file} (${name})`);
+  return logo;
+};
+
+// 1) fortee のスポンサー
+for (const plan of plans) {
+  if (planNames(plan).some((n) => individualPlans.has(n))) continue;
+  const tier = tierOfPlan(plan);
+  if (!tier) {
+    console.warn(`[sponsors] fortee のプラン「${plan.name}」に対応するランクがありません（site.yaml の sponsor_tiers[].plans に追加してください）`);
+    continue;
+  }
+  for (const s of plan.sponsors) {
+    const key = normalizeName(s.name);
+    const local = localByName.get(key);
+    if (local) usedLocal.add(key);
+    tierItems.get(tier.id)!.push({
+      name: s.name,
+      url: s.url || local?.url,
+      logoUrl: s.avatar,
+      logo: s.avatar ? undefined : localLogo(local?.logo, s.name),
+    });
+  }
+}
+
+// 2) sponsors.yaml にだけ書かれているスポンサー
+for (const s of localSponsors) {
+  if (usedLocal.has(normalizeName(s.name))) continue;
+  const list = tierItems.get(s.tier);
+  if (!list) {
+    console.warn(`[sponsors] 未定義の tier があります: ${s.name}(${s.tier})`);
+    continue;
+  }
+  list.push({ name: s.name, url: s.url, logo: localLogo(s.logo, s.name) });
+}
+
+// 3) 開発時のダミー（空のランクをデザイン通りの枚数で埋める）
+const DUMMY_ROWS: Record<string, number> = { platinum: 1, gold: 2, silver: 3, bronze: 3 };
+if (dummyEnabled) {
+  for (const t of site.sponsor_tiers) {
+    const list = tierItems.get(t.id)!;
+    if (list.length > 0) continue;
+    const n = t.columns * (DUMMY_ROWS[t.id] ?? 2);
+    for (let i = 0; i < n; i++) list.push({ name: 'ダミー', dummy: true });
+  }
+}
 
 const tiers = site.sponsor_tiers
-  .map((tier) => ({
-    ...tier,
-    items: sponsors.filter((s) => s.tier === tier.id),
-  }))
+  .map((t) => ({ ...t, items: tierItems.get(t.id)! }))
   .filter((t) => t.items.length > 0);
-
-const unknown = sponsors.filter((s) => !site.sponsor_tiers.some((t) => t.id === s.tier));
-if (unknown.length > 0) {
-  console.warn(
-    `[sponsors] 未定義の tier があります: ${unknown.map((s) => `${s.name}(${s.tier})`).join(', ')}`,
-  );
-}
+const { sponsors: text } = site;
 ---
 
 <section class="section section--purple sponsors" id="sponsors">
-  <div class="container sponsors__inner">
-    <h2 class="section-title section-title--white">スポンサー</h2>
+  <Cloud class="sponsors__cloud sponsors__cloud--1" dim />
+  <Cloud class="sponsors__cloud sponsors__cloud--2" dim flip />
 
-    {
-      tiers.length === 0 && (
-        <p class="sponsors__empty">スポンサー募集中です。</p>
-      )
-    }
+  <div class="container sponsors__inner">
+    <div class="sponsors__head">
+      <h2 class="section-title section-title--white">{text.title}</h2>
+      <p class="section-lead">
+        {text.description.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
+      </p>
+    </div>
+
+    {tiers.length === 0 && <p class="sponsors__empty">{text.empty}</p>}
 
     {
       tiers.map((tier) => (
@@ -34,18 +115,18 @@ if (unknown.length > 0) {
           <h3 class="sponsors__tier-title">{tier.label}</h3>
           <ul class="sponsors__grid">
             {tier.items.map((s) => {
-              const logo = s.logo ? sponsorLogos.get(s.logo) : undefined;
-              if (s.logo && !logo) {
-                console.warn(`[sponsors] ロゴ画像が見つかりません: src/assets/sponsors/${s.logo} (${s.name})`);
-              }
-              const inner = logo ? (
-                <Image src={logo} alt={s.name} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 400px" />
+              const inner = s.dummy ? (
+                <span class="sponsors__ph" aria-hidden="true" />
+              ) : s.logoUrl ? (
+                <img src={s.logoUrl} alt={s.name} loading="lazy" decoding="async" />
+              ) : s.logo ? (
+                <Image src={s.logo} alt={s.name} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 400px" />
               ) : (
                 <span class="sponsors__ph">{s.name}</span>
               );
               return (
                 <li class="sponsors__item">
-                  {s.url ? (
+                  {s.url && !s.dummy ? (
                     <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.name}>
                       {inner}
                     </a>
@@ -67,11 +148,27 @@ if (unknown.length > 0) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    gap: 48px;
+  }
+
+  .sponsors__head {
+    width: 100%;
   }
 
   .sponsors__empty {
     opacity: 0.9;
+  }
+
+  /* 雲（紫の上なので薄く） */
+  .sponsors :global(.sponsors__cloud--1) {
+    top: 170px;
+    right: -60px;
+    width: 300px;
+  }
+  .sponsors :global(.sponsors__cloud--2) {
+    top: 560px;
+    left: -70px;
+    width: 260px;
   }
 
   .sponsors__tier {
@@ -79,45 +176,51 @@ if (unknown.length > 0) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 24px;
   }
 
   .sponsors__tier-title {
     font-family: var(--font-head);
     font-weight: 800;
-    font-size: 15px;
+    font-size: 18px;
     letter-spacing: 0.08em;
-    opacity: 0.95;
   }
 
-  /* 1枚あたりの幅をランクで変える（デザイン: 特大 / 大 / 中 / 小） */
+  /* 1枚あたりの幅をランクで変える（デザイン: 400 / 300 / 225 / 170px、縦横比 5:3）
+     flex-wrap にして端数の最終行も中央に寄せる。1行の枚数は --cols（site.yaml の columns）で幅を制限して決める */
   .sponsors__grid {
-    --card-w: 400px;
-    display: grid;
-    grid-template-columns: repeat(var(--cols), var(--card-w));
+    --card-w: 300px;
+    --gap-x: 40px;
+    --gap-y: 32px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 24px;
-    max-width: 100%;
+    gap: var(--gap-y) var(--gap-x);
+    width: 100%;
+    max-width: calc(var(--cols) * var(--card-w) + (var(--cols) - 1) * var(--gap-x));
   }
 
   .sponsors__tier--platinum .sponsors__grid {
-    --card-w: 560px;
-  }
-  .sponsors__tier--gold .sponsors__grid {
     --card-w: 400px;
   }
+  .sponsors__tier--gold .sponsors__grid {
+    --card-w: 300px;
+  }
   .sponsors__tier--silver .sponsors__grid {
-    --card-w: 260px;
+    --card-w: 226px;
   }
   .sponsors__tier--bronze .sponsors__grid {
-    --card-w: 200px;
+    --card-w: 170px;
+    --gap-x: 32px;
+    --gap-y: 28px;
   }
 
   .sponsors__item {
-    width: 100%;
-    aspect-ratio: 2 / 1;
+    flex: 0 0 var(--card-w);
+    max-width: 100%;
+    aspect-ratio: 5 / 3;
     background: var(--c-white);
-    border-radius: 8px;
+    border-radius: 6px;
     overflow: hidden;
   }
 
@@ -128,7 +231,7 @@ if (unknown.length > 0) {
     justify-content: center;
     width: 100%;
     height: 100%;
-    padding: 10%;
+    padding: 8%;
     transition: transform 0.15s;
   }
 
@@ -142,15 +245,15 @@ if (unknown.length > 0) {
     object-fit: contain;
   }
 
-  /* ロゴ未設定時: デザインのグレー枠 */
+  /* ロゴ未設定時: デザインのグレー枠（社名入り。ダミーは社名なし） */
   .sponsors__ph {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    margin: -12%;
-    padding: 12%;
+    margin: -10%;
+    padding: 10%;
     box-sizing: content-box;
     background: var(--c-placeholder);
     color: #555;
@@ -160,23 +263,36 @@ if (unknown.length > 0) {
     line-height: 1.4;
   }
 
-  @media (max-width: 1200px) {
-    .sponsors__grid {
-      grid-template-columns: repeat(var(--cols), minmax(0, var(--card-w)));
-      width: 100%;
-    }
-  }
-
   @media (max-width: 700px) {
-    .sponsors__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+    .sponsors__inner {
+      gap: 40px;
     }
-    .sponsors__tier--platinum .sponsors__grid {
-      grid-template-columns: 1fr;
+    .sponsors :global(.sponsors__cloud--1) {
+      top: 120px;
+      width: 180px;
+    }
+    .sponsors :global(.sponsors__cloud--2) {
+      top: 420px;
+      width: 160px;
+    }
+    /* スマホ: プラチナ1列 / ゴールド・シルバー2列 / ブロンズ3列 */
+    .sponsors__grid {
+      --gap-x: 14px;
+      --gap-y: 14px;
+      max-width: none;
+    }
+    .sponsors__item {
+      flex-basis: calc((100% - var(--gap-x)) / 2);
+    }
+    .sponsors__tier--platinum .sponsors__item {
+      flex-basis: 100%;
     }
     .sponsors__tier--bronze .sponsors__grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      --gap-x: 12px;
+      --gap-y: 12px;
+    }
+    .sponsors__tier--bronze .sponsors__item {
+      flex-basis: calc((100% - var(--gap-x) * 2) / 3);
     }
     .sponsors__ph {
       font-size: 10px;

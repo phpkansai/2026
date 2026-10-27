@@ -1,0 +1,54 @@
+---
+/**
+ * 個人スポンサー一覧。fortee のスポンサーAPIのうち、site.yaml の individual_sponsors.plans に挙げたプランの人を表示する。
+ */
+import { site } from '../lib/data';
+import { fetchSponsorPlans } from '../lib/fortee';
+import { twitterHandle, type Person } from '../lib/people';
+import { dummyPeople } from '../lib/dummy';
+import PeopleGrid from './PeopleGrid.astro';
+
+const norm = (s: string) => s.trim().toLowerCase();
+const targets = new Set((site.individual_sponsors.plans ?? []).map(norm));
+
+const plans = await fetchSponsorPlans();
+const seen = new Set<string>();
+const people: Person[] = [];
+for (const plan of plans) {
+  const names = [plan.name, plan.name_en].filter((n): n is string => Boolean(n)).map(norm);
+  if (!names.some((n) => targets.has(n))) continue;
+  for (const s of plan.sponsors) {
+    if (seen.has(s.id)) continue;
+    seen.add(s.id);
+    people.push({ name: s.name, handle: twitterHandle(s.twitter), url: s.url, avatarUrl: s.avatar });
+  }
+}
+
+const items = people.length > 0 ? people : dummyPeople(15);
+const { individual_sponsors: text } = site;
+---
+
+<section class="section section--purple individual" id="individual-sponsors">
+  <div class="container individual__inner">
+    <div>
+      <h2 class="section-title section-title--white">{text.title}</h2>
+      <p class="section-lead">
+        {text.description.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
+      </p>
+    </div>
+    {items.length === 0 ? <p class="individual__empty">{text.empty}</p> : <PeopleGrid people={items} tone="dark" />}
+  </div>
+</section>
+
+<style>
+  .individual__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .individual__empty {
+    opacity: 0.9;
+  }
+</style>

@@ -13,6 +13,8 @@ export interface SponsorTier {
   id: string;
   label: string;
   columns: number;
+  /** fortee のプラン名（name / name_en）のうち、このランクとして扱うもの。省略時は id と label */
+  plans?: string[];
 }
 
 export interface SiteConfig {
@@ -47,10 +49,13 @@ export interface SiteConfig {
     news: boolean;
     proposal: boolean;
     sponsors: boolean;
+    speakers: boolean;
+    individual_sponsors: boolean;
     staff: boolean;
     recruit: boolean;
     timetable: boolean;
   };
+  preview?: { dummy_data?: boolean };
   timetable: { mode: 'auto' | 'internal' | 'external' };
   news: { limit: number };
   message: { title: string; lead: string[]; body: string[]; signature: string[] };
@@ -80,6 +85,10 @@ export interface SiteConfig {
     requestalk: { body: string; link_label: string; url: string };
   };
   sponsor_tiers: SponsorTier[];
+  sponsors: { title: string; description: string[]; empty: string };
+  individual_sponsors: { title: string; description: string[]; empty: string; plans: string[] };
+  speakers: { title: string; description: string[]; empty: string };
+  staff: { title: string; description: string[]; empty: string };
   footer: {
     organizer: string;
     copyright: string;
@@ -87,6 +96,10 @@ export interface SiteConfig {
   };
 }
 
+/**
+ * sponsors.yaml の1件。fortee に同名のスポンサーがいればロゴ・URLの補完に使い、
+ * いなければそのまま追加表示する。
+ */
 export interface SponsorEntry {
   name: string;
   tier: string;
@@ -100,7 +113,15 @@ export interface LocalNews {
   url?: string;
 }
 
+export interface StaffLeader {
+  /** 表示する役職名（バッジ） */
+  role: string;
+  /** X のハンドル（@ 無し）。fortee のスタッフのうちこのハンドルの人をこの役職として先頭に出す */
+  twitter: string;
+}
+
 export interface StaffConfig {
+  leaders: StaffLeader[];
   role_order: string[];
   extra: { name: string; role?: string; url?: string; image?: string }[];
   hide: string[];

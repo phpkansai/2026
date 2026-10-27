@@ -14,6 +14,7 @@
   --c-text-muted: #6b6478;
   --c-placeholder: #c4c4c4;
   --c-line: rgba(133, 104, 205, 0.25);
+  --c-header-bg: #2a2a2a;
 
   --font-body: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
   --font-head: 'M PLUS Rounded 1c', var(--font-body);
@@ -135,6 +136,42 @@ button {
 
 .section-title--white {
   color: var(--c-white);
+}
+
+/* セクション見出しの下の説明文（中央揃え・1要素1行） */
+.section-lead {
+  margin-top: 28px;
+  font-size: 15px;
+  line-height: 1.9;
+  text-align: center;
+}
+
+/* セクション内の小見出し（コアスタッフ / 当日スタッフ など） */
+.section-subtitle {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  line-height: 1.4;
+  color: var(--c-purple);
+}
+
+.section-subtitle--white {
+  color: var(--c-white);
+}
+
+@media (max-width: 600px) {
+  .section-lead {
+    font-size: 14px;
+    text-align: left;
+  }
+  .section-lead br {
+    display: none;
+  }
+  .section-subtitle {
+    font-size: 19px;
+  }
 }
 
 .card {

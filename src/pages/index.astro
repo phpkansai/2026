@@ -5,9 +5,11 @@ import News from '../components/News.astro';
 import Message from '../components/Message.astro';
 import Overview from '../components/Overview.astro';
 import Proposal from '../components/Proposal.astro';
-import Sponsors from '../components/Sponsors.astro';
-import Staff from '../components/Staff.astro';
 import Recruit from '../components/Recruit.astro';
+import Sponsors from '../components/Sponsors.astro';
+import Speakers from '../components/Speakers.astro';
+import IndividualSponsors from '../components/IndividualSponsors.astro';
+import Staff from '../components/Staff.astro';
 import { site } from '../lib/data';
 
 // 各セクションの表示 / 非表示は src/data/site.yaml の sections で切り替える
@@ -20,7 +22,9 @@ const show = site.sections;
   <Message />
   <Overview />
   {show.proposal && <Proposal />}
-  {show.sponsors && <Sponsors />}
-  {show.staff && <Staff />}
   {show.recruit && <Recruit />}
+  {show.sponsors && <Sponsors />}
+  {show.speakers && <Speakers />}
+  {show.individual_sponsors && <IndividualSponsors />}
+  {show.staff && <Staff />}
 </Base>

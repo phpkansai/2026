@@ -48,6 +48,7 @@ export async function fetchNews(): Promise<ForteeNews[]> {
 export interface ForteeStaff {
   id: string;
   name: string;
+  /** X / GitHub などのプロフィールURL（X の場合はここから @ハンドルを取り出す） */
   url?: string;
   avatar_url?: string;
 }
@@ -86,6 +87,33 @@ export async function fetchTimetable(): Promise<ForteeTimetableItem[]> {
   return data.timetable ?? [];
 }
 
+// ---- SPONSORS ----
+export interface ForteeSponsor {
+  id: string;
+  name: string;
+  kana?: string;
+  url?: string;
+  pr?: string;
+  twitter?: string;
+  /** ロゴ画像のURL（fortee でロゴをアップロードすると付く。無い間はキー自体が無い） */
+  avatar?: string;
+}
+
+export interface ForteeSponsorPlan {
+  /** プラン名（fortee の管理画面で付けた名前。例: gold / ゴールドプラン / 個人スポンサー） */
+  name: string;
+  name_en?: string;
+  sponsors: ForteeSponsor[];
+}
+
+/** スポンサー一覧（プランごと）。同じ会社が複数プランに入ることもある */
+export async function fetchSponsorPlans(): Promise<ForteeSponsorPlan[]> {
+  const data = await getJson<{ sponsor_plans: ForteeSponsorPlan[] }>('sponsors', {
+    sponsor_plans: [],
+  });
+  return data.sponsor_plans ?? [];
+}
+
 // ---- PROPOSALS ----
 export interface ForteeProposal {
   uuid: string;
@@ -108,6 +136,14 @@ export const proposalsApiUrl = `${BASE}/proposals`;
 export async function fetchProposals(): Promise<ForteeProposal[]> {
   const data = await getJson<{ proposals: ForteeProposal[] }>('proposals', { proposals: [] });
   return data.proposals ?? [];
+}
+
+/** 採択済みプロポーザルのみ（スピーカー一覧に使う） */
+export async function fetchAcceptedProposals(): Promise<ForteeProposal[]> {
+  const data = await getJson<{ proposals: ForteeProposal[] }>('proposals/accepted', {
+    proposals: [],
+  });
+  return (data.proposals ?? []).filter((p) => p.accepted !== false);
 }
 
 /** タイムテーブルのナビ先を決める */

@@ -1,0 +1,201 @@
+---
+/**
+ * 丸いアイコン＋名前の人物グリッド（スピーカー / 個人スポンサー / スタッフで共用）。
+ *   size: md … 110px（一覧）/ lg … 170px（実行委員長など先頭に大きく出す人）
+ *   tone: light … 薄ピンク背景用（文字は黒）/ dark … 紫背景用（文字は白）
+ */
+import { Image } from 'astro:assets';
+import type { Person } from '../lib/people';
+
+interface Props {
+  people: Person[];
+  size?: 'md' | 'lg';
+  tone?: 'light' | 'dark';
+  /** @ハンドルを名前の下に出すか */
+  showHandle?: boolean;
+}
+const { people, size = 'md', tone = 'light', showHandle = true } = Astro.props;
+const px = size === 'lg' ? 170 : 110;
+---
+
+<ul class:list={['people', `people--${size}`, `people--${tone}`]}>
+  {
+    people.map((p) => {
+      const avatar = p.image ? (
+        <Image src={p.image} alt="" width={px * 2} height={px * 2} />
+      ) : p.avatarUrl ? (
+        <img src={p.avatarUrl} alt="" width={px} height={px} loading="lazy" decoding="async" />
+      ) : null;
+      const body = (
+        <>
+          <span class="people__avatar">{avatar}</span>
+          <span class="people__name">{p.name}</span>
+          {showHandle && p.handle && <span class="people__handle">@{p.handle}</span>}
+          {p.badge && <span class="people__badge">{p.badge}</span>}
+        </>
+      );
+      return (
+        <li class:list={['people__item', { 'people__item--dummy': p.dummy }]}>
+          {p.url && !p.dummy ? (
+            <a href={p.url} target="_blank" rel="noopener noreferrer">
+              {body}
+            </a>
+          ) : (
+            <div>{body}</div>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  /* flex-wrap にして、端数の最終行も中央に寄せる（1行は最大5人） */
+  .people {
+    --avatar: 110px;
+    --gap-x: 40px;
+    --gap-y: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap-y) var(--gap-x);
+    width: 100%;
+    max-width: calc(var(--avatar) * 5 + var(--gap-x) * 4);
+    margin-inline: auto;
+  }
+
+  .people__item {
+    flex: 0 0 var(--avatar);
+    min-width: 0;
+  }
+
+  .people--lg {
+    --avatar: 170px;
+    --gap-x: 56px;
+    --gap-y: 40px;
+    max-width: none;
+  }
+
+  .people__item a,
+  .people__item > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--c-text);
+  }
+
+  .people--dark .people__item a,
+  .people--dark .people__item > div {
+    color: var(--c-white);
+  }
+
+  .people__avatar {
+    display: block;
+    width: var(--avatar);
+    height: var(--avatar);
+    margin-bottom: 6px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--c-placeholder);
+    transition: transform 0.15s;
+  }
+
+  .people__item a:hover .people__avatar {
+    transform: scale(1.06);
+  }
+
+  .people__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .people__name {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+    word-break: break-word;
+    max-width: calc(var(--avatar) + var(--gap-x) - 8px);
+  }
+
+  .people--lg .people__name {
+    font-size: 16px;
+  }
+
+  .people__handle {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--c-text-muted);
+    word-break: break-all;
+    max-width: calc(var(--avatar) + var(--gap-x) - 8px);
+  }
+
+  .people--dark .people__handle {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .people__badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 18px;
+    border-radius: 999px;
+    background: var(--c-purple);
+    color: var(--c-white);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .people--dark .people__badge {
+    background: var(--c-white);
+    color: var(--c-purple);
+  }
+
+  @media (max-width: 600px) {
+    .people {
+      --gap-x: 12px;
+      --gap-y: 28px;
+      max-width: none;
+    }
+    .people__item {
+      flex-basis: calc((100% - var(--gap-x) * 2) / 3);
+    }
+    .people--lg {
+      max-width: 320px;
+    }
+    .people--lg .people__item {
+      flex-basis: calc((100% - var(--gap-x)) / 2);
+    }
+    .people__avatar {
+      width: min(var(--avatar), 100%);
+      aspect-ratio: 1;
+      height: auto;
+    }
+    .people--md .people__avatar {
+      --avatar: 84px;
+    }
+    .people--lg .people__avatar {
+      --avatar: 130px;
+    }
+    .people__name,
+    .people__handle {
+      max-width: 100%;
+    }
+    .people__name {
+      font-size: 12px;
+    }
+    .people--lg .people__name {
+      font-size: 14px;
+    }
+    .people__handle {
+      font-size: 11px;
+    }
+    .people__badge {
+      font-size: 12px;
+      padding: 3px 14px;
+    }
+  }
+</style>

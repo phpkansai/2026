@@ -1,88 +1,120 @@
 ---
-import { Image } from 'astro:assets';
-import { staffConfig } from '../lib/data';
+/**
+ * スタッフ一覧。fortee のスタッフAPI（グループごと）＋ staff.yaml。
+ *   - staff.yaml の leaders に挙げたハンドルの人（または fortee のグループ名が役職名と同じ人）は
+ *     先頭に大きく、役職バッジ付きで表示する（実行委員長・副実行委員長）。
+ *   - それ以外は fortee のグループ名（コアスタッフ / 当日スタッフ …）ごとに小見出しを付けて表示する。
+ */
+import { site, staffConfig } from '../lib/data';
 import { staffImages } from '../lib/assets';
 import { fetchStaff } from '../lib/fortee';
-
-interface Member {
-  name: string;
-  role: string;
-  url?: string;
-  /** 外部URL（fortee のアバター）*/
-  avatarUrl?: string;
-  /** src/assets/staff のファイル名 */
-  image?: string;
-}
+import { twitterHandle, normalizeHandle, normalizeName, type Person } from '../lib/people';
+import { dummyEnabled, dummyPeople } from '../lib/dummy';
+import PeopleGrid from './PeopleGrid.astro';
 
 const grouped = await fetchStaff();
 const hidden = new Set(staffConfig.hide ?? []);
+const leaderCfg = staffConfig.leaders ?? [];
+const roleByHandle = new Map(leaderCfg.map((l) => [normalizeHandle(l.twitter), l.role]));
+const leaderRoles = leaderCfg.map((l) => l.role);
 
-const members: Member[] = [];
-for (const [role, list] of Object.entries(grouped)) {
+const leaders: Person[] = [];
+const groups = new Map<string, Person[]>();
+const seenHandles = new Set<string>();
+const seenNames = new Set<string>();
+
+function add(p: Person, group: string) {
+  const h = normalizeHandle(p.handle);
+  const n = normalizeName(p.name);
+  if ((h && seenHandles.has(h)) || seenNames.has(n)) return; // fortee と extra の二重登録を防ぐ
+  if (h) seenHandles.add(h);
+  seenNames.add(n);
+
+  const role = (h && roleByHandle.get(h)) || (leaderRoles.includes(group) ? group : undefined);
+  if (role) {
+    leaders.push({ ...p, badge: role });
+    return;
+  }
+  if (!groups.has(group)) groups.set(group, []);
+  groups.get(group)!.push(p);
+}
+
+// 1) fortee（extra より先に入れる → 同じ人がいれば fortee 側を採用）
+for (const [group, list] of Object.entries(grouped)) {
   for (const s of list) {
     if (hidden.has(s.name)) continue;
-    members.push({ name: s.name, role, url: s.url, avatarUrl: s.avatar_url });
+    add({ name: s.name, handle: twitterHandle(undefined, s.url), url: s.url, avatarUrl: s.avatar_url }, group);
   }
 }
+
+// 2) staff.yaml の extra
 for (const e of staffConfig.extra ?? []) {
   const isUrl = e.image?.startsWith('http');
-  members.push({
-    name: e.name,
-    role: e.role ?? 'スタッフ',
-    url: e.url,
-    avatarUrl: isUrl ? e.image : undefined,
-    image: isUrl ? undefined : e.image,
-  });
+  const image = !isUrl && e.image ? staffImages.get(e.image) : undefined;
+  if (e.image && !isUrl && !image) {
+    console.warn(`[staff] 画像が見つかりません: src/assets/staff/${e.image} (${e.name})`);
+  }
+  add(
+    {
+      name: e.name,
+      handle: twitterHandle(undefined, e.url),
+      url: e.url,
+      avatarUrl: isUrl ? e.image : undefined,
+      image,
+    },
+    e.role ?? 'スタッフ',
+  );
 }
 
+// 役職の並びは leaders の定義順
+leaders.sort((a, b) => leaderRoles.indexOf(a.badge!) - leaderRoles.indexOf(b.badge!));
+
+// 3) 開発時のダミー（いない役職・空のグループを埋める）
+if (dummyEnabled) {
+  for (const role of leaderRoles) {
+    if (!leaders.some((l) => l.badge === role)) leaders.push(...dummyPeople(1, { badge: role }));
+  }
+  leaders.sort((a, b) => leaderRoles.indexOf(a.badge!) - leaderRoles.indexOf(b.badge!));
+  for (const g of staffConfig.role_order ?? []) {
+    if (!groups.has(g)) groups.set(g, dummyPeople(10));
+  }
+}
+
+// グループの表示順: role_order → それ以外は fortee の順
 const order = staffConfig.role_order ?? [];
-const rank = (role: string) => {
-  const i = order.indexOf(role);
+const rank = (g: string) => {
+  const i = order.indexOf(g);
   return i === -1 ? order.length : i;
 };
-members.sort((a, b) => rank(a.role) - rank(b.role));
+const groupList = [...groups.entries()]
+  .map(([name, members]) => ({ name, members }))
+  .sort((a, b) => rank(a.name) - rank(b.name));
 
-const showRole = (role: string) => role !== 'コアスタッフ' && role !== 'スタッフ';
+const isEmpty = leaders.length === 0 && groupList.length === 0;
+const { staff: text } = site;
 ---
 
 <section class="section section--pink staff" id="staff">
   <div class="container staff__inner">
-    <h2 class="section-title section-title--purple">スタッフ</h2>
+    <div>
+      <h2 class="section-title section-title--purple">{text.title}</h2>
+      <p class="section-lead">
+        {text.description.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
+      </p>
+    </div>
 
-    {members.length === 0 && <p class="staff__empty">準備中です。</p>}
+    {isEmpty && <p class="staff__empty">{text.empty}</p>}
 
-    <ul class="staff__grid">
-      {
-        members.map((m) => {
-          const local = m.image ? staffImages.get(m.image) : undefined;
-          const avatar = local ? (
-            <Image src={local} alt="" width={160} height={160} />
-          ) : m.avatarUrl ? (
-            <img src={m.avatarUrl} alt="" width="160" height="160" loading="lazy" />
-          ) : (
-            <span class="staff__ph" aria-hidden="true" />
-          );
-          const body = (
-            <>
-              <span class="staff__avatar">{avatar}</span>
-              <span class="staff__name">{m.name}</span>
-              {showRole(m.role) && <span class="staff__role">{m.role}</span>}
-            </>
-          );
-          return (
-            <li class="staff__item">
-              {m.url ? (
-                <a href={m.url} target="_blank" rel="noopener noreferrer">
-                  {body}
-                </a>
-              ) : (
-                <div>{body}</div>
-              )}
-            </li>
-          );
-        })
-      }
-    </ul>
+    {leaders.length > 0 && <PeopleGrid people={leaders} size="lg" showHandle={false} />}
+
+    {
+      groupList.map((g) => (
+        <div class="staff__group">
+          <h3 class="section-subtitle">{g.name}</h3>
+          <PeopleGrid people={g.members} showHandle={false} />
+        </div>
+      ))
+    }
   </div>
 </section>
 
@@ -91,82 +123,18 @@ const showRole = (role: string) => role !== 'コアスタッフ' && role !== '�
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    gap: 48px;
   }
 
   .staff__empty {
     color: var(--c-text-muted);
   }
 
-  .staff__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 120px);
-    justify-content: center;
-    gap: 32px 40px;
+  .staff__group {
     width: 100%;
-  }
-
-  .staff__item a,
-  .staff__item > div {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: var(--c-text);
-  }
-
-  .staff__avatar {
-    display: block;
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: var(--c-placeholder);
-    transition: transform 0.15s;
-  }
-
-  .staff__item a:hover .staff__avatar {
-    transform: scale(1.06);
-  }
-
-  .staff__avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .staff__ph {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .staff__name {
-    font-size: 13px;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.4;
-    word-break: break-word;
-  }
-
-  .staff__role {
-    font-size: 11px;
-    color: var(--c-purple);
-    font-weight: 700;
-  }
-
-  @media (max-width: 600px) {
-    .staff__grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 24px 12px;
-    }
-    .staff__avatar {
-      width: 84px;
-      height: 84px;
-    }
-    .staff__name {
-      font-size: 12px;
-    }
+    gap: 36px;
   }
 </style>
