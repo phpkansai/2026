@@ -151,6 +151,7 @@ export async function resolveTimetableHref(): Promise<string> {
   const mode = site.timetable.mode;
   if (mode === 'internal') return '/timetable/';
   if (mode === 'external') return site.links.timetable_external;
+  // 枠（休憩・LT枠など）だけの間は fortee へ。トークが1件でも載ったらサイト内へ
   const items = await fetchTimetable();
-  return items.length > 0 ? '/timetable/' : site.links.timetable_external;
+  return items.some((i) => i.type === 'talk') ? '/timetable/' : site.links.timetable_external;
 }

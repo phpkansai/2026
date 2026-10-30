@@ -1,0 +1,180 @@
+---
+/**
+ * お誘いチケットの説明ページ（/invite-ticket/）。トップのチケットセクションから別タブで開く。
+ * 構成は 2024 年の note 記事「チケット購入方法と"お誘いチケット"について」を踏襲。
+ * 金額・枚数・期限・URL は site.yaml の tickets から参照する。
+ */
+import Base from '../layouts/Base.astro';
+import ArrowOutwardIcon from '../components/icons/ArrowOutwardIcon.astro';
+import { site } from '../lib/data';
+
+const { tickets, event } = site;
+const { invite, regular } = tickets;
+const deadline = tickets.sticker_deadline_label;
+
+const examples = [
+  `${event.name}に行きたいんだけど、一緒に行くと安くなるからどう？`,
+  `今回の${event.name}はまとめて買うと参加費の割引が効くので、会社で希望者を募って行きませんか？`,
+  '勉強になるイベントがあるから行ってみない？一緒に行けば安くなるらしいし',
+];
+
+const peatixHelp = [
+  {
+    label: 'チケットを譲渡する（Peatix ヘルプ）',
+    url: 'https://help-attendee.peatix.com/ja-JP/support/solutions/articles/44001821789',
+  },
+  {
+    label: '知り合いから届いた譲渡チケットを受け取る（Peatix ヘルプ）',
+    url: 'https://help-attendee.peatix.com/ja-JP/support/solutions/articles/44001821790',
+  },
+];
+---
+
+<Base
+  title="お誘いチケットとは"
+  subpage
+  description={`${event.name}の「お誘いチケット」は、知り合いを誘って参加するためのチケットです。${invite.min_quantity}枚以上まとめて購入すると一人あたり${invite.discount_label}お得になります。`}
+>
+  <section class="section section--pink">
+    <div class="container--narrow">
+      <div class="card">
+        <h1 class="section-title section-title--purple">お誘いチケットとは</h1>
+
+        <div class="prose invite">
+          <p class="invite__lead">
+            「お誘いチケット」は、その名の通り<strong>「知り合いを誘って参加するためのチケット」</strong>です。
+            {invite.min_quantity}枚以上まとめて購入すると、一人あたり<strong>{invite.discount_label}</strong
+            >お得に{event.name}へ参加できます。
+          </p>
+
+          <h2>チケットの種類</h2>
+          <p>{event.name}に参加するには、次のいずれかの入場チケットが必要です。</p>
+          <ul>
+            <li>
+              <strong>{regular.title}</strong>（1枚から購入できます）
+            </li>
+            <li>
+              <strong>{invite.title}</strong>（{invite.min_quantity}枚以上から購入できます。一人あたり{invite.discount_label}割引）
+            </li>
+            {tickets.party_ticket && <li>懇親会チケット（イベント後の懇親会に参加する方は合わせてお買い求めください）</li>}
+          </ul>
+          <p>
+            お誘いチケットは、購入後に Peatix の機能で一緒に行く人へ<strong>「譲渡」</strong>してください。入場できる内容は通常チケットと同じです。
+          </p>
+          <p><small>※ 登壇者・スポンサーの方は、Peatix でのチケット購入は不要です。</small></p>
+
+          <h2>なぜ「お誘いチケット」があるの？</h2>
+          <p>
+            {event.name}は「まわりを巻き込む」ことをテーマのひとつに掲げています。そのためには、これまでPHPカンファレンス関西に参加したことがない人にも、できるだけ多く来ていただきたいと考えています。
+          </p>
+          <p>
+            しかし、こうした人へ情報を届けるのは簡単ではありません。普段から技術コミュニティの情報に触れている人には X や note での広報が届くかもしれませんが、そもそもこうした情報に触れていない人には、いくら宣伝しても目にしてもらうことすら難しいのです。
+          </p>
+          <p>
+            そこで、<strong>「普段から技術コミュニティへ参加している人に、ご新規さんを連れてきてもらおう」</strong>というのが、この「お誘いチケット」です。これを理由に、ぜひ周りの同僚や後輩、先輩を{event.name}に誘ってみてください！
+          </p>
+
+          <h2>こんなふうに誘ってみてください</h2>
+          <ul class="invite__examples">
+            {examples.map((text) => <li>「{text}」</li>)}
+          </ul>
+
+          <h2>購入から譲渡までの流れ</h2>
+          <ol class="invite__steps">
+            <li>一緒に行く人と人数を決める</li>
+            <li>Peatix で「{invite.title}」を{invite.min_quantity}枚以上まとめて購入する</li>
+            <li>購入後すぐに、Peatix の譲渡機能で一緒に行く人へチケットを渡す</li>
+            <li>受け取った人は Peatix で譲渡チケットを受け取る</li>
+          </ol>
+          <p>譲渡の操作方法は Peatix の公式ヘルプを参照してください。</p>
+          <ul>
+            {
+              peatixHelp.map((h) => (
+                <li>
+                  <a href={h.url} target="_blank" rel="noopener noreferrer">
+                    {h.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+
+          <h2>PHPerシールと購入時期のお願い</h2>
+          <p>チケットについて、2つお願いがあります。</p>
+          <ul>
+            <li>
+              チケットは<strong>{deadline}まで</strong>に購入してください
+            </li>
+            <li>お誘いチケットは<strong>購入後すみやかに譲渡</strong>してください</li>
+          </ul>
+          <p>
+            {event.name}の参加者は、PHPerシールを作成するために「fortee とチケットの連携」を行う必要があります。連携方法はチケットの所持者へメールでお送りするため、メール送信時にはチケットを参加者自身が持っている必要があります。
+          </p>
+          <p>
+            そのため、チケットはできるだけ{deadline}までに購入し、お誘いチケットの譲渡も購入後すぐにお願いします。
+          </p>
+          <p>
+            <small>※ {deadline}以降もチケットは購入できますが、当日のPHPerシールの配布は保証できません。</small>
+          </p>
+        </div>
+
+        <div class="invite__cta">
+          <a class="btn btn--lg" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
+            {tickets.button}
+            <span class="invite__arrow"><ArrowOutwardIcon /></span>
+          </a>
+        </div>
+
+        <p class="back"><a href="/#tickets">トップページへ戻る</a></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .invite__lead {
+    margin-top: 32px;
+    font-size: 16px;
+    line-height: 2;
+  }
+
+  .invite__lead strong,
+  .invite strong {
+    color: var(--c-pink-dark);
+  }
+
+  .invite__examples li {
+    font-weight: 700;
+    color: var(--c-purple-dark);
+  }
+
+  .invite__steps {
+    list-style: decimal;
+    padding-left: 1.6em;
+    margin-bottom: 1em;
+  }
+
+  .invite__steps li {
+    margin-bottom: 0.3em;
+  }
+
+  .invite__cta {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .invite__arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  .back {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .back a {
+    color: var(--c-purple);
+  }
+</style>

@@ -61,7 +61,32 @@ const mascot = slot('footer-mascot') ?? slot('hero-mascot');
         }
       </ul>
 
-      <p class="footer__org">{site.footer.organizer}</p>
+      <div class="footer__org">
+        <p class="footer__org-heading">主催</p>
+        <ul class="footer__org-list">
+          {
+            site.footer.organizers.map((org) => (
+              <li>
+                {org.url ? (
+                  <a href={org.url} target="_blank" rel="noopener noreferrer">
+                    {org.label}
+                  </a>
+                ) : (
+                  org.label
+                )}
+              </li>
+            ))
+          }
+        </ul>
+        <p class="footer__org-note">
+          {site.footer.organizer_note}
+          {site.footer.organizer_note_link && (
+            <a class="footer__org-note-link" href={site.footer.organizer_note_link.url}>
+              {site.footer.organizer_note_link.label}
+            </a>
+          )}
+        </p>
+      </div>
       <p class="footer__copy">{site.footer.copyright}</p>
     </div>
   </div>
@@ -169,7 +194,43 @@ const mascot = slot('footer-mascot') ?? slot('hero-mascot');
 
   .footer__org {
     margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .footer__org-heading {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+  }
+
+  .footer__org-list {
     font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .footer__org-list a {
+    color: var(--c-white);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .footer__org-note {
+    max-width: 36em;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+
+  .footer__org-note-link {
+    margin-left: 0.5em;
+    color: var(--c-white);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    white-space: nowrap;
   }
 
   .footer__copy {

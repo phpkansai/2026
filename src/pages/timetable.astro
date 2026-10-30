@@ -11,7 +11,10 @@ import { site } from '../lib/data';
         <h1 class="section-title section-title--purple">タイムテーブル</h1>
         <p class="date">{site.event.date_label}　{site.venue.name}</p>
         <Timetable />
-        <p class="back"><a href="/">トップページへ戻る</a></p>
+        <p class="ext">
+          <a href={site.links.timetable_external} target="_blank" rel="noopener noreferrer">forteeで見る</a>
+        </p>
+        <p class="back"><a href="/#timetable">トップページへ戻る</a></p>
       </div>
     </div>
   </section>
@@ -24,8 +27,16 @@ import { site } from '../lib/data';
     font-weight: 700;
     color: var(--c-text-muted);
   }
-  .back {
+  .ext {
     margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .ext a {
+    color: var(--c-pink-dark);
+  }
+  .back {
+    margin-top: 12px;
     text-align: center;
     font-size: 14px;
   }

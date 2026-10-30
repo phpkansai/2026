@@ -17,6 +17,25 @@ export interface SponsorTier {
   plans?: string[];
 }
 
+export interface CtaLink {
+  label: string;
+  /** "#xxx" ならページ内スクロール、http で始まれば外部リンク */
+  href: string;
+}
+
+export interface RecruitItem {
+  icon: 'proposal' | 'sponsor' | 'request' | string;
+  title: string;
+  /** open（募集中・上段に大きく） / closed（受付終了・下段に小さく）。省略時は open */
+  status?: 'open' | 'closed';
+  deadline?: string;
+  description?: string;
+  button: string;
+  url: string;
+  /** open のカードを1列で横いっぱいに表示する */
+  wide?: boolean;
+}
+
 export interface SiteConfig {
   url: string;
   event: {
@@ -35,9 +54,13 @@ export interface SiteConfig {
     map_link_url: string;
   };
   fortee: { slug: string; base_url: string };
-  cta: { label: string; href: string };
+  cta: {
+    /** ヒーローの主ボタン（ピンク塗り）。ナビ末尾のリンクにも使う */
+    primary: CtaLink;
+    /** ヒーローの副ボタン（白抜き）。省略すると出ない */
+    secondary?: CtaLink;
+  };
   links: {
-    register: string;
     proposal: string;
     timetable_external: string;
     x: string;
@@ -47,33 +70,60 @@ export interface SiteConfig {
   redirects: Record<string, string>;
   sections: {
     news: boolean;
+    note_articles: boolean;
     proposal: boolean;
     sponsors: boolean;
     speakers: boolean;
     individual_sponsors: boolean;
     staff: boolean;
     recruit: boolean;
+    tickets: boolean;
+    timetable_section: boolean;
     timetable: boolean;
   };
   preview?: { dummy_data?: boolean };
-  timetable: { mode: 'auto' | 'internal' | 'external' };
+  timetable: {
+    mode: 'auto' | 'internal' | 'external';
+    title: string;
+    button_external: string;
+    button_internal: string;
+  };
   news: { limit: number };
-  message: { title: string; lead: string[]; body: string[]; signature: string[] };
+  note_articles: { limit: number; more_label?: string };
+  message: {
+    title: string;
+    lead: string[];
+    pillars: { title: string; body: string }[];
+    body: string[];
+    signature: string[];
+  };
   overview: {
     eligibility: { label: string; body: string[] };
     show_venue_card: boolean;
   };
+  tickets: {
+    title: string;
+    peatix_url: string;
+    button: string;
+    sticker_deadline_label: string;
+    regular: { title: string; price: string };
+    invite: {
+      title: string;
+      price: string;
+      discount_label: string;
+      min_quantity: number;
+      link_label: string;
+      page: string;
+    };
+    party_ticket?: boolean;
+  };
   recruit: {
     title: string;
-    items: {
-      icon: 'proposal' | 'sponsor' | 'request' | string;
-      title: string;
-      deadline?: string;
-      description?: string;
-      button: string;
-      url: string;
-      wide?: boolean;
-    }[];
+    /** open のカードが1つも無いときの見出し */
+    title_closed?: string;
+    /** closed カードのバッジと下段の小見出し */
+    closed_label?: string;
+    items: RecruitItem[];
   };
   proposal: { title: string; body: string; button_label: string };
   proposal_countdown: {
@@ -90,7 +140,9 @@ export interface SiteConfig {
   speakers: { title: string; description: string[]; empty: string };
   staff: { title: string; description: string[]; empty: string };
   footer: {
-    organizer: string;
+    organizers: { label: string; url?: string }[];
+    organizer_note: string;
+    organizer_note_link?: { label: string; url: string };
     copyright: string;
     past_events: { label: string; url: string }[];
   };
@@ -113,6 +165,24 @@ export interface LocalNews {
   url?: string;
 }
 
+/**
+ * timetable.yaml の1件。fortee のタイムテーブルが空のときに使うサイト独自のタイムテーブル。
+ * start / end は "10:30" のような時刻（日付は event.date_iso）か ISO 8601 の日時。
+ */
+export interface LocalTimetableItem {
+  track: string;
+  start: string;
+  end: string;
+  title: string;
+  /** talk（トーク） / timeslot（休憩・オープニングなどの枠）。省略時は speaker があれば talk */
+  type?: 'talk' | 'timeslot';
+  speaker?: string;
+  /** X のハンドル（@ 無し） */
+  speaker_twitter?: string;
+  abstract?: string;
+  url?: string;
+}
+
 export interface StaffLeader {
   /** 表示する役職名（バッジ） */
   role: string;
@@ -131,3 +201,4 @@ export const site = loadYaml<SiteConfig>('site.yaml');
 export const sponsors = loadYaml<SponsorEntry[]>('sponsors.yaml') ?? [];
 export const localNews = loadYaml<LocalNews[]>('news.yaml') ?? [];
 export const staffConfig = loadYaml<StaffConfig>('staff.yaml');
+export const localTimetable = loadYaml<LocalTimetableItem[]>('timetable.yaml') ?? [];

@@ -28,18 +28,22 @@ fortee:
   slug: "phpcon-kansai2026"
   base_url: "https://fortee.jp"
 
-# ヒーローのボタンとナビ末尾のリンク（同じ文言・同じ飛び先）
-# 現在はページ内のリンク集「絶賛募集中！」へスクロールする。
-# 参加申し込みが始まったら label を「参加申し込み」、href を links.register のURLに変える想定。
+# ヒーローのボタン（primary = ピンク塗り、secondary = 白抜き）とナビ末尾のリンク（primary のみ）
+# href が "#xxx" ならページ内スクロール、"http" で始まれば外部リンク（新しいタブ）。
+# secondary を丸ごと消す（またはコメントアウト）とヒーローは primary の1ボタンになります。
+# 参加申し込み（Peatix）のURLが決まったら primary.href を tickets.peatix_url と同じURLに変える想定。
 cta:
-  label: "プロポーザル・スポンサー募集中！"
-  href: "#recruit"
+  primary:
+    label: "参加申し込み"
+    href: "#tickets"
+  secondary:
+    label: "スポンサー募集"
+    href: "https://docs.google.com/presentation/d/1L8lzrsSyK7unjY8-43bz7bi_nQ_M-DJkz5hGH_EkiD8/edit?slide=id.g33ec3a8be6e_0_102#slide=id.g33ec3a8be6e_0_102"
 
 # ボタンや外部リンク（ダミー → 決まり次第差し替え）
 links:
-  register: "https://fortee.jp/phpcon-kansai2026"          # 参加申し込み（未使用。cta.href に入れると使われる）
   proposal: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"  # forteeで応募する
-  timetable_external: "https://fortee.jp/phpcon-kansai2026/timetable"   # タイムテーブル（外部）
+  timetable_external: "https://fortee.jp/phpcon-kansai2026/timetable"   # タイムテーブル（fortee）
   x: "https://x.com/phpcon_kansai"
   note: "https://note.com/phpcon_kansai"
 
@@ -62,7 +66,10 @@ redirects:
 # セクションの表示 / 非表示（true で表示）。非表示にするとナビのリンクも消えます。
 sections:
   news: true
+  note_articles: true         # お知らせ直下の note 最新記事（links.note の RSS から取得）
   proposal: false             # プロポーザル
+  tickets: true               # チケット（会場アクセスの下。Peatix へのリンクと「お誘いチケットとは」）
+  timetable_section: true     # チケットの下の「タイムテーブル」セクション（ボタン1つ。飛び先は timetable.mode で決まる）
   recruit: true               # リンク集「絶賛募集中！」
   sponsors: true              # スポンサー（fortee ＋ sponsors.yaml）
   speakers: true              # スピーカー（fortee の採択済みプロポーザル）
@@ -76,22 +83,42 @@ sections:
 preview:
   dummy_data: true
 
-# タイムテーブルのナビ先: auto | internal | external
-#   auto     … forteeのタイムテーブルにデータがあればサイト内 /timetable/ 、無ければ外部リンク
+# タイムテーブル（ナビとトップのセクションの飛び先。/timetable/ ページ自体は常に生成されます）
+# mode: auto | internal | external
+#   auto     … fortee のタイムテーブルに「トーク」が1件でも入っていればサイト内 /timetable/ 、枠だけ（休憩・LT枠など）なら fortee
 #   internal … 常にサイト内 /timetable/
-#   external … 常に links.timetable_external
+#   external … 常に links.timetable_external（fortee）
+# サイト内タイムテーブルのデータは fortee の timetable API（ビルド時取得）。fortee が空のときは src/data/timetable.yaml を使います。
+# 開発サーバーで preview.dummy_data が true のときは、fortee の「45分枠」などの空き枠をグレーの仮トークで埋めて見た目を確認できます。
 timetable:
-  mode: auto
+  mode: external
+  title: "タイムテーブル"
+  button_external: "forteeで見る"
+  button_internal: "タイムテーブルを見る"
 
 news:
   # トップページに表示する最大件数
   limit: 5
+
+# お知らせ直下に並べる note の最新記事（links.note の RSS をビルド時に取得。記事が無ければ非表示）
+note_articles:
+  limit: 3
+  # カードの下に出す note へのリンク文言。空にすると出さない
+  more_label: "noteで他の記事を読む"
 
 message:
   title: "次は、ここから始まる。"
   lead:
     - "超スピードで変わり続けるエンジニアの世界で"
     - "「次」を始めるための発見と繋がりをみつける場所をめざす"
+  # テーマを構成する3つの柱（リード文と挨拶の間に3カラムで表示）。title 内の \n は改行位置の指定
+  pillars:
+    - title: "関西で知識と人が\n交わる場に"
+      body: "関西のエンジニアが、お互いに知見を共有できる機会を創出します"
+    - title: "変化をチカラに"
+      body: "変わり続ける環境を素早く捉え、ポジティブなチカラに変えるための場所を提供します"
+    - title: "まわりを巻き込む"
+      body: "新しい発見と繋がりのため、今まで以上にまわりを巻き込めるイベントを目指します"
   # 実行委員長の挨拶（1要素 = 1段落）
   body:
     - "PHPカンファレンス関西は、関西のPHPerが集まり、技術や経験を共有する技術カンファレンスです。2024年の大阪、2025年の神戸に続き、2026年は京都で開催します。関西の三大都市を巡ることで、「関西の」カンファレンスとして、より多くの人を巻き込んでいきたいと考えています。"
@@ -112,34 +139,68 @@ overview:
   # 会場・アクセスのカード（日時・住所・地図）を開催概要の下に表示するか
   show_venue_card: true
 
+# チケット（会場アクセスの下）。お誘いチケットの説明ページは /invite-ticket/ で、本文の数字もここから参照します。
+tickets:
+  title: "チケット"
+  # Peatix のイベントページ（販売ページができたら差し替え。それまではダミー）
+  peatix_url: "https://peatix.com/"
+  button: "Peatixで購入"
+  # PHPerシール特典（fortee 連携メール）が保証されるチケット購入・譲渡の期限
+  sticker_deadline_label: "00月00日"
+  regular:
+    title: "通常チケット"
+    price: "0,000円"
+  invite:
+    title: "お誘いチケット"
+    price: "0,000円"
+    # 2枚以上まとめ買いで一人あたり安くなる額
+    discount_label: "500円"
+    # 最低購入枚数
+    min_quantity: 2
+    link_label: "お誘いチケットとは"
+    page: "/invite-ticket/"
+  # 懇親会チケットを販売する場合は true（説明ページの「チケットの種類」に出す）
+  party_ticket: false
+
 # スタッフとフッターの間のリンク集
+# status が open のカードは上段に大きく、closed のカードは下段「受付終了」に小さく薄く並びます（参考情報として残す用）。
+# closed にしたら button / url も「見る」用に差し替えてください。
+# open が1つも無いときは見出しが title_closed になります。全部不要になったら sections.recruit を false に。
 recruit:
   title: "絶賛募集中！"
+  title_closed: "募集情報"       # open のカードが1つも無いときの見出し
+  closed_label: "受付終了"       # closed カードのバッジと下段の小見出し
   items:
-    - icon: proposal          # proposal / sponsor / request
-      title: "プロポーザル"
-      deadline: "締切：2026年10月31日（土）"
-      button: "forteeで応募"
-      url: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"
-    - icon: sponsor
+    - icon: sponsor           # proposal / sponsor / request
       title: "スポンサー"
+      status: open
       deadline: "締切：2026年11月6日（金）"
       button: "資料を見る"
       url: "https://docs.google.com/presentation/d/1L8lzrsSyK7unjY8-43bz7bi_nQ_M-DJkz5hGH_EkiD8/edit?slide=id.g33ec3a8be6e_0_102#slide=id.g33ec3a8be6e_0_102"
+    - icon: proposal
+      title: "プロポーザル"
+      status: closed
+      deadline: "2026年10月31日（土）に締め切りました"
+      button: "応募一覧を見る"
+      url: "https://fortee.jp/phpcon-kansai2026/proposal"
     - icon: request
       title: "リクエストーク"
-      wide: true               # 1列で中央に大きく表示
+      status: closed
       description: |
         リクエストークとは、自分がカンファレンスで聞いてみたいトークをリクエストできるしくみです。
-        いままで登壇したことがない人も、あまりカンファレンスに参加したことがなかった人も、
-        リクエストークを使ってカンファレンスづくりに参加してみよう！
-      button: "リクエストする"
+        寄せられたリクエストは引き続きご覧いただけます。
+      button: "リクエストークを見る"
       url: "https://requestalk-2026.kphpug.jp/"
 
+# プロポーザル募集のセクション（トップページ、チケットの下）。sections.proposal で表示を切り替える。
+# 募集期間中だけ表示する想定。締切後は非表示にし、募集中の案内はリンク集（recruit）に寄せている。
+# body は1段落のみ（複数段落にしたい場合は Proposal.astro の表示側も変えること）。ボタンの飛び先は links.proposal。
 proposal:
-  title: "プロポーザル"
+  title: "プロポーザル募集"
   body: |
-    ダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキストダミーテキスト
+    PHPカンファレンス関西2026では、PHPやPHP周辺の技術に関するトークを募集しています。
+    初めての登壇でも大丈夫です。実行委員会がサポートしますので、あなたの知識や経験をぜひ共有してください。
+    募集締切は2026年10月31日（土）です。
   button_label: "forteeで応募する"
 
 # プロポーザル募集締切カウントダウン（/proposal_countdown/）
@@ -219,7 +280,13 @@ staff:
   empty: "準備中です。"
 
 footer:
-  organizer: "PHPカンファレンス関西2026実行委員会"
+  # 主催団体（上から順に表示。url は省略可）
+  organizers:
+    - { label: "関西PHPユーザグループ" }
+    - { label: "PHPカンファレンス関西2026実行委員会" }
+  # 主催の直下に小さく表示する注釈。note_link はスタッフ一覧へのリンク
+  organizer_note: "PHPカンファレンス関西2026実行委員会は、関西在住のPHPエンジニアを中心とした有志メンバーです。"
+  organizer_note_link: { label: "実行委員一覧", url: "/#staff" }
   copyright: "Copyright © Kansai PHP Users Group"
   past_events:
     - { label: "2015", url: "https://conference.kphpug.jp/2015/" }

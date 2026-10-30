@@ -2,8 +2,11 @@
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import News from '../components/News.astro';
+import NoteArticles from '../components/NoteArticles.astro';
 import Message from '../components/Message.astro';
 import Overview from '../components/Overview.astro';
+import Tickets from '../components/Tickets.astro';
+import TimetableSection from '../components/TimetableSection.astro';
 import Proposal from '../components/Proposal.astro';
 import Recruit from '../components/Recruit.astro';
 import Sponsors from '../components/Sponsors.astro';
@@ -19,8 +22,11 @@ const show = site.sections;
 <Base>
   <Hero />
   {show.news && <News />}
+  {show.note_articles && <NoteArticles />}
   <Message />
   <Overview />
+  {show.tickets && <Tickets />}
+  {show.timetable_section && <TimetableSection />}
   {show.proposal && <Proposal />}
   {show.recruit && <Recruit />}
   {show.sponsors && <Sponsors />}

@@ -1,34 +1,76 @@
 ---
 /**
- * スタッフとフッターの間のリンク集（募集中のもの）。内容は site.yaml の recruit。
+ * スタッフとフッターの間のリンク集。内容は site.yaml の recruit。
+ * status: open のカードは上段に大きく、closed のカードは下段「受付終了」に小さく薄く並べる（参考情報として残す用）。
  */
 import { site } from '../lib/data';
 import RecruitIcon from './icons/RecruitIcon.astro';
 import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
 const { recruit } = site;
+const openItems = recruit.items.filter((item) => item.status !== 'closed');
+const closedItems = recruit.items.filter((item) => item.status === 'closed');
+const title = openItems.length > 0 ? recruit.title : (recruit.title_closed ?? recruit.title);
+const closedLabel = recruit.closed_label ?? '受付終了';
+const nl2br = (text: string) => text.trim().replace(/\n/g, '<br />');
 ---
 
 <section class="section recruit" id="recruit">
   <div class="container recruit__inner">
-    <h2 class="section-title section-title--purple">{recruit.title}</h2>
-    <ul class="recruit__grid">
-      {
-        recruit.items.map((item) => (
-          <li class:list={['recruit__item', { 'recruit__item--wide': item.wide }]}>
-            <span class="recruit__icon">
-              <RecruitIcon name={item.icon} />
-            </span>
-            <h3 class="recruit__title">{item.title}</h3>
-            {item.deadline && <p class="recruit__deadline">{item.deadline}</p>}
-            {item.description && <p class="recruit__desc" set:html={item.description.trim().replace(/\n/g, '<br />')} />}
-            <a class="btn recruit__btn" href={item.url} target="_blank" rel="noopener noreferrer">
-              {item.button}
-              <span class="recruit__arrow"><ArrowOutwardIcon /></span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <h2 class="section-title section-title--purple">{title}</h2>
+
+    {
+      openItems.length > 0 && (
+        <ul class="recruit__grid">
+          {openItems.map((item) => (
+            <li class:list={['recruit__item', { 'recruit__item--wide': item.wide || openItems.length === 1 }]}>
+              <span class="recruit__icon">
+                <RecruitIcon name={item.icon} />
+              </span>
+              <h3 class="recruit__title">{item.title}</h3>
+              {item.deadline && <p class="recruit__deadline">{item.deadline}</p>}
+              {item.description && <p class="recruit__desc" set:html={nl2br(item.description)} />}
+              <a class="btn recruit__btn" href={item.url} target="_blank" rel="noopener noreferrer">
+                {item.button}
+                <span class="recruit__arrow">
+                  <ArrowOutwardIcon />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    {
+      closedItems.length > 0 && (
+        <div class="recruit__closed">
+          {openItems.length > 0 && <h3 class="recruit__closed-heading">{closedLabel}</h3>}
+          <ul class="recruit__closed-grid">
+            {closedItems.map((item) => (
+              <li class="recruit__closed-item">
+                <span class="recruit__closed-icon">
+                  <RecruitIcon name={item.icon} />
+                </span>
+                <div class="recruit__closed-body">
+                  <h4 class="recruit__closed-title">
+                    {item.title}
+                    <span class="recruit__badge">{closedLabel}</span>
+                  </h4>
+                  {item.deadline && <p class="recruit__closed-deadline">{item.deadline}</p>}
+                  {item.description && <p class="recruit__closed-desc" set:html={nl2br(item.description)} />}
+                  <a class="recruit__closed-link" href={item.url} target="_blank" rel="noopener noreferrer">
+                    {item.button}
+                    <span class="recruit__arrow recruit__arrow--sm">
+                      <ArrowOutwardIcon />
+                    </span>
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
   </div>
 </section>
 
@@ -44,6 +86,7 @@ const { recruit } = site;
     gap: 56px;
   }
 
+  /* ---- 募集中（上段） ---- */
   .recruit__grid {
     width: 100%;
     display: grid;
@@ -109,8 +152,123 @@ const { recruit } = site;
     height: 22px;
   }
 
+  .recruit__arrow--sm {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---- 受付終了（下段） ---- */
+  .recruit__closed {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .recruit__closed-heading {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    color: var(--c-text-muted);
+  }
+
+  .recruit__closed-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .recruit__closed-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 24px 26px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius);
+    color: var(--c-text-muted);
+  }
+
+  .recruit__closed-icon {
+    flex: none;
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    color: var(--c-purple);
+    opacity: 0.55;
+    margin-top: 2px;
+  }
+
+  .recruit__closed-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .recruit__closed-title {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    color: var(--c-text);
+  }
+
+  .recruit__badge {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: var(--c-text-muted);
+    background: rgba(107, 100, 120, 0.12);
+  }
+
+  .recruit__closed-deadline {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .recruit__closed-desc {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .recruit__closed-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--c-purple);
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
+    line-height: 1.4;
+  }
+
+  .recruit__closed-link:hover {
+    color: var(--c-purple-dark);
+  }
+
   @media (max-width: 700px) {
-    .recruit__grid {
+    .recruit__inner {
+      gap: 40px;
+    }
+    .recruit__grid,
+    .recruit__closed-grid {
       grid-template-columns: 1fr;
       gap: 20px;
     }
@@ -122,7 +280,11 @@ const { recruit } = site;
       min-height: 50px;
       font-size: 16px;
     }
-    .recruit__desc :global(br) {
+    .recruit__closed-item {
+      padding: 20px 18px 22px;
+    }
+    .recruit__desc :global(br),
+    .recruit__closed-desc :global(br) {
       display: none;
     }
   }

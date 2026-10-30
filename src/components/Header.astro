@@ -22,11 +22,12 @@ const navItems = [
   { label: 'タイムテーブル', href: timetableHref, external: timetableExternal, show: site.sections.timetable },
   { label: 'スポンサー', href: anchor('sponsors'), show: site.sections.sponsors },
   { label: 'スタッフ', href: anchor('staff'), show: site.sections.staff },
+  // ナビ末尾はヒーローの主ボタン（cta.primary）と同じ文言・飛び先
   {
-    label: site.cta.label,
-    href: site.cta.href.startsWith('#') ? anchor(site.cta.href.slice(1)) : site.cta.href,
-    external: site.cta.href.startsWith('http'),
-    show: site.cta.href !== '#recruit' || site.sections.recruit,
+    label: site.cta.primary.label,
+    href: site.cta.primary.href.startsWith('#') ? anchor(site.cta.primary.href.slice(1)) : site.cta.primary.href,
+    external: site.cta.primary.href.startsWith('http'),
+    show: site.cta.primary.href !== '#recruit' || site.sections.recruit,
   },
 ].filter((item) => item.show !== false);
 ---

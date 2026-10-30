@@ -1,0 +1,183 @@
+---
+/**
+ * チケット（会場アクセスの下）。内容は site.yaml の tickets。
+ * 通常チケット / お誘いチケットのカードと Peatix への購入ボタン。
+ * 「お誘いチケットとは」はサイト内の説明ページ（tickets.invite.page）を別タブで開く。
+ */
+import { site } from '../lib/data';
+import TicketIcon from './icons/TicketIcon.astro';
+import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
+import Cloud from './Cloud.astro';
+const { tickets } = site;
+---
+
+<section class="section tickets" id="tickets">
+  <Cloud class="tickets__cloud" color="#f6e0f6" />
+  <div class="container tickets__inner">
+    <h2 class="section-title section-title--purple">{tickets.title}</h2>
+
+    <ul class="tickets__grid">
+      <li class="tickets__item">
+        <span class="tickets__icon"><TicketIcon name="regular" /></span>
+        <h3 class="tickets__name">{tickets.regular.title}</h3>
+        <p class="tickets__price">{tickets.regular.price}</p>
+        <p class="tickets__note">
+          PHPerシール特典付きチケットは<br />
+          {tickets.sticker_deadline_label}まで！
+        </p>
+      </li>
+      <li class="tickets__item">
+        <span class="tickets__icon"><TicketIcon name="invite" /></span>
+        <h3 class="tickets__name">{tickets.invite.title}</h3>
+        <p class="tickets__price">{tickets.invite.price}</p>
+        <a class="tickets__link" href={tickets.invite.page} target="_blank" rel="noopener noreferrer">
+          {tickets.invite.link_label}
+          <span class="tickets__arrow"><ArrowOutwardIcon /></span>
+        </a>
+      </li>
+    </ul>
+
+    <a class="btn tickets__btn" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
+      {tickets.button}
+      <span class="tickets__arrow"><ArrowOutwardIcon /></span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .tickets {
+    background: var(--c-bg-pink);
+  }
+
+  .tickets :global(.tickets__cloud) {
+    top: 50%;
+    right: -80px;
+    width: 340px;
+    transform: translateY(-20%);
+  }
+
+  .tickets__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .tickets__grid {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .tickets__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 40px 28px 44px;
+    background: var(--c-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .tickets__icon {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    color: var(--c-purple);
+  }
+
+  .tickets__name {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: var(--c-text);
+  }
+
+  .tickets__price {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: var(--c-text);
+  }
+
+  .tickets__note {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.7;
+    color: var(--c-pink);
+  }
+
+  /* 枠線だけのピンクのボタン（お誘いチケットとは） */
+  .tickets__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 4px;
+    min-height: 48px;
+    padding: 8px 28px;
+    border: 2px solid var(--c-pink);
+    border-radius: 999px;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: var(--c-pink);
+    background: var(--c-white);
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+
+  .tickets__link:hover {
+    background: var(--c-pink);
+    color: var(--c-white);
+    transform: translateY(-2px);
+  }
+
+  .tickets__btn {
+    min-width: 300px;
+    min-height: 56px;
+    font-size: 18px;
+  }
+
+  .tickets__arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 700px) {
+    .tickets :global(.tickets__cloud) {
+      width: 200px;
+      right: -60px;
+    }
+    .tickets__inner {
+      gap: 32px;
+    }
+    .tickets__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .tickets__item {
+      padding: 32px 20px 36px;
+    }
+    .tickets__btn {
+      min-width: 240px;
+      min-height: 50px;
+      font-size: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tickets__link {
+      transition: none;
+    }
+  }
+</style>

@@ -1,31 +1,18 @@
 ---
 /**
- * タイムテーブル（fortee API のデータを表示）。
- * データが無い間は「準備中」を表示する「箱」。
+ * サイト内タイムテーブル（/timetable/）。
+ * データは lib/timetable.ts（fortee → timetable.yaml → 開発時はダミーで空き枠を埋める）。
+ * PC では全トラックを1つのグリッドに置き、開始・終了時刻を行境界にする（同じ時刻の枠は同じ縦位置に揃う）。
+ * 左端に時刻の軸を出す。スマホではトラックごとに縦に積む（グリッドは使わない）。
  */
 import { site } from '../lib/data';
-import { fetchTimetable, type ForteeTimetableItem } from '../lib/fortee';
+import { loadTimetable, groupByTrack, buildTimeGrid, fmtTime } from '../lib/timetable';
+import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
 
-const items = await fetchTimetable();
-
-const fmtTime = (iso: string) => {
-  const d = new Date(iso);
-  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-  return `${String(jst.getUTCHours()).padStart(2, '0')}:${String(jst.getUTCMinutes()).padStart(2, '0')}`;
-};
-const endOf = (i: ForteeTimetableItem) =>
-  fmtTime(new Date(new Date(i.starts_at).getTime() + i.length_min * 60000).toISOString());
-
-// トラック順 → 開始時刻順
-const tracks = [...new Map(items.map((i) => [i.track.name, i.track])).values()].sort(
-  (a, b) => a.sort - b.sort,
-);
-const byTrack = tracks.map((t) => ({
-  track: t,
-  items: items
-    .filter((i) => i.track.name === t.name)
-    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()),
-}));
+const items = await loadTimetable();
+const tracks = groupByTrack(items);
+// 1行目はトラック名、2行目以降が時刻の行。1列目は時刻の軸、2列目以降がトラック
+const grid = buildTimeGrid(items, 2);
 ---
 
 {
@@ -33,57 +20,76 @@ const byTrack = tracks.map((t) => ({
     <div class="tt__empty">
       <p>タイムテーブルは準備中です。</p>
       <p>
-        <a href={site.links.proposal} target="_blank" rel="noopener noreferrer" class="btn">
-          プロポーザルを応募する
+        <a href={site.links.timetable_external} target="_blank" rel="noopener noreferrer" class="btn">
+          forteeで見る
+          <span class="tt__arrow">
+            <ArrowOutwardIcon />
+          </span>
         </a>
       </p>
     </div>
   ) : (
-    <div class="tt">
-      {byTrack.map(({ track, items }) => (
-        <section class="tt__track">
+    <div class="tt" style={`--tracks: ${tracks.length}`}>
+      <ol class="tt__axis" aria-hidden="true">
+        {grid.axis.map((a) => (
+          <li class="tt__axis-time" style={`grid-row: ${a.row}`}>
+            {fmtTime(a.time)}
+          </li>
+        ))}
+      </ol>
+      {tracks.map((track, col) => (
+        <section class="tt__track" style={`--col: ${col + 2}`}>
           <h2 class="tt__track-title">{track.name}</h2>
           <ol class="tt__list">
-            {items.map((i) => (
-              <li class:list={['tt__item', `tt__item--${i.type}`]}>
-                <div class="tt__time">
+            {track.items.map((i) => (
+              <li
+                class:list={['tt__item', `tt__item--${i.type}`, { 'tt__item--dummy': i.dummy }]}
+                style={`grid-row: ${grid.rowOf(i)}`}
+              >
+                <p class="tt__time">
                   <time datetime={i.starts_at}>{fmtTime(i.starts_at)}</time>
-                  <span>–</span>
-                  <span>{endOf(i)}</span>
-                </div>
-                <div class="tt__body">
-                  <p class="tt__title">
-                    {i.url ? (
-                      <a href={i.url} target="_blank" rel="noopener noreferrer">
-                        {i.title}
-                      </a>
+                  <span aria-hidden="true">–</span>
+                  <time datetime={i.ends_at}>{fmtTime(i.ends_at)}</time>
+                </p>
+                <h3 class="tt__title">
+                  {i.url ? (
+                    <a href={i.url} target="_blank" rel="noopener noreferrer">
+                      {i.title}
+                    </a>
+                  ) : (
+                    i.title
+                  )}
+                </h3>
+                {i.speaker && (
+                  <p class="tt__speaker">
+                    {i.speaker.avatar_url ? (
+                      <img src={i.speaker.avatar_url} alt="" width="28" height="28" loading="lazy" />
                     ) : (
-                      i.title
+                      <span class="tt__avatar" aria-hidden="true" />
+                    )}
+                    <span class="tt__speaker-name">{i.speaker.name}</span>
+                    {i.speaker.twitter && (
+                      <a href={`https://x.com/${i.speaker.twitter}`} target="_blank" rel="noopener noreferrer">
+                        @{i.speaker.twitter}
+                      </a>
                     )}
                   </p>
-                  {i.speaker && (
-                    <p class="tt__speaker">
-                      {i.speaker.avatar_url && (
-                        <img src={i.speaker.avatar_url} alt="" width="28" height="28" loading="lazy" />
-                      )}
-                      <span>{i.speaker.name}</span>
-                      {i.speaker.twitter && (
-                        <a href={`https://x.com/${i.speaker.twitter}`} target="_blank" rel="noopener noreferrer">
-                          @{i.speaker.twitter}
-                        </a>
-                      )}
-                    </p>
-                  )}
-                  {i.tags && i.tags.length > 0 && (
-                    <ul class="tt__tags">
-                      {i.tags.map((t) => (
-                        <li style={`color:${t.color_text ?? '#fff'};background:${t.color_background ?? 'var(--c-purple)'}`}>
-                          {t.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                )}
+                {i.tags && i.tags.length > 0 && (
+                  <ul class="tt__tags">
+                    {i.tags.map((t) => (
+                      <li style={`color:${t.color_text ?? '#fff'};background:${t.color_background ?? 'var(--c-purple)'}`}>
+                        {t.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {i.abstract && (
+                  <details class="tt__abstract">
+                    <summary>概要</summary>
+                    <p>{i.abstract}</p>
+                  </details>
+                )}
               </li>
             ))}
           </ol>
@@ -104,47 +110,102 @@ const byTrack = tracks.map((t) => ({
     align-items: center;
   }
 
+  .tt__arrow {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+  }
+
+  /*
+   * PC: 1つのグリッド。1列目が時刻の軸、2列目以降がトラック。
+   * 行は開始・終了時刻の境界（lib/timetable.ts の buildTimeGrid）。各枠は inline style の grid-row で開始行〜終了行に置く。
+   * section / ol は display: contents で中身を直接グリッドに参加させる。
+   */
   .tt {
     display: grid;
-    gap: 40px;
+    grid-template-columns: auto repeat(var(--tracks, 1), minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 8px;
+    align-items: stretch;
+  }
+
+  .tt__track,
+  .tt__list,
+  .tt__axis {
+    display: contents;
+  }
+
+  .tt__track-title {
+    grid-row: 1;
+    grid-column: var(--col);
+    margin-bottom: 4px;
+  }
+
+  .tt__item {
+    grid-column: var(--col);
+  }
+
+  /* 時刻の軸（何かが始まる時刻だけ出す） */
+  .tt__axis-time {
+    grid-column: 1;
+    align-self: start;
+    padding-top: 14px;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--c-text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   .tt__track-title {
     font-family: var(--font-head);
     font-weight: 800;
-    font-size: 20px;
-    color: var(--c-purple);
-    margin-bottom: 12px;
-  }
-
-  .tt__list {
-    border-top: 1px solid var(--c-line);
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    color: var(--c-white);
+    background: var(--c-purple);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
   }
 
   .tt__item {
-    display: grid;
-    grid-template-columns: 8.5em 1fr;
-    gap: 16px;
-    padding: 14px 4px;
-    border-bottom: 1px solid var(--c-line);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--c-bg-lavender);
+    border: 1px solid var(--c-line);
   }
 
+  /* 休憩・オープニングなどの枠は控えめに */
   .tt__item--timeslot {
-    background: rgba(133, 104, 205, 0.06);
+    background: transparent;
+    border-style: dashed;
+    color: var(--c-text-muted);
+    padding-block: 10px;
+  }
+
+  .tt__item--timeslot .tt__title {
+    font-size: 14px;
+    font-weight: 700;
   }
 
   .tt__time {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--c-purple-dark);
-    white-space: nowrap;
     display: flex;
     gap: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--c-purple-dark);
+    white-space: nowrap;
   }
 
   .tt__title {
     font-weight: 700;
     font-size: 15px;
+    line-height: 1.6;
   }
 
   .tt__title a {
@@ -155,17 +216,20 @@ const byTrack = tracks.map((t) => ({
   .tt__speaker {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-top: 6px;
     font-size: 13px;
     color: var(--c-text-muted);
   }
 
-  .tt__speaker img {
+  .tt__speaker img,
+  .tt__avatar {
     width: 28px;
     height: 28px;
     border-radius: 50%;
     object-fit: cover;
+    background: var(--c-placeholder);
+    flex-shrink: 0;
   }
 
   .tt__speaker a {
@@ -177,7 +241,6 @@ const byTrack = tracks.map((t) => ({
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 8px;
   }
 
   .tt__tags li {
@@ -187,10 +250,71 @@ const byTrack = tracks.map((t) => ({
     border-radius: 999px;
   }
 
-  @media (max-width: 600px) {
-    .tt__item {
-      grid-template-columns: 1fr;
-      gap: 4px;
+  .tt__abstract {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .tt__abstract summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--c-purple);
+    list-style: none;
+  }
+
+  .tt__abstract summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .tt__abstract summary::before {
+    content: '▸ ';
+  }
+
+  .tt__abstract[open] summary::before {
+    content: '▾ ';
+  }
+
+  .tt__abstract p {
+    margin-top: 4px;
+    white-space: pre-line;
+    color: var(--c-text);
+  }
+
+  /* 開発時のダミー（グレー表示） */
+  .tt__item--dummy {
+    background: #f1eff4;
+    border-color: #ddd;
+  }
+
+  .tt__item--dummy .tt__title,
+  .tt__item--dummy .tt__speaker,
+  .tt__item--dummy .tt__abstract p {
+    color: #999;
+  }
+
+  /* スマホ: グリッドをやめてトラックごとに縦に積む（inline の grid-row は親がグリッドでないので効かない） */
+  @media (max-width: 860px) {
+    .tt {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .tt__axis {
+      display: none;
+    }
+
+    .tt__track {
+      display: block;
+    }
+
+    .tt__track-title {
+      margin-bottom: 12px;
+    }
+
+    .tt__list {
+      display: grid;
+      gap: 10px;
     }
   }
 </style>

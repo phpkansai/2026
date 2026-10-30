@@ -1,0 +1,66 @@
+---
+/**
+ * トップの「タイムテーブル」セクション（チケットの下）。見出しとボタン1つ。
+ * 飛び先は site.yaml の timetable.mode で決まる（fortee なら別タブ、サイト内なら /timetable/）。
+ */
+import { site } from '../lib/data';
+import { resolveTimetableHref } from '../lib/fortee';
+import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
+
+const href = await resolveTimetableHref();
+const external = href.startsWith('http');
+const label = external ? site.timetable.button_external : site.timetable.button_internal;
+---
+
+<section class="section section--purple timetable-section" id="timetable">
+  <div class="container timetable-section__inner">
+    <h2 class="section-title section-title--white">{site.timetable.title}</h2>
+    <a
+      class="btn timetable-section__btn"
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
+      {label}
+      {
+        external && (
+          <span class="timetable-section__arrow">
+            <ArrowOutwardIcon />
+          </span>
+        )
+      }
+    </a>
+  </div>
+</section>
+
+<style>
+  .timetable-section__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .timetable-section__btn {
+    min-width: 300px;
+    min-height: 56px;
+    font-size: 18px;
+  }
+
+  .timetable-section__arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 700px) {
+    .timetable-section__inner {
+      gap: 28px;
+    }
+    .timetable-section__btn {
+      min-width: 240px;
+      min-height: 50px;
+      font-size: 16px;
+    }
+  }
+</style>

@@ -1,0 +1,31 @@
+# =============================================================
+# タイムテーブル（サイト独自分）
+#   fortee のタイムテーブル API が空のときだけ使われます（fortee にデータがあればそちらが優先）。
+#   fortee を使わずにここで管理したい場合は、site.yaml の timetable.mode を internal にしてここに並べてください。
+#
+#   track   … トラック名（同じ名前のものが1列にまとまる。書いた順に左から並ぶ）
+#   start   … 開始時刻 "10:30"（日付は site.yaml の event.date_iso）。ISO 8601 の日時でも可
+#   end     … 終了時刻 "11:15"
+#   title   … タイトル
+#   type    … talk（トーク） / timeslot（休憩・オープニングなどの枠）。省略時は speaker があれば talk
+#   speaker … スピーカー名（任意）
+#   speaker_twitter … X のハンドル（@ 無し、任意）
+#   abstract … 概要（任意。複数行は | で）
+#   url     … トーク詳細のリンク（任意）
+#
+# 例:
+# - track: "Track A"
+#   start: "10:00"
+#   end: "10:20"
+#   title: "オープニング"
+#   type: timeslot
+# - track: "Track A"
+#   start: "10:30"
+#   end: "11:15"
+#   title: "トークのタイトル"
+#   speaker: "なまえ"
+#   speaker_twitter: "hoge"
+#   abstract: |
+#     トークの概要。
+# =============================================================
+[]

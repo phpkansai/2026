@@ -3,8 +3,13 @@ import { site } from '../lib/data';
 import { slot } from '../lib/slots';
 import Cloud from './Cloud.astro';
 import ArrowDownwardIcon from './icons/ArrowDownwardIcon.astro';
+import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
 
-const ctaExternal = site.cta.href.startsWith('http');
+// ボタンは site.yaml の cta.primary（ピンク塗り）と cta.secondary（白抜き・省略可）
+const ctas = [
+  { ...site.cta.primary, outline: false },
+  ...(site.cta.secondary ? [{ ...site.cta.secondary, outline: true }] : []),
+].map((cta) => ({ ...cta, external: cta.href.startsWith('http') }));
 
 const logo = slot('hero-logo');
 const dateImg = slot('hero-date');
@@ -71,19 +76,21 @@ const title = logo ? null : slot('hero-title');
       <span class="hero__venue">{site.venue.name.replace(/\s*\d+号館$/, '')}</span>
     </p>
 
-    <a
-      class="btn btn--lg hero__cta"
-      href={site.cta.href}
-      target={ctaExternal ? '_blank' : undefined}
-      rel={ctaExternal ? 'noopener noreferrer' : undefined}
-    >
-      {site.cta.label}
-      {!ctaExternal && (
-        <span class="hero__cta-arrow">
-          <ArrowDownwardIcon />
-        </span>
-      )}
-    </a>
+    <div class="hero__ctas">
+      {
+        ctas.map((cta) => (
+          <a
+            class:list={['btn', 'btn--lg', 'hero__cta', { 'btn--outline': cta.outline }]}
+            href={cta.href}
+            target={cta.external ? '_blank' : undefined}
+            rel={cta.external ? 'noopener noreferrer' : undefined}
+          >
+            {cta.label}
+            <span class="hero__cta-arrow">{cta.external ? <ArrowOutwardIcon /> : <ArrowDownwardIcon />}</span>
+          </a>
+        ))
+      }
+    </div>
   </div>
 </section>
 
@@ -191,8 +198,17 @@ const title = logo ? null : slot('hero-title');
     padding: 2px 8px;
   }
 
+  .hero__ctas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
   .hero__cta {
     white-space: nowrap;
+    min-width: min(300px, 100%);
   }
 
   .hero__cta-arrow {

@@ -35,12 +35,12 @@ npm run preview  # dist/ の内容を確認
 
 | セクション | コンポーネント | 表示切替 | 内容・データ元 |
 |---|---|---|---|
-| ヒーロー | `Hero.astro` | 常時 | ロゴ・日付画像（`public/images/`）、参加申し込みボタン（`links.register`） |
+| ヒーロー | `Hero.astro` | 常時 | ロゴ・日付画像（`public/images/`）、ボタン2つ（`cta.primary` = ピンク塗り、`cta.secondary` = 白抜き・省略可）。ナビ末尾のリンクは `cta.primary` と同じ |
 | NEWS | `News.astro` | `sections.news` | fortee の NEWS ＋ `news.yaml` を日付順に表示 |
 | 開催概要（実行委員長の挨拶） | `Message.astro` | 常時 | `message.*`。ナビの「開催概要」はここに飛ぶ |
 | 参加資格・会場 | `Overview.astro` | 常時（会場カードは `overview.show_venue_card`） | `overview.eligibility`、`venue.*`（Googleマップ埋め込み） |
 | プロポーザル | `Proposal.astro` | `sections.proposal` | `proposal.*`、`links.proposal` |
-| リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`（プロポーザル / スポンサー / リクエストーク） |
+| リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`。`status: open` は上段に大きく、`status: closed` は下段「受付終了」に小さく薄く表示 |
 | スポンサー | `Sponsors.astro` | `sections.sponsors` | fortee のスポンサーAPI（ランク分け・ロゴ）＋ `sponsors.yaml`（ロゴ補完・手動追加）。見出し文言は `sponsors.*`、ランクは `sponsor_tiers` |
 | スピーカー | `Speakers.astro` | `sections.speakers` | fortee の採択済みプロポーザルから自動生成。文言は `speakers.*` |
 | 個人スポンサー | `IndividualSponsors.astro` | `sections.individual_sponsors` | fortee のスポンサーAPIのうち `individual_sponsors.plans` のプラン。文言は `individual_sponsors.*` |
@@ -115,14 +115,18 @@ sections:
 `site.yaml` の `recruit.items` を編集します。1項目 = 1カードです。
 
 ```yaml
-- icon: proposal            # proposal / sponsor / request（アイコンの種類）
-  title: "プロポーザル"
-  deadline: "締切：2026年10月31日（土）"
-  button: "forteeで応募"
+- icon: sponsor             # proposal / sponsor / request（アイコンの種類）
+  title: "スポンサー"
+  status: open              # open（募集中・上段に大きく） / closed（受付終了・下段に小さく薄く）。省略時は open
+  deadline: "締切：2026年11月6日（金）"
+  button: "資料を見る"
   url: "https://..."
-  # wide: true              # 1列で横いっぱいに表示したいとき
+  # wide: true              # 1列で横いっぱいに表示したいとき（open のみ。open が1枚だけなら自動で横いっぱい）
   # description: |          # 説明文を入れたいとき
 ```
+
+募集を締め切ったら `status: closed` にして、`button` / `url` を「見る」用（応募一覧やリクエスト一覧）に差し替えます。
+open のカードが1つも無いときは見出しが `recruit.title_closed`（「募集情報」）になります。参考情報も不要になったら `sections.recruit` を false にします。
 
 ### スポンサーを追加・削除する
 
@@ -178,7 +182,6 @@ fortee の NEWS に投稿すれば再ビルドで反映されます。fortee を
 | キー | 内容 |
 |---|---|
 | `url` | 公開URL（OGP・canonical に使用） |
-| `links.register` | 参加申し込みボタンのリンク先（**現在ダミー**） |
 | `links.proposal` | 「forteeで応募する」のリンク先 |
 | `links.timetable_external` | タイムテーブル（外部）のリンク先 |
 | `links.x` / `links.note` | SNS |
@@ -188,7 +191,8 @@ fortee の NEWS に投稿すれば再ビルドで反映されます。fortee を
 | `overview.show_venue_card` | 会場・アクセスのカード（日時・住所・地図）を出すか |
 | `venue.*` | 会場名・住所・アクセス・Googleマップ埋め込みURL |
 | `proposal.*` | プロポーザルセクションの本文・ボタン |
-| `recruit.*` | リンク集 |
+| `cta.primary` / `cta.secondary` | ヒーローのボタン（主 / 副）。`href` が `#xxx` ならページ内、`http` なら外部リンク。ナビ末尾は `primary` |
+| `recruit.*` | リンク集。`title_closed` は全部 closed のときの見出し、`closed_label` は受付終了バッジの文言 |
 | `sponsors.*` / `speakers.*` / `individual_sponsors.*` / `staff.*` | 各セクションの見出し・説明文（`description` は1要素1行）・空のときの文言 |
 | `preview.dummy_data` | 開発サーバーでだけ、空のセクションをダミーで埋める |
 | `footer.*` | 運営団体名・コピーライト・過去開催リンク |
@@ -239,7 +243,7 @@ fortee 側の更新は **再ビルドするまで反映されません**。そ�
 
 ## 今後の予定（メモ）
 
-- 参加申し込みURLの確定（`links.register`）
+- 参加申し込みURL（Peatix）の確定（`tickets.peatix_url` と `cta.primary.href`）
 - 街並みシルエット画像の差し替え（`public/images/skyline.svg`）
 - スポンサーロゴの fortee へのアップロード（無い間は社名入りのグレー枠）
 - 副実行委員長の fortee スタッフ登録（登録されるまで `staff.yaml` の `extra` で暫定表示）

@@ -1,0 +1,166 @@
+---
+/**
+ * お知らせの直下に note の最新記事をカードで並べる。
+ * 記事が無い（または RSS の取得に失敗した）ときはセクションごと出さない。
+ */
+import { site } from '../lib/data';
+import { fetchNoteArticles } from '../lib/note';
+
+const articles = (await fetchNoteArticles())
+  .sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime())
+  .slice(0, site.note_articles.limit);
+
+const fmt = (iso: string) => {
+  const jst = new Date(new Date(iso).getTime() + 9 * 60 * 60 * 1000);
+  const y = jst.getUTCFullYear();
+  const m = String(jst.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(jst.getUTCDate()).padStart(2, '0');
+  return `${y}/${m}/${d}`;
+};
+---
+
+{
+  articles.length > 0 && (
+    <section class="section section--purple note-articles" aria-label="noteの最新記事">
+      <div class="container">
+        <ul class="note-articles__list">
+          {articles.map((a) => (
+            <li class="note-articles__item">
+              <a class="note-articles__card" href={a.url} target="_blank" rel="noopener noreferrer">
+                <div class="note-articles__thumb">
+                  {a.thumbnail ? (
+                    <img src={a.thumbnail} alt="" width="800" height="419" loading="lazy" decoding="async" />
+                  ) : (
+                    <span class="note-articles__thumb-ph" aria-hidden="true">
+                      note
+                    </span>
+                  )}
+                </div>
+                <div class="note-articles__body">
+                  <time class="note-articles__date" datetime={a.published}>
+                    {fmt(a.published)}
+                  </time>
+                  <p class="note-articles__title">{a.title}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+        {site.note_articles.more_label && (
+          <p class="note-articles__more">
+            <a href={site.links.note} target="_blank" rel="noopener noreferrer">
+              {site.note_articles.more_label}
+            </a>
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* お知らせ（紫）の続きとして見せるため上の余白は詰める。
+     少しだけ上に重ねて、セクション境界の継ぎ目とカードの影の切れを隠す */
+  .note-articles {
+    margin-top: -24px;
+    padding-top: 24px;
+  }
+
+  .note-articles__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 4vw, 48px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .note-articles__card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    background: var(--c-white);
+    color: var(--c-text);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .note-articles__card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(43, 37, 56, 0.22);
+  }
+
+  /* note の見出し画像は 1280x670（約 1.91:1） */
+  .note-articles__thumb {
+    aspect-ratio: 1.91 / 1;
+    background: var(--c-bg-lavender);
+  }
+
+  .note-articles__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .note-articles__thumb-ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--c-purple);
+  }
+
+  .note-articles__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 20px 20px;
+  }
+
+  .note-articles__date {
+    font-size: 13px;
+    color: var(--c-text-muted);
+  }
+
+  .note-articles__title {
+    margin: 0;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .note-articles__card:hover .note-articles__title {
+    color: var(--c-pink-dark);
+  }
+
+  .note-articles__more {
+    margin: 28px 0 0;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .note-articles__more a {
+    color: var(--c-white);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (max-width: 860px) {
+    .note-articles__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .note-articles__list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

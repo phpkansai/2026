@@ -9,6 +9,16 @@ const { message } = site;
     <p class="message__lead">
       {message.lead.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
     </p>
+    {message.pillars?.length > 0 && (
+      <ul class="message__pillars">
+        {message.pillars.map((pillar) => (
+          <li class="pillar">
+            <h3 class="pillar__title">{pillar.title}</h3>
+            <p class="pillar__body">{pillar.body}</p>
+          </li>
+        ))}
+      </ul>
+    )}
     <div class="message__body">
       {message.body.map((p) => <p>{p}</p>)}
     </div>
@@ -44,8 +54,55 @@ const { message } = site;
     line-height: 1.9;
   }
 
+  .message__pillars {
+    margin-top: 36px;
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .pillar {
+    background: var(--c-bg-pink);
+    color: var(--c-text);
+    border-radius: var(--radius-sm);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .pillar__title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: clamp(16px, 2vw, 19px);
+    line-height: 1.5;
+    color: var(--c-purple);
+    white-space: pre-line;
+  }
+
+  .pillar__body {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.9;
+    text-align: left;
+  }
+
+  @media (max-width: 720px) {
+    .message__pillars {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .pillar {
+      padding: 22px 20px;
+    }
+  }
+
   .message__body {
-    margin-top: 32px;
+    margin-top: 40px;
     font-size: 16px;
     line-height: 1.9;
     text-align: left;

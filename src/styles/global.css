@@ -224,6 +224,20 @@ button {
   font-size: 13px;
 }
 
+/* 白抜き（副ボタン）。ヒーローのスポンサー募集など */
+.btn--outline {
+  color: var(--c-pink);
+  background: var(--c-white);
+  border: 2px solid var(--c-pink);
+  box-shadow: 0 6px 18px rgba(255, 77, 139, 0.18);
+}
+
+.btn--outline:hover {
+  color: var(--c-white);
+  background: var(--c-pink);
+  box-shadow: 0 10px 24px rgba(255, 77, 139, 0.3);
+}
+
 /* 雲の装飾 */
 .cloud {
   position: absolute;
