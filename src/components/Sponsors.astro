@@ -10,7 +10,6 @@ import { site, sponsors as localSponsors } from '../lib/data';
 import { sponsorLogos } from '../lib/assets';
 import { fetchSponsorPlans, type ForteeSponsorPlan } from '../lib/fortee';
 import { normalizeName } from '../lib/people';
-import { dummyEnabled } from '../lib/dummy';
 import Cloud from './Cloud.astro';
 
 interface Card {
@@ -20,7 +19,6 @@ interface Card {
   logoUrl?: string;
   /** src/assets/sponsors のロゴ */
   logo?: ImageMetadata;
-  dummy?: boolean;
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
@@ -39,10 +37,10 @@ const localByName = new Map(localSponsors.map((s) => [normalizeName(s.name), s])
 const usedLocal = new Set<string>();
 const tierItems = new Map<string, Card[]>(site.sponsor_tiers.map((t) => [t.id, []]));
 
+// ロゴ画像が無いスポンサーは非表示（ランク内が全員ロゴ無しならランクごと非表示）
 const localLogo = (file: string | undefined, name: string) => {
-  if (!file) return undefined;
-  const logo = sponsorLogos.get(file);
-  if (!logo) console.warn(`[sponsors] ロゴ画像が見つかりません: src/assets/sponsors/${file} (${name})`);
+  const logo = file ? sponsorLogos.get(file) : undefined;
+  if (!logo) console.warn(`[sponsors] ロゴ画像が見つかりません: src/assets/sponsors/${file ?? '(未設定)'} (${name})`);
   return logo;
 };
 
@@ -58,12 +56,9 @@ for (const plan of plans) {
     const key = normalizeName(s.name);
     const local = localByName.get(key);
     if (local) usedLocal.add(key);
-    tierItems.get(tier.id)!.push({
-      name: s.name,
-      url: s.url || local?.url,
-      logoUrl: s.avatar,
-      logo: s.avatar ? undefined : localLogo(local?.logo, s.name),
-    });
+    const logo = s.avatar ? undefined : localLogo(local?.logo, s.name);
+    if (!s.avatar && !logo) continue;
+    tierItems.get(tier.id)!.push({ name: s.name, url: s.url || local?.url, logoUrl: s.avatar, logo });
   }
 }
 
@@ -75,20 +70,12 @@ for (const s of localSponsors) {
     console.warn(`[sponsors] 未定義の tier があります: ${s.name}(${s.tier})`);
     continue;
   }
-  list.push({ name: s.name, url: s.url, logo: localLogo(s.logo, s.name) });
+  const logo = localLogo(s.logo, s.name);
+  if (!logo) continue;
+  list.push({ name: s.name, url: s.url, logo });
 }
 
-// 3) 開発時のダミー（空のランクをデザイン通りの枚数で埋める）
-const DUMMY_ROWS: Record<string, number> = { platinum: 1, gold: 2, silver: 3, bronze: 3 };
-if (dummyEnabled) {
-  for (const t of site.sponsor_tiers) {
-    const list = tierItems.get(t.id)!;
-    if (list.length > 0) continue;
-    const n = t.columns * (DUMMY_ROWS[t.id] ?? 2);
-    for (let i = 0; i < n; i++) list.push({ name: 'ダミー', dummy: true });
-  }
-}
-
+// スポンサーがいないランクは見出しごと出さない
 const tiers = site.sponsor_tiers
   .map((t) => ({ ...t, items: tierItems.get(t.id)! }))
   .filter((t) => t.items.length > 0);
@@ -115,18 +102,14 @@ const { sponsors: text } = site;
           <h3 class="sponsors__tier-title">{tier.label}</h3>
           <ul class="sponsors__grid">
             {tier.items.map((s) => {
-              const inner = s.dummy ? (
-                <span class="sponsors__ph" aria-hidden="true" />
-              ) : s.logoUrl ? (
+              const inner = s.logoUrl ? (
                 <img src={s.logoUrl} alt={s.name} loading="lazy" decoding="async" />
-              ) : s.logo ? (
-                <Image src={s.logo} alt={s.name} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 400px" />
               ) : (
-                <span class="sponsors__ph">{s.name}</span>
+                <Image src={s.logo!} alt={s.name} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 400px" />
               );
               return (
                 <li class="sponsors__item">
-                  {s.url && !s.dummy ? (
+                  {s.url ? (
                     <a href={s.url} target="_blank" rel="noopener noreferrer" title={s.name}>
                       {inner}
                     </a>
@@ -216,8 +199,8 @@ const { sponsors: text } = site;
   }
 
   .sponsors__item {
-    flex: 0 0 var(--card-w);
-    max-width: 100%;
+    /* 1行に --cols 枚まで。画面幅に収まらないときはその幅まで縮める */
+    flex: 0 0 min(var(--card-w), calc((100% - (var(--cols) - 1) * var(--gap-x)) / var(--cols)));
     aspect-ratio: 5 / 3;
     background: var(--c-white);
     border-radius: 6px;
@@ -245,23 +228,6 @@ const { sponsors: text } = site;
     object-fit: contain;
   }
 
-  /* ロゴ未設定時: デザインのグレー枠（社名入り。ダミーは社名なし） */
-  .sponsors__ph {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    margin: -10%;
-    padding: 10%;
-    box-sizing: content-box;
-    background: var(--c-placeholder);
-    color: #555;
-    font-size: 12px;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.4;
-  }
 
   @media (max-width: 700px) {
     .sponsors__inner {
@@ -293,9 +259,6 @@ const { sponsors: text } = site;
     }
     .sponsors__tier--bronze .sponsors__item {
       flex-basis: calc((100% - var(--gap-x) * 2) / 3);
-    }
-    .sponsors__ph {
-      font-size: 10px;
     }
   }
 </style>

@@ -78,7 +78,7 @@ sections:
   timetable: false            # ナビの「タイムテーブル」リンク（/timetable/ ページ自体は生成されます）
 
 # 開発サーバー（npm run dev / docker compose up）でのみ有効な見た目確認用の設定。
-# dummy_data: true にすると、データがまだ無いセクション（スピーカー・個人スポンサー・当日スタッフ・空のスポンサーランクなど）を
+# dummy_data: true にすると、データがまだ無いセクション（スピーカー・個人スポンサー・当日スタッフなど）を
 # グレーの仮要素で埋めて表示します。npm run build（本番）では無視されるので、true のままでも公開には影響しません。
 preview:
   dummy_data: true
