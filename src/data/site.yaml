@@ -149,10 +149,10 @@ tickets:
   sticker_deadline_label: "12月19日"
   regular:
     title: "通常チケット"
-    price: "0,000円"
+    price: "2,000円"
   invite:
     title: "お誘いチケット"
-    price: "0,000円"
+    price: "1,500円"
     # 2枚以上まとめ買いで一人あたり安くなる額
     discount_label: "500円"
     # 最低購入枚数

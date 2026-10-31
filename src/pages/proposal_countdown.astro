@@ -34,8 +34,9 @@ const units = [
 const ogp = countdownOgp(cd.deadline);
 
 const pageTitle = 'プロポーザル募集締切カウントダウン';
-const description =
-  ogp.daysLeft === null
+const description = closedAtBuild
+  ? `${site.event.name}のプロポーザル募集は締め切りました。たくさんのご応募ありがとうございました。`
+  : ogp.daysLeft === null
     ? `${site.event.name}のプロポーザル募集は${cd.deadline_label}までです！`
     : ogp.daysLeft === 0
       ? `${site.event.name}のプロポーザル募集は本日${cd.deadline_label}締切です！`
@@ -383,6 +384,10 @@ const description =
 
   .is-closed .pc-closed {
     display: block;
+  }
+
+  .is-closed .pc-hero__deadline {
+    display: none;
   }
 
   .is-closed .pc-btn {
