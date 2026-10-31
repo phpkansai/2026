@@ -42,7 +42,7 @@ npm run preview  # dist/ の内容を確認
 | プロポーザル | `Proposal.astro` | `sections.proposal` | `proposal.*`、`links.proposal` |
 | スポンサー | `Sponsors.astro` | `sections.sponsors` | `sponsors.yaml` ＋ `src/assets/sponsors/` のロゴ |
 | スタッフ | `Staff.astro` | `sections.staff` | fortee のスタッフAPI ＋ `staff.yaml` |
-| リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`（プロポーザル / スポンサー / リクエストーク） |
+| リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`。`status: open` は上段に大きく、`status: closed` は下段「受付終了」に小さく薄く表示 |
 | フッター | `Footer.astro` | 常時 | 丘の背景、マスコット、SNS、過去開催リンク、`footer.*` |
 
 ## ディレクトリ構成
@@ -102,17 +102,18 @@ sections:
 `site.yaml` の `recruit.items` を編集します。1項目 = 1カードです。
 
 ```yaml
-- icon: proposal            # proposal / sponsor / request（アイコンの種類）
-  title: "プロポーザル"
-  deadline: "締切：2026年10月31日（土）"
-  button: "forteeで応募"
+- icon: sponsor             # proposal / sponsor / request（アイコンの種類）
+  title: "スポンサー"
+  status: open              # open（募集中・上段に大きく） / closed（受付終了・下段に小さく薄く）。省略時は open
+  deadline: "締切：2026年11月6日（金）"
+  button: "資料を見る"
   url: "https://..."
-  # wide: true              # 1列で横いっぱいに表示したいとき
+  # wide: true              # 1列で横いっぱいに表示したいとき（open のみ。open が1枚だけなら自動で横いっぱい）
   # description: |          # 説明文を入れたいとき
-  # closed: true            # 募集を締め切ったとき（カードは残り、ボタンが押せなくなる）
 ```
 
-募集を締め切ったら項目を消さず `closed: true` にし、`deadline` / `button` の文言を「募集は締め切りました」などに変えます。
+募集を締め切ったら `status: closed` にして、`button` / `url` を「見る」用（応募一覧やリクエスト一覧）に差し替えます。
+open のカードが1つも無いときは見出しが `recruit.title_closed`（「募集情報」）になります。参考情報も不要になったら `sections.recruit` を false にします。
 
 ### スポンサーを追加・削除する
 

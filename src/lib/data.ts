@@ -15,6 +15,19 @@ export interface SponsorTier {
   columns: number;
 }
 
+export interface RecruitItem {
+  icon: 'proposal' | 'sponsor' | 'request' | string;
+  title: string;
+  /** open（募集中・上段に大きく） / closed（受付終了・下段に小さく）。省略時は open */
+  status?: 'open' | 'closed';
+  deadline?: string;
+  description?: string;
+  button: string;
+  url: string;
+  /** open のカードを1列で横いっぱいに表示する */
+  wide?: boolean;
+}
+
 export interface SiteConfig {
   url: string;
   event: {
@@ -60,17 +73,11 @@ export interface SiteConfig {
   };
   recruit: {
     title: string;
-    items: {
-      icon: 'proposal' | 'sponsor' | 'request' | string;
-      title: string;
-      deadline?: string;
-      description?: string;
-      button: string;
-      url: string;
-      wide?: boolean;
-      /** true にすると募集終了として表示（ボタンが押せなくなる） */
-      closed?: boolean;
-    }[];
+    /** open のカードが1つも無いときの見出し */
+    title_closed?: string;
+    /** closed カードのバッジと下段の小見出し */
+    closed_label?: string;
+    items: RecruitItem[];
   };
   proposal: { title: string; body: string; button_label: string };
   proposal_countdown: {

@@ -107,27 +107,28 @@ overview:
 # スタッフとフッターの間のリンク集
 recruit:
   title: "絶賛募集中！"
+  title_closed: "募集情報"       # open のカードが1つも無いときの見出し
+  closed_label: "受付終了"       # closed カードのバッジと下段の小見出し
   items:
-    - icon: proposal          # proposal / sponsor / request
-      title: "プロポーザル"
-      deadline: "募集は締め切りました"
-      description: "たくさんのご応募ありがとうございました。"
-      button: "募集を締め切りました"
-      url: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"
-      closed: true              # 募集終了（ボタンが押せなくなる）
-    - icon: sponsor
+    - icon: sponsor           # proposal / sponsor / request
       title: "スポンサー"
+      status: open
       deadline: "締切：2026年11月6日（金）"
       button: "資料を見る"
       url: "https://docs.google.com/presentation/d/1L8lzrsSyK7unjY8-43bz7bi_nQ_M-DJkz5hGH_EkiD8/edit?slide=id.g33ec3a8be6e_0_102#slide=id.g33ec3a8be6e_0_102"
+    - icon: proposal
+      title: "プロポーザル"
+      status: closed
+      deadline: "2026年10月31日（土）に締め切りました"
+      button: "応募一覧を見る"
+      url: "https://fortee.jp/phpcon-kansai2026/proposal"
     - icon: request
       title: "リクエストーク"
-      wide: true               # 1列で中央に大きく表示
+      status: closed
       description: |
         リクエストークとは、自分がカンファレンスで聞いてみたいトークをリクエストできるしくみです。
-        いままで登壇したことがない人も、あまりカンファレンスに参加したことがなかった人も、
-        リクエストークを使ってカンファレンスづくりに参加してみよう！
-      button: "リクエストする"
+        寄せられたリクエストは引き続きご覧いただけます。
+      button: "リクエストークを見る"
       url: "https://requestalk-2026.kphpug.jp/"
 
 proposal:
