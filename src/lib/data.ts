@@ -116,6 +116,15 @@ export interface SiteConfig {
       page: string;
     };
     party_ticket?: boolean;
+    /** PHPerシールの説明ページ（/phper-sticker/）と画像投稿フォーム */
+    phper_sticker: {
+      page: string;
+      link_label: string;
+      deadline_label: string;
+      /** 空のあいだはフォームボタンを「準備中」にする */
+      form_url: string;
+      form_button: string;
+    };
   };
   recruit: {
     title: string;

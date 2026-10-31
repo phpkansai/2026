@@ -2,7 +2,7 @@
 /**
  * チケット（会場アクセスの下）。内容は site.yaml の tickets。
  * 通常チケット / お誘いチケットのカードと Peatix への購入ボタン。
- * 「お誘いチケットとは」はサイト内の説明ページ（tickets.invite.page）を別タブで開く。
+ * 「お誘いチケットとは」「PHPerシールについて」はサイト内の説明ページ（tickets.invite.page / tickets.phper_sticker.page）を別タブで開く。
  */
 import { site } from '../lib/data';
 import TicketIcon from './icons/TicketIcon.astro';
@@ -25,6 +25,10 @@ const { tickets } = site;
           PHPerシール特典付きチケットは<br />
           {tickets.sticker_deadline_label}まで！
         </p>
+        <a class="tickets__link" href={tickets.phper_sticker.page} target="_blank" rel="noopener noreferrer">
+          {tickets.phper_sticker.link_label}
+          <span class="tickets__arrow"><ArrowOutwardIcon /></span>
+        </a>
       </li>
       <li class="tickets__item">
         <span class="tickets__icon"><TicketIcon name="invite" /></span>
@@ -114,7 +118,7 @@ const { tickets } = site;
     color: var(--c-pink);
   }
 
-  /* 枠線だけのピンクのボタン（お誘いチケットとは） */
+  /* 枠線だけのピンクのボタン（お誘いチケットとは / PHPerシールについて） */
   .tickets__link {
     display: inline-flex;
     align-items: center;

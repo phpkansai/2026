@@ -145,8 +145,8 @@ tickets:
   # Peatix のイベントページ（販売ページができたら差し替え。それまではダミー）
   peatix_url: "https://peatix.com/"
   button: "Peatixで購入"
-  # PHPerシール特典（fortee 連携メール）が保証されるチケット購入・譲渡の期限
-  sticker_deadline_label: "00月00日"
+  # PHPerシールが保証されるチケット購入・譲渡・フォーム投稿の期限（トップのチケットカードに出す短い表記。詳細は下の phper_sticker）
+  sticker_deadline_label: "12月19日"
   regular:
     title: "通常チケット"
     price: "0,000円"
@@ -161,6 +161,15 @@ tickets:
     page: "/invite-ticket/"
   # 懇親会チケットを販売する場合は true（説明ページの「チケットの種類」に出す）
   party_ticket: false
+  # PHPerシール（説明ページは /phper-sticker/。本文の期限・フォームURLはここから参照します）
+  phper_sticker:
+    page: "/phper-sticker/"
+    link_label: "PHPerシールについて"
+    # チケット購入・譲渡・フォーム投稿をすべて終えてほしい日
+    deadline_label: "2026年12月19日"
+    # 画像投稿フォーム（Googleフォーム）のURL。空のあいだはボタンが「準備中」表示になります
+    form_url: ""
+    form_button: "画像投稿フォームへ"
 
 # スタッフとフッターの間のリンク集
 # status が open のカードは上段に大きく、closed のカードは下段「受付終了」に小さく薄く並びます（参考情報として残す用）。

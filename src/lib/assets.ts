@@ -23,3 +23,10 @@ function byBasename(files: Record<string, { default: ImageMetadata }>) {
 
 export const sponsorLogos = byBasename(sponsorFiles);
 export const staffImages = byBasename(staffFiles);
+
+// PHPerシール説明ページ（/phper-sticker/）の画面例。ファイル名は src/assets/phper-sticker/README.md 参照
+const phperStickerFiles = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/phper-sticker/*.{png,jpg,jpeg,webp,svg,gif}',
+  { eager: true },
+);
+export const phperStickerImages = byBasename(phperStickerFiles);

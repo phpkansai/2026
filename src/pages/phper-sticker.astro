@@ -1,0 +1,381 @@
+---
+/**
+ * PHPerシールの説明ページ（/phper-sticker/）。トップのチケットセクションから別タブで開く。
+ * 構成は note 記事原稿「PHPerシールの画像投稿のお願い」を踏襲。
+ * 期限・フォームURL・チケット名は site.yaml の tickets から参照する。
+ * Peatix の画面例は src/assets/phper-sticker/ に決まった名前で置くと表示される（同フォルダの README 参照）。
+ */
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ArrowOutwardIcon from '../components/icons/ArrowOutwardIcon.astro';
+import { site } from '../lib/data';
+import { phperStickerImages } from '../lib/assets';
+
+const { tickets, event } = site;
+const { phper_sticker: sticker, invite } = tickets;
+const deadline = sticker.deadline_label;
+const formUrl = sticker.form_url?.trim() ?? '';
+const hasForm = formUrl.length > 0;
+// 開発サーバーでは、画像がまだ無い場所にグレーの枠を出してファイル名を知らせる
+const showPlaceholder = import.meta.env.DEV;
+
+/** src/assets/phper-sticker/ から拡張子違いを含めて探す */
+function findImage(base: string) {
+  for (const ext of ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']) {
+    const img = phperStickerImages.get(`${base}.${ext}`);
+    if (img) return img;
+  }
+  return undefined;
+}
+
+const figures = {
+  ticketNumber: {
+    file: 'ticket-number',
+    image: findImage('ticket-number'),
+    alt: 'Peatix アプリのチケット画面。一般入場チケットの右側に「#1」と表示されている',
+    caption: 'チケット番号の例：一般入場チケットの右側にある赤枠の番号を確認します。',
+  },
+  ng1: {
+    file: 'ng-1',
+    image: findImage('ng-1'),
+    alt: 'お誘いチケットが「2 x」と表示され、「#1 #2」が一緒に表示されている Peatix の画面',
+    caption: 'NG例1：お誘いチケットが「2 x」と表示され、「#1 #2」が一緒に表示されている状態。',
+  },
+  ng2: {
+    file: 'ng-2',
+    image: findImage('ng-2'),
+    alt: 'お誘いチケットの「#1」と「#2」が別の行に表示されている Peatix の画面',
+    caption: 'NG例2：お誘いチケットの「#1」と「#2」が別の行に表示されている状態。譲渡途中の例です。',
+  },
+};
+
+const steps = [
+  'チケットを購入する',
+  'お誘いチケットの場合は、譲渡と相手の受け取りを完了する',
+  'PHPerシール用の画像と必要事項をGoogleフォームから投稿する',
+];
+
+const formItems = [
+  'シール用の画像',
+  'チケット番号',
+  'メールアドレス',
+  'Peatix上の参加者名',
+  'シール表示名',
+  'XのID（任意）',
+];
+
+const peatixHelp = [
+  {
+    label: 'チケットの確認方法（Peatix ヘルプ）',
+    url: 'https://help-attendee.peatix.com/ja-JP/support/solutions/folders/44001195618',
+  },
+  {
+    label: 'チケットを譲渡する（Peatix ヘルプ）',
+    url: 'https://help-attendee.peatix.com/ja-JP/support/solutions/articles/44001821789',
+  },
+  {
+    label: '譲渡されたチケットを受け取る（Peatix ヘルプ）',
+    url: 'https://help-attendee.peatix.com/ja-JP/support/solutions/articles/44001821790',
+  },
+];
+---
+
+<Base
+  title="PHPerシールについて"
+  subpage
+  description={`${event.name}では今年もPHPerシールを配布します。希望される方は${deadline}までにチケットの購入と画像投稿フォームへの投稿をお願いします。`}
+>
+  <section class="section section--pink">
+    <div class="container--narrow">
+      <div class="card">
+        <h1 class="section-title section-title--purple">PHPerシールについて</h1>
+
+        <div class="prose sticker">
+          <p class="sticker__lead">
+            {event.name}では、2024年・2025年に続き、今年も<strong>PHPerシール</strong>を配布します！
+          </p>
+          <p>
+            PHPerシールを希望される方は、<strong>{deadline}まで</strong>に、チケットの購入とGoogleフォームへの投稿をお願いします。お誘いチケットを購入された方は、譲渡先の方の受け取りまで完了してから投稿してください。
+          </p>
+
+          <h2>PHPerシールとは</h2>
+          <p>
+            PHPerシールは、参加者のアイコン画像や表示名を使って作るシールです。参加者同士で交換して、自己紹介や会話のきっかけにしてみませんか。いつもSNSで見かけるアイコンをきっかけに、会場での交流も楽しんでいただけたらうれしいです。
+          </p>
+          <p>
+            今回は、シールに使いたい画像をGoogleフォームで投稿していただきます。XのIDの入力は任意ですので、Xアカウントをお持ちでない方もお申し込みいただけます。
+          </p>
+
+          <h2>投稿期限とフォーム</h2>
+          <p>
+            締め切りは<strong>{deadline}</strong>です。シールの製作準備のため、この日までに次の手続きをすべて完了してください。
+          </p>
+          <ol class="sticker__steps">
+            {steps.map((s) => <li>{s}</li>)}
+          </ol>
+
+          <div class="sticker__form">
+            {
+              hasForm ? (
+                <a class="btn btn--lg" href={formUrl} target="_blank" rel="noopener noreferrer">
+                  {sticker.form_button}
+                  <span class="sticker__arrow">
+                    <ArrowOutwardIcon />
+                  </span>
+                </a>
+              ) : (
+                <p class="sticker__form-pending">画像投稿フォームは準備中です。公開までしばらくお待ちください。</p>
+              )
+            }
+          </div>
+
+          <p class="sticker__note">
+            チケットを購入しただけでは、PHPerシールの申し込みは完了しません。シールを希望する方は、<strong>必ずフォームへの投稿</strong>もお願いします。
+          </p>
+
+          <h2>フォームで投稿するもの</h2>
+          <ul>
+            {formItems.map((item) => <li>{item}</li>)}
+          </ul>
+          <p>
+            「Peatix上の参加者名」はチケットとの照合に使う名前、「シール表示名」はシールに載せたい名前です。以下の手順でチケット番号と参加者名を確認してから入力してください。
+          </p>
+
+          <h2>チケット番号と参加者名の確認方法</h2>
+          <p>
+            Peatixに、チケットを購入した、または譲渡されたチケットを受け取ったアカウントでログインし、{event.name}のチケット画面を開いてください。
+          </p>
+
+          <h3>チケット番号</h3>
+          <p>
+            チケット名の右側にある「#」付きの番号を確認してください。フォームには、「懇親会チケット」ではなく、<strong>「【一般入場】チケット1枚」</strong>または<strong
+              >「【一般入場】お誘いチケット ※{invite.min_quantity}枚から購入可能」</strong
+            >の番号を入力してください。
+          </p>
+          <p>
+            入力時に「#」は不要です。番号だけを入力してください。下の画像では、赤枠の「#1」がチケット番号なので、フォームには「1」と入力します。
+          </p>
+          {
+            (figures.ticketNumber.image || showPlaceholder) && (
+              <figure class="sticker__figure sticker__figure--portrait">
+                {figures.ticketNumber.image ? (
+                  <Image
+                    src={figures.ticketNumber.image}
+                    alt={figures.ticketNumber.alt}
+                    widths={[400, 800]}
+                    sizes="(max-width: 600px) 90vw, 360px"
+                  />
+                ) : (
+                  <div class="sticker__placeholder">src/assets/phper-sticker/{figures.ticketNumber.file}.png</div>
+                )}
+                <figcaption>{figures.ticketNumber.caption}</figcaption>
+              </figure>
+            )
+          }
+
+          <h3>Peatix上の参加者名</h3>
+          <p>
+            同じチケット画面に表示されている参加者名を、そのままフォームに入力してください。アプリ版では、上の画面例のように開催日時の右側に参加者名が表示されます（画像では黒塗りにしています）。ブラウザ版では、QRコードの下に「参加者名」が表示されます。
+          </p>
+          <p>
+            Peatixの参加者名は、チケット申し込み時などに入力した「姓名（全角カナ）」です。プロフィールの「表示名」や、今回シールに載せたい「シール表示名」とは区別して確認してください。
+          </p>
+
+          <h2>お誘いチケットは譲渡完了後に投稿してください</h2>
+          <p>
+            お誘いチケットをまとめて購入した場合は、ご自身が使う分を残し、一緒に参加する方の分をPeatixで譲渡してください。購入者の方も、<strong>譲渡先の方の受け取りが完了してから</strong>、自分のチケット情報でフォームを投稿してください。
+          </p>
+          <p>
+            <strong>譲渡用のURLを送るだけでは、譲渡は完了しません。</strong>受け取る方がPeatixで受け取り手続きを終える必要があります。
+          </p>
+          <p>
+            譲渡された方も、PHPerシールを希望する場合はフォームへの投稿が必要です。購入者の方は、このページとフォームのURL、{deadline}の締め切りを相手の方にもお伝えください。受け取る方は、受け取り完了後に、自分のチケット番号と参加者名を確認して投稿をお願いします。
+          </p>
+
+          <h3>フォーム投稿前のNG例</h3>
+          <p>
+            次の画像は、譲渡が完了していない場合のNG例です。このような表示のまま投稿せず、相手の方の受け取りまで完了したことを確認してください。
+          </p>
+          {
+            [figures.ng1, figures.ng2].map(
+              (f) =>
+                (f.image || showPlaceholder) && (
+                  <figure class="sticker__figure">
+                    {f.image ? (
+                      <Image src={f.image} alt={f.alt} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 640px" />
+                    ) : (
+                      <div class="sticker__placeholder sticker__placeholder--wide">src/assets/phper-sticker/{f.file}.png</div>
+                    )}
+                    <figcaption>{f.caption}</figcaption>
+                  </figure>
+                ),
+            )
+          }
+          <p>
+            番号の行が分かれているだけでは、相手の方が受け取りを完了したとは判断できません。相手の方にも、自分のPeatixアカウントでチケットを確認できることを確かめてもらってください。
+          </p>
+
+          <h2>当日はPHPerシールで交流しましょう</h2>
+          <p>
+            チケットの購入、お誘いチケットの譲渡・受け取り、フォームへの投稿は、<strong>{deadline}まで</strong>にお願いします。会場でシールを交換しながら、参加者同士の交流を楽しみましょう！
+          </p>
+        </div>
+
+        <div class="sticker__cta">
+          {
+            hasForm ? (
+              <a class="btn btn--lg" href={formUrl} target="_blank" rel="noopener noreferrer">
+                {sticker.form_button}
+                <span class="sticker__arrow">
+                  <ArrowOutwardIcon />
+                </span>
+              </a>
+            ) : (
+              <a class="btn btn--lg" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
+                {tickets.button}
+                <span class="sticker__arrow">
+                  <ArrowOutwardIcon />
+                </span>
+              </a>
+            )
+          }
+        </div>
+
+        <div class="prose sticker sticker__help">
+          <p>Peatixの操作方法に困ったときは、公式ヘルプもご確認ください。</p>
+          <ul>
+            {
+              peatixHelp.map((h) => (
+                <li>
+                  <a href={h.url} target="_blank" rel="noopener noreferrer">
+                    {h.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p>
+            お誘いチケットの買い方・譲渡の流れは<a href={invite.page}>{invite.link_label}</a>をご覧ください。
+          </p>
+        </div>
+
+        <p class="back"><a href="/#tickets">トップページへ戻る</a></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .sticker__lead {
+    margin-top: 32px;
+    font-size: 16px;
+    line-height: 2;
+  }
+
+  .sticker strong {
+    color: var(--c-pink-dark);
+  }
+
+  .sticker__steps {
+    list-style: decimal;
+    padding-left: 1.6em;
+    margin-bottom: 1em;
+  }
+
+  .sticker__steps li {
+    margin-bottom: 0.3em;
+  }
+
+  /* 本文途中のフォームボタン */
+  .sticker__form {
+    margin: 24px 0;
+    text-align: center;
+  }
+
+  .sticker__form-pending {
+    display: inline-block;
+    padding: 10px 24px;
+    border: 2px dashed var(--c-line);
+    border-radius: 999px;
+    font-size: 14px;
+    color: var(--c-text-muted);
+    margin-bottom: 0;
+  }
+
+  /* 「チケットを買っただけでは完了しない」の注意書き */
+  .sticker__note {
+    padding: 14px 18px;
+    background: var(--c-bg-pink);
+    border-left: 4px solid var(--c-pink);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+  }
+
+  .sticker__figure {
+    margin: 20px auto 24px;
+    max-width: 640px;
+  }
+
+  .sticker__figure--portrait {
+    max-width: 360px;
+  }
+
+  .sticker__figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-sm);
+  }
+
+  .sticker__figure figcaption {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--c-text-muted);
+    text-align: center;
+  }
+
+  /* 開発サーバーで画像が無いときの仮枠 */
+  .sticker__placeholder {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 605 / 800;
+    background: var(--c-placeholder);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--c-white);
+    word-break: break-all;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .sticker__placeholder--wide {
+    aspect-ratio: 800 / 180;
+  }
+
+  .sticker__cta {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .sticker__arrow {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+  }
+
+  .sticker__help {
+    margin-top: 32px;
+    font-size: 14px;
+  }
+
+  .back {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .back a {
+    color: var(--c-purple);
+  }
+</style>
