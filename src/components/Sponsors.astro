@@ -93,14 +93,16 @@ if (unknown.length > 0) {
     opacity: 0.95;
   }
 
-  /* 1枚あたりの幅をランクで変える（デザイン: 特大 / 大 / 中 / 小） */
+  /* 1枚あたりの幅をランクで変える（デザイン: 特大 / 大 / 中 / 小）
+     枚数が --cols より少ない行でも中央に寄せる */
   .sponsors__grid {
     --card-w: 400px;
-    display: grid;
-    grid-template-columns: repeat(var(--cols), var(--card-w));
+    --gap: 24px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 24px;
-    max-width: 100%;
+    gap: var(--gap);
+    width: 100%;
   }
 
   .sponsors__tier--platinum .sponsors__grid {
@@ -117,7 +119,8 @@ if (unknown.length > 0) {
   }
 
   .sponsors__item {
-    width: 100%;
+    /* 1行に --cols 枚まで。画面幅に収まらないときはその幅まで縮める */
+    flex: 0 0 min(var(--card-w), calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols)));
     aspect-ratio: 2 / 1;
     background: var(--c-white);
     border-radius: 8px;
@@ -145,23 +148,16 @@ if (unknown.length > 0) {
     object-fit: contain;
   }
 
-  @media (max-width: 1200px) {
-    .sponsors__grid {
-      grid-template-columns: repeat(var(--cols), minmax(0, var(--card-w)));
-      width: 100%;
-    }
-  }
-
   @media (max-width: 700px) {
     .sponsors__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      --cols: 2;
+      --gap: 14px;
     }
     .sponsors__tier--platinum .sponsors__grid {
-      grid-template-columns: 1fr;
+      --cols: 1;
     }
     .sponsors__tier--bronze .sponsors__grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      --cols: 3;
     }
   }
 </style>
