@@ -63,7 +63,7 @@ redirects:
 sections:
   news: true
   proposal: false     # プロポーザル
-  sponsors: false     # スポンサー
+  sponsors: true      # スポンサー
   staff: false        # スタッフ
   recruit: true       # リンク集「絶賛募集中！」
   timetable: false    # ナビの「タイムテーブル」リンク（/timetable/ ページ自体は生成されます）
