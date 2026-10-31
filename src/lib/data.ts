@@ -68,6 +68,8 @@ export interface SiteConfig {
       button: string;
       url: string;
       wide?: boolean;
+      /** true にすると募集終了として表示（ボタンが押せなくなる） */
+      closed?: boolean;
     }[];
   };
   proposal: { title: string; body: string; button_label: string };

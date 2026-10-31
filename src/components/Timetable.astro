@@ -3,7 +3,6 @@
  * タイムテーブル（fortee API のデータを表示）。
  * データが無い間は「準備中」を表示する「箱」。
  */
-import { site } from '../lib/data';
 import { fetchTimetable, type ForteeTimetableItem } from '../lib/fortee';
 
 const items = await fetchTimetable();
@@ -32,11 +31,7 @@ const byTrack = tracks.map((t) => ({
   items.length === 0 ? (
     <div class="tt__empty">
       <p>タイムテーブルは準備中です。</p>
-      <p>
-        <a href={site.links.proposal} target="_blank" rel="noopener noreferrer" class="btn">
-          プロポーザルを応募する
-        </a>
-      </p>
+      <p>プロポーザルの募集は締め切りました。たくさんのご応募ありがとうございました。</p>
     </div>
   ) : (
     <div class="tt">

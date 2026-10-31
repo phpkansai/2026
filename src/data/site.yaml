@@ -32,7 +32,7 @@ fortee:
 # 現在はページ内のリンク集「絶賛募集中！」へスクロールする。
 # 参加申し込みが始まったら label を「参加申し込み」、href を links.register のURLに変える想定。
 cta:
-  label: "プロポーザル・スポンサー募集中！"
+  label: "スポンサー募集中！"
   href: "#recruit"
 
 # ボタンや外部リンク（ダミー → 決まり次第差し替え）
@@ -110,9 +110,11 @@ recruit:
   items:
     - icon: proposal          # proposal / sponsor / request
       title: "プロポーザル"
-      deadline: "締切：2026年10月31日（土）"
-      button: "forteeで応募"
+      deadline: "募集は締め切りました"
+      description: "たくさんのご応募ありがとうございました。"
+      button: "募集を締め切りました"
       url: "https://fortee.jp/phpcon-kansai2026/speaker/proposal/cfp"
+      closed: true              # 募集終了（ボタンが押せなくなる）
     - icon: sponsor
       title: "スポンサー"
       deadline: "締切：2026年11月6日（金）"

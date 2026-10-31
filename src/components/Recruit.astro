@@ -1,6 +1,7 @@
 ---
 /**
  * スタッフとフッターの間のリンク集（募集中のもの）。内容は site.yaml の recruit。
+ * closed: true の項目は「締め切りました」表示になり、ボタンは押せない。
  */
 import { site } from '../lib/data';
 import RecruitIcon from './icons/RecruitIcon.astro';
@@ -21,10 +22,16 @@ const { recruit } = site;
             <h3 class="recruit__title">{item.title}</h3>
             {item.deadline && <p class="recruit__deadline">{item.deadline}</p>}
             {item.description && <p class="recruit__desc" set:html={item.description.trim().replace(/\n/g, '<br />')} />}
-            <a class="btn recruit__btn" href={item.url} target="_blank" rel="noopener noreferrer">
-              {item.button}
-              <span class="recruit__arrow"><ArrowOutwardIcon /></span>
-            </a>
+            {item.closed ? (
+              <span class="btn recruit__btn recruit__btn--closed" aria-disabled="true">
+                {item.button}
+              </span>
+            ) : (
+              <a class="btn recruit__btn" href={item.url} target="_blank" rel="noopener noreferrer">
+                {item.button}
+                <span class="recruit__arrow"><ArrowOutwardIcon /></span>
+              </a>
+            )}
           </li>
         ))
       }
@@ -101,6 +108,13 @@ const { recruit } = site;
     min-width: 300px;
     min-height: 56px;
     font-size: 18px;
+  }
+
+  /* 募集終了 */
+  .recruit__btn--closed {
+    background: var(--c-placeholder);
+    box-shadow: none;
+    cursor: default;
   }
 
   .recruit__arrow {
