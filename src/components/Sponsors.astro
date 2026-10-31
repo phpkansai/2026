@@ -6,7 +6,16 @@ import { sponsorLogos } from '../lib/assets';
 const tiers = site.sponsor_tiers
   .map((tier) => ({
     ...tier,
-    items: sponsors.filter((s) => s.tier === tier.id),
+    // ロゴ画像が無いスポンサーは非表示
+    items: sponsors.flatMap((s) => {
+      if (s.tier !== tier.id) return [];
+      const logo = s.logo ? sponsorLogos.get(s.logo) : undefined;
+      if (!logo) {
+        console.warn(`[sponsors] ロゴ画像が見つかりません: src/assets/sponsors/${s.logo ?? '(未設定)'} (${s.name})`);
+        return [];
+      }
+      return [{ ...s, logo }];
+    }),
   }))
   .filter((t) => t.items.length > 0);
 
@@ -34,14 +43,8 @@ if (unknown.length > 0) {
           <h3 class="sponsors__tier-title">{tier.label}</h3>
           <ul class="sponsors__grid">
             {tier.items.map((s) => {
-              const logo = s.logo ? sponsorLogos.get(s.logo) : undefined;
-              if (s.logo && !logo) {
-                console.warn(`[sponsors] ロゴ画像が見つかりません: src/assets/sponsors/${s.logo} (${s.name})`);
-              }
-              const inner = logo ? (
-                <Image src={logo} alt={s.name} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 400px" />
-              ) : (
-                <span class="sponsors__ph">{s.name}</span>
+              const inner = (
+                <Image src={s.logo} alt={s.name} widths={[400, 800]} sizes="(max-width: 600px) 90vw, 400px" />
               );
               return (
                 <li class="sponsors__item">
@@ -90,14 +93,16 @@ if (unknown.length > 0) {
     opacity: 0.95;
   }
 
-  /* 1枚あたりの幅をランクで変える（デザイン: 特大 / 大 / 中 / 小） */
+  /* 1枚あたりの幅をランクで変える（デザイン: 特大 / 大 / 中 / 小）
+     枚数が --cols より少ない行でも中央に寄せる */
   .sponsors__grid {
     --card-w: 400px;
-    display: grid;
-    grid-template-columns: repeat(var(--cols), var(--card-w));
+    --gap: 24px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 24px;
-    max-width: 100%;
+    gap: var(--gap);
+    width: 100%;
   }
 
   .sponsors__tier--platinum .sponsors__grid {
@@ -114,7 +119,8 @@ if (unknown.length > 0) {
   }
 
   .sponsors__item {
-    width: 100%;
+    /* 1行に --cols 枚まで。画面幅に収まらないときはその幅まで縮める */
+    flex: 0 0 min(var(--card-w), calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols)));
     aspect-ratio: 2 / 1;
     background: var(--c-white);
     border-radius: 8px;
@@ -142,44 +148,16 @@ if (unknown.length > 0) {
     object-fit: contain;
   }
 
-  /* ロゴ未設定時: デザインのグレー枠 */
-  .sponsors__ph {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    margin: -12%;
-    padding: 12%;
-    box-sizing: content-box;
-    background: var(--c-placeholder);
-    color: #555;
-    font-size: 12px;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.4;
-  }
-
-  @media (max-width: 1200px) {
-    .sponsors__grid {
-      grid-template-columns: repeat(var(--cols), minmax(0, var(--card-w)));
-      width: 100%;
-    }
-  }
-
   @media (max-width: 700px) {
     .sponsors__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      --cols: 2;
+      --gap: 14px;
     }
     .sponsors__tier--platinum .sponsors__grid {
-      grid-template-columns: 1fr;
+      --cols: 1;
     }
     .sponsors__tier--bronze .sponsors__grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .sponsors__ph {
-      font-size: 10px;
+      --cols: 3;
     }
   }
 </style>

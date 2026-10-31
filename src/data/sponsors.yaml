@@ -4,7 +4,7 @@
 #   - 表示順はこのファイルの並び順（同じランク内）。
 #   - tier: platinum / gold / silver / bronze （site.yaml の sponsor_tiers）
 #   - logo: src/assets/sponsors/ に置いた画像ファイル名（png / svg / jpg / webp）
-#           未設定 or ファイルが無い場合は社名入りのグレーの枠で表示されます。
+#           未設定 or ファイルが無い場合は表示されません（ランク内が全員ロゴ無しならランクごと非表示）。
 # =============================================================
 
 # --- ゴールド ---
@@ -17,6 +17,16 @@
   tier: gold
   url: "https://subspire.co.jp/"
   logo: "subspire.png"
+
+- name: "さくらインターネット株式会社"
+  tier: gold
+  url: "https://www.sakura.ad.jp/"
+  logo: "sakura.png"
+
+- name: "BABY JOB株式会社"
+  tier: gold
+  url: "https://baby-job.co.jp/"
+  logo: "babyjob.png"
 
 # --- シルバー ---
 - name: "株式会社カオナビ"
@@ -34,6 +44,11 @@
   url: "https://yzrh.jp/"
   logo: "yuzuriha.png"
 
+- name: "LAPRAS"
+  tier: silver
+  url: "https://lapras.com/"
+  logo: "lapras.png"
+
 # --- ブロンズ ---
 - name: "VAddy"
   tier: bronze
@@ -43,7 +58,7 @@
 - name: "株式会社フュージョンズ"
   tier: bronze
   url: "https://fusions.co.jp/"
-  logo: "fusions.png"
+  logo: "fusion_place.svg"
 
 - name: "ピクシブ株式会社"
   tier: bronze
@@ -54,3 +69,13 @@
   tier: bronze
   url: "https://shimoning.com"
   logo: "shimoning.png"
+
+- name: "インフォームシステム株式会社"
+  tier: bronze
+  url: "https://www.inform.co.jp/"
+  logo: "inform.png"
+
+- name: "スプラウト株式会社"
+  tier: bronze
+  url: "https://splout.co.jp/"
+  logo: "splout.png"
