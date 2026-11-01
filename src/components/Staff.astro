@@ -4,12 +4,12 @@
  *   - staff.yaml の leaders に挙げたハンドルの人（または fortee のグループ名が役職名と同じ人）は
  *     先頭に大きく、役職バッジ付きで表示する（実行委員長・副実行委員長）。
  *   - それ以外は fortee のグループ名（コアスタッフ / 当日スタッフ …）ごとに小見出しを付けて表示する。
+ *     0人のグループ（例: 当日スタッフが未登録）は小見出しごと出さない（本番・開発サーバーとも同じ挙動）。
  */
 import { site, staffConfig } from '../lib/data';
 import { staffImages } from '../lib/assets';
 import { fetchStaff } from '../lib/fortee';
 import { twitterHandle, normalizeHandle, normalizeName, type Person } from '../lib/people';
-import { dummyEnabled, dummyPeople } from '../lib/dummy';
 import PeopleGrid from './PeopleGrid.astro';
 
 const grouped = await fetchStaff();
@@ -68,17 +68,6 @@ for (const e of staffConfig.extra ?? []) {
 
 // 役職の並びは leaders の定義順
 leaders.sort((a, b) => leaderRoles.indexOf(a.badge!) - leaderRoles.indexOf(b.badge!));
-
-// 3) 開発時のダミー（いない役職・空のグループを埋める）
-if (dummyEnabled) {
-  for (const role of leaderRoles) {
-    if (!leaders.some((l) => l.badge === role)) leaders.push(...dummyPeople(1, { badge: role }));
-  }
-  leaders.sort((a, b) => leaderRoles.indexOf(a.badge!) - leaderRoles.indexOf(b.badge!));
-  for (const g of staffConfig.role_order ?? []) {
-    if (!groups.has(g)) groups.set(g, dummyPeople(10));
-  }
-}
 
 // グループの表示順: role_order → それ以外は fortee の順
 const order = staffConfig.role_order ?? [];

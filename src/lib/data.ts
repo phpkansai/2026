@@ -145,8 +145,8 @@ export interface SiteConfig {
   };
   sponsor_tiers: SponsorTier[];
   sponsors: { title: string; description: string[]; empty: string };
-  individual_sponsors: { title: string; description: string[]; empty: string; plans: string[] };
-  speakers: { title: string; description: string[]; empty: string };
+  individual_sponsors: { title: string; description: string[]; plans: string[] };
+  speakers: { title: string; description: string[] };
   staff: { title: string; description: string[]; empty: string };
   footer: {
     organizers: { label: string; url?: string }[];

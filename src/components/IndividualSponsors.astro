@@ -1,11 +1,11 @@
 ---
 /**
  * 個人スポンサー一覧。fortee のスポンサーAPIのうち、site.yaml の individual_sponsors.plans に挙げたプランの人を表示する。
+ * 0人のときはセクションごと出さない（本番・開発サーバーとも同じ挙動）。
  */
 import { site } from '../lib/data';
 import { fetchSponsorPlans } from '../lib/fortee';
 import { twitterHandle, type Person } from '../lib/people';
-import { dummyPeople } from '../lib/dummy';
 import PeopleGrid from './PeopleGrid.astro';
 
 const norm = (s: string) => s.trim().toLowerCase();
@@ -24,10 +24,10 @@ for (const plan of plans) {
   }
 }
 
-const items = people.length > 0 ? people : dummyPeople(15);
 const { individual_sponsors: text } = site;
 ---
 
+{people.length > 0 && (
 <section class="section section--purple individual" id="individual-sponsors">
   <div class="container individual__inner">
     <div>
@@ -36,9 +36,10 @@ const { individual_sponsors: text } = site;
         {text.description.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
       </p>
     </div>
-    {items.length === 0 ? <p class="individual__empty">{text.empty}</p> : <PeopleGrid people={items} tone="dark" />}
+    <PeopleGrid people={people} tone="dark" />
   </div>
 </section>
+)}
 
 <style>
   .individual__inner {
@@ -48,7 +49,4 @@ const { individual_sponsors: text } = site;
     gap: 48px;
   }
 
-  .individual__empty {
-    opacity: 0.9;
-  }
 </style>

@@ -2,11 +2,11 @@
 /**
  * スピーカー一覧。fortee の採択済みプロポーザル（/api/proposals/accepted）から自動生成する。
  * 同じ人が複数採択されていても1回だけ表示し、リンク先は最初のプロポーザル。
+ * 採択済みが0人のときはセクションごと出さない（本番・開発サーバーとも同じ挙動）。
  */
 import { site } from '../lib/data';
 import { fetchAcceptedProposals } from '../lib/fortee';
 import { twitterHandle, normalizeHandle, normalizeName, type Person } from '../lib/people';
-import { dummyPeople } from '../lib/dummy';
 import PeopleGrid from './PeopleGrid.astro';
 
 const proposals = await fetchAcceptedProposals();
@@ -20,10 +20,10 @@ for (const p of proposals) {
   people.push({ name: p.speaker.name, handle, url: p.url, avatarUrl: p.speaker.avatar_url });
 }
 
-const items = people.length > 0 ? people : dummyPeople(15);
 const { speakers: text } = site;
 ---
 
+{people.length > 0 && (
 <section class="section section--pink speakers" id="speakers">
   <div class="container speakers__inner">
     <div>
@@ -32,9 +32,10 @@ const { speakers: text } = site;
         {text.description.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
       </p>
     </div>
-    {items.length === 0 ? <p class="speakers__empty">{text.empty}</p> : <PeopleGrid people={items} />}
+    <PeopleGrid people={people} />
   </div>
 </section>
+)}
 
 <style>
   .speakers__inner {
@@ -44,7 +45,4 @@ const { speakers: text } = site;
     gap: 48px;
   }
 
-  .speakers__empty {
-    color: var(--c-text-muted);
-  }
 </style>
