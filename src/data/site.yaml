@@ -169,7 +169,7 @@ tickets:
     # チケット購入・譲渡・フォーム投稿をすべて終えてほしい日
     deadline_label: "2026年12月19日"
     # 画像投稿フォーム（Googleフォーム）のURL。空のあいだはボタンが「準備中」表示になります
-    form_url: ""
+    form_url: "https://docs.google.com/forms/d/e/1FAIpQLSeD4YKZ0EYEnurkTggcHi57lqsXbU51LA44t_FoELcWNCgpfg/viewform?usp=dialog"
     form_button: "画像投稿フォームへ"
 
 # スタッフとフッターの間のリンク集

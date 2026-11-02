@@ -42,8 +42,8 @@ npm run preview  # dist/ の内容を確認
 | プロポーザル | `Proposal.astro` | `sections.proposal` | `proposal.*`、`links.proposal` |
 | リンク集「絶賛募集中！」 | `Recruit.astro` | `sections.recruit` | `recruit.items`。`status: open` は上段に大きく、`status: closed` は下段「受付終了」に小さく薄く表示 |
 | スポンサー | `Sponsors.astro` | `sections.sponsors` | fortee のスポンサーAPI（ランク分け・ロゴ）＋ `sponsors.yaml`（ロゴ補完・手動追加）。見出し文言は `sponsors.*`、ランクは `sponsor_tiers` |
-| スピーカー | `Speakers.astro` | `sections.speakers` | fortee の採択済みプロポーザルから自動生成。文言は `speakers.*` |
-| 個人スポンサー | `IndividualSponsors.astro` | `sections.individual_sponsors` | fortee のスポンサーAPIのうち `individual_sponsors.plans` のプラン。文言は `individual_sponsors.*` |
+| スピーカー | `Speakers.astro` | `sections.speakers` | fortee の採択済みプロポーザルから自動生成。0人なら非表示。文言は `speakers.*` |
+| 個人スポンサー | `IndividualSponsors.astro` | `sections.individual_sponsors` | fortee のスポンサーAPIのうち `individual_sponsors.plans` のプラン。0人なら非表示。文言は `individual_sponsors.*` |
 | スタッフ | `Staff.astro` | `sections.staff` | fortee のスタッフAPI ＋ `staff.yaml`（実行委員長・副実行委員長の指定、追加・非表示）。文言は `staff.*` |
 | フッター | `Footer.astro` | 常時 | 丘の背景、マスコット、SNS、過去開催リンク、`footer.*` |
 
@@ -104,11 +104,13 @@ sections:
   timetable: false           # ナビの「タイムテーブル」リンク
 ```
 
-### データがまだ無いセクションの見た目を確認する（開発サーバーのみ）
+### タイムテーブルの空き枠の見た目を確認する（開発サーバーのみ）
 
 `site.yaml` の `preview.dummy_data` を `true` にすると、**開発サーバー（`npm run dev` / `docker compose up`）でだけ**、
-データが空のところ（スピーカー、個人スポンサー、当日スタッフ、スポンサーの空ランクなど）がグレーの仮要素で埋まります。
+サイト内タイムテーブルの空き枠（45分枠 / 20分枠 / LT など）がグレーの仮トークで埋まります。
 `npm run build` には影響しないので、true のままでも公開物にダミーは出ません。
+
+スピーカー・個人スポンサー・当日スタッフにはダミーを出しません。本番・開発サーバーとも、0人ならスピーカーと個人スポンサーはセクションごと、当日スタッフは小見出しごと非表示になります。
 
 ### リンク集「絶賛募集中！」を変える
 
@@ -157,7 +159,7 @@ fortee でプロポーザルを**採択**すると、再ビルド時に自動で
 ### スタッフを追加・削除する
 
 **fortee のスタッフ管理画面で登録・削除**すれば、再ビルド時に自動で反映されます（名前・リンク・アバターは fortee のもの）。
-fortee のグループ名（コアスタッフ / 当日スタッフ …）がそのまま小見出しになり、並び順は `staff.yaml` の `role_order` です。
+fortee のグループ名（コアスタッフ / 当日スタッフ …）がそのまま小見出しになり、並び順は `staff.yaml` の `role_order` です。0人のグループ（まだ登録のない当日スタッフなど）は小見出しごと出ません。
 
 実行委員長・副実行委員長は `staff.yaml` の `leaders` に X のハンドルで指定します。該当する人が fortee のどのグループにいても、先頭に大きく役職バッジ付きで表示されます。
 
@@ -193,8 +195,8 @@ fortee の NEWS に投稿すれば再ビルドで反映されます。fortee を
 | `proposal.*` | プロポーザルセクションの本文・ボタン |
 | `cta.primary` / `cta.secondary` | ヒーローのボタン（主 / 副）。`href` が `#xxx` ならページ内、`http` なら外部リンク。ナビ末尾は `primary` |
 | `recruit.*` | リンク集。`title_closed` は全部 closed のときの見出し、`closed_label` は受付終了バッジの文言 |
-| `sponsors.*` / `speakers.*` / `individual_sponsors.*` / `staff.*` | 各セクションの見出し・説明文（`description` は1要素1行）・空のときの文言 |
-| `preview.dummy_data` | 開発サーバーでだけ、空のセクションをダミーで埋める |
+| `sponsors.*` / `speakers.*` / `individual_sponsors.*` / `staff.*` | 各セクションの見出し・説明文（`description` は1要素1行）。`sponsors` / `staff` は空のときの文言 `empty` も（スピーカー・個人スポンサーは0人なら非表示） |
+| `preview.dummy_data` | 開発サーバーでだけ、サイト内タイムテーブルの空き枠をダミーで埋める |
 | `footer.*` | 運営団体名・コピーライト・過去開催リンク |
 | `analytics.gtm_container_id` | Google タグマネージャーのコンテナID（`GTM-XXXXXXX`）。空なら計測しない。本番ビルドのときだけタグが入る |
 | `analytics.ga_measurement_id` | GTM を使わず GA4 を直接入れる場合の測定ID（`G-XXXXXXXXXX`）。GTM と併用しない |
