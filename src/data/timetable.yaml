@@ -1,7 +1,9 @@
 # =============================================================
 # タイムテーブル（サイト独自分）
-#   fortee のタイムテーブル API が空のときだけ使われます（fortee にデータがあればそちらが優先）。
-#   fortee を使わずにここで管理したい場合は、site.yaml の timetable.mode を internal にしてここに並べてください。
+#   site.yaml の timetable.mode が internal のときは、ここにデータがあれば fortee より優先されます
+#   （fortee のタイムテーブル公開と同時にサイトでも公開したいとき用。公開日に mode を internal にするだけ）。
+#   mode が auto / external のときは fortee の API を使い、fortee が空のときだけここを使います。
+#   fortee 側にトークが揃ったあとは、mode を auto に戻してここを空（[]）にすれば fortee のデータに切り替わります。
 #
 #   track   … トラック名（同じ名前のものが1列にまとまる。書いた順に左から並ぶ）
 #   start   … 開始時刻 "10:30"（日付は site.yaml の event.date_iso）。ISO 8601 の日時でも可
@@ -10,6 +12,7 @@
 #   type    … talk（トーク） / timeslot（休憩・オープニングなどの枠）。省略時は speaker があれば talk
 #   speaker … スピーカー名（任意）
 #   speaker_twitter … X のハンドル（@ 無し、任意）
+#   speaker_avatar  … スピーカーのアイコン画像URL（任意）
 #   abstract … 概要（任意。複数行は | で）
 #   url     … トーク詳細のリンク（任意）
 #
@@ -28,4 +31,736 @@
 #   abstract: |
 #     トークの概要。
 # =============================================================
-[]
+# -------------------------------------------------------------
+# 以下は 2026-11-03 時点の採択会議資料（タイムテーブルドラフト / LTタイムテーブルドラフト）をもとに作成。
+# トークのタイトル・スピーカー・概要・URL は fortee のプロポーザル一覧から取得した正式なもの。
+# 時刻はスプレッドシートに合わせている（fortee の枠と 5 分ずれている箇所あり。13:25→13:20 / 13:55→13:50 / 16:35→16:30）。
+# -------------------------------------------------------------
+- track: "Track A"
+  start: "09:30"
+  end: "10:00"
+  title: "開場"
+  type: timeslot
+
+- track: "Track A"
+  start: "10:00"
+  end: "10:20"
+  title: "オープニング"
+  type: timeslot
+
+- track: "Track A"
+  start: "10:30"
+  end: "11:15"
+  title: "「使っているライブラリで脆弱性あるみたいなんだけどどうする」で困らないための脆弱性対応入門"
+  type: talk
+  speaker: "ASANO MASAKI"
+  speaker_twitter: "mackey0225"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/817b1efa-fccb-44a5-92de-8a06f6fa7039.png"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/76ded64d-f9a1-4abf-acf6-632f1c0b086f"
+  abstract: |
+    システムの開発・運用において、利用している言語やフレームワークなどの脆弱性対応は避けて通れません。
+    しかし、組織で取り組もうとすると「何から手をつければいいか分からない」「対応フローや優先順位付けが妥当なのか不安」といった課題にぶつかることも少なくありません。
+    さらに、最近の AI を用いた攻撃の高速化・自動化に伴い、初動の的確さと迅速さがより一層求められています。
+    本セッションでは、まず「そもそも脆弱性とは何か？」「CVEやCVSSスコアをどう読み解くか」といった基礎知識を整理します。
+    その上で、実践している情報収集、トリアージ（リスク評価）、組織内での対応フローといった事例を紹介します。
+    また、いざというときのため、普段の開発・保守の中で事前に行える現状整理についてもお話しします。
+    組織の規模やフェーズに応じた、現実的で持続可能な脆弱性対応のヒントを持ち帰っていただければ幸いです。
+
+- track: "Track A"
+  start: "11:30"
+  end: "11:50"
+  title: "言語なんて何でもいいAI時代だからこそ、好きなPHPで、生きていく！"
+  type: talk
+  speaker: "菱田裕美"
+  speaker_twitter: "77web"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/574d4c9f-88d3-4f8f-bee6-c6b20a827dc6.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/e5c4b7fe-a2b1-4949-8ccf-b7d905eeba47"
+  abstract: |
+    私が大好きなのはPHPで、一番得意なのもPHPです。
+    2026年、生成AIがどんな言語のプログラムもそれなりに書いてくれる時代になりました。便利ですね。
+    今まで手を出しにくかった難解な言語も、苦労しがちだった実行環境も生成AIがなんとかしてくれます。
+    プロダクトは、難しさやエンジニアの集めやすさでなく、必要な速度や必要な機能で言語を選んで作れるようになりました。PHPは、AI時代に今から新規プロダクトを作るときに選ばれない言語No.1になったと言えるでしょう。
+    しかし、AIがどんな言語も書いてくれるからこそ、好きな言語・得意な言語を活かす方法があると考えて、私は日々実践しています。
+    このトークでは、AIと協働して好きな言語を活かす考え方とやり方についてお話します。
+
+- track: "Track A"
+  start: "12:00"
+  end: "12:20"
+  title: "Composerにcooldownがやって来たぞ！(どうやって？)"
+  type: talk
+  speaker: "きんじょうひでき"
+  speaker_twitter: "o0h_"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/3084db54-2b5e-4cc5-8364-137b43dffbce.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/294cbeb8-fa98-4ef6-a2a3-193250b4e3a3"
+  abstract: |
+    2026年に(いっそう)世間を騒がせたサプライチェーン攻撃について、Composerも急速に対策を進めてきました。
+    2.11が10月29日にリリースされ、遂に「cooldwon」も公式にサポートされます。
+    Composerのcooldwonは、どんな機能なのでしょう？
+    実現にはどんな対応が必要だったのでしょう？
+    単に「日時の管理を加える」だけでは十分でなかったために、Packagistと合わせて様々な変更が加えられています。
+    改めて「Composerが動く仕組」を復習しつつ、cooldownとその導入に関連する変更を覗いてみましょう。
+    話すこと
+
+    Composer・Packagist、compsoer.json/lockって何？概要に触れる(おさらい)
+    cooldownの機能や、設定時の挙動
+    実現のためにどんな変更が行われたか
+
+- track: "Track A"
+  start: "12:20"
+  end: "12:40"
+  title: "昼休憩"
+  type: timeslot
+
+- track: "Track A"
+  start: "12:40"
+  end: "13:10"
+  title: "企画中"
+  type: timeslot
+
+- track: "Track A"
+  start: "13:20"
+  end: "13:40"
+  title: "Laravel 5.8 から最新版まで、稼働中のモノリスを止めずに運んだ 1年間 — AI と一緒にやったモダナイズの全記録"
+  type: talk
+  speaker: "金谷 敦志"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/53887cbb-da24-4454-b9b1-6c2e5830a838"
+  abstract: |
+    冷凍宅配食サービス「nosh」は 2026 年1月の時点で Laravel 5.8 / PHP 7.2 のモノリスでした。サブスクリプションも決済も毎日動いていて、止めて作り直す選択肢はありません。
+    そこからサービスを止めずにバージョンアップを重ね、発表時点では最新系のLaravel / PHPで動いています。旗振り役の私は、PHP未経験で入社しました。
+    LaravelやPHPの非互換をどう乗り越えたのか。
+    Python 2→3を上げきった経験をもとに、どんな方針で上げるか、何を守るか、自分が分かっていない穴はどこかをAIと言語化しながら進めました。
+    AIに丸投げせず、壊れたら気づけて、すぐ戻せる状態を先に作ったうえで上げています。
+    本セッションでは、その方針の立て方、実際の移行時に発生した問題や対処法をお伝えします。
+    時間があれば、複数サービス展開に向けたリアーキテクチャの話もします。
+
+- track: "Track A"
+  start: "13:50"
+  end: "14:10"
+  title: "AIで増えた設定やベストプラクティスを、テンプレートを通じて追従させ続ける技術"
+  type: talk
+  speaker: "Ryosuke Kawamura"
+  speaker_twitter: "fair917"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/4bc851fb-ed3e-4ee6-ac99-99e5415f6b60.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/d0c3a08f-05f2-4adf-aee6-3c722b59cfc9"
+  abstract: |
+    AIコーディングエージェントの普及で、PHPエンジニアが一人でカバーできる範囲は大きく広がり、コンテナやクラウドの設定まで任される場面も増えています。
+    一方で、書くのが簡単になった分コードや設定は今までにないペースで増え、プロジェクトごとに少しずつ違う形に育っていきます。
+    ミドルウェアやライブラリのバージョン、静的解析やクラウドの設定、そしてエージェント向けの指示ファイルまで、本来維持したい品質や水準とのズレは、時間とともにに広がります。
+    このトークでは、CopierとRenovateというツールを組み合わせ、共通のテンプレートに対する改善をPRとして各リポジトリに配布する仕組みについて、実運用で見えたポイントとあわせてお話しします。
+    【想定する聴講者】
+    ・インフラやCI/CDまで触る機会が増えたPHPエンジニア
+    ・複数のプロジェクトのばらつきや改善の横展開に悩んでいる方
+
+- track: "Track A"
+  start: "14:30"
+  end: "14:50"
+  title: "サポート切れのPHP、少しずつ上げるか、そもそも作り直すか"
+  type: talk
+  speaker: "山岡広幸"
+  speaker_twitter: "hiro_y"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/bc2d0169-5575-4143-83ea-9f815752bc85.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/e8b10edb-bc6f-4229-97e6-b99f051cb8fc"
+  abstract: |
+    2014年の創業から続く自社サービスがあります。
+    うまく手をかけてあげられないまま、PHP 7.4のサポートが終わってからも約4年動いていました。
+    2026年10月、PHPの重大な脆弱性が告知された日。たまたま前日にCloudflareを前に置いたばかりで、慌てずに済みました。
+    Claudeに相談すると、数か月前には無理そうだったPHP 8.3への更新が、あっけなく終わりました。
+    これは本当に偶然で、一気にバージョンを上げるのはオススメしません（仕事で何度かやりましたが…大変です）。基本は少しずつ上げましょう。
+    それでも一気に上げるしかないときは、AIと一緒にがんばるか、いっそ作り直すか。AIを使って、定期的に作り直すのも現実的になってきました。
+    当事者としてこれまでの経緯をふりかえり、PHP 8.3のサポートが切れる2027年末の先をどうしようと考えているかもお話しします。
+
+- track: "Track A"
+  start: "15:05"
+  end: "15:50"
+  title: "5万件のPHP結合テストを1分以内で実行するためにやったこと"
+  type: talk
+  speaker: "当田 昇"
+  speaker_twitter: "picopico_dev"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/ad1d82af-e439-4bca-ae68-a4b672f6467c.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/d28a718d-f859-4fac-a94d-7d06a433fe4d"
+  abstract: |
+    テスト実行の並列化も実行マシンの強化もやり尽くした後、さらに高速化するにはどうすればいいでしょうか？
+    私たちの社内ではアプリケーションの成長とともにPHPテストが増え続け、テストケース数は約5万件に達しました。その多くはDBに接続する重いテストです。マシンの強化と並列数の増加である程度短縮できたものの、実行時間は延び続けていました。
+    本セッションでは、実行マシンも並列数も変えずに、テストを3倍以上高速化した手法を紹介します。試した最適化のうち効果があったものとなかったものを、実測値をもとにお話しします。
+    対象者
+    ・PHPUnitを使ったことがある人
+    ・CIのテスト実行の最適化に関心がある人
+    話すこと
+    ・自前の並列ランナーからParaTestへの移行
+    ・ワーカーへのテスト振り分けの最適化
+    ・MySQL・php.iniの高速化設定
+    ・OPcacheの活用
+    ・カバレッジ計測の差分化
+    など
+
+- track: "Track A"
+  start: "16:00"
+  end: "16:20"
+  title: "脆弱性のないソフトウェアはなぜ作れないのか 〜不完全性定理という宿命について〜"
+  type: talk
+  speaker: "田中ひさてる"
+  speaker_twitter: "tanakahisateru"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/d8685d8b-28d6-47b0-b270-2b554d165239.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/83cb1227-2612-451a-948a-d4c6191a2ba8"
+  abstract: |
+    19世紀から20世紀の歴史に遡って、ソフトウェアとは何かという本質を考えてみました。
+    私たちが開発しているソフトウェアには、なぜバグや脆弱性が混入するのでしょうか。なぜ脆弱性がないことを証明するソフトウェアを作ることはできないのでしょうか。物語は、19世紀の数理論理学の夢を、1921年のある著書が粉砕したところから始まります。そこから歴史を追いかけると、ソフトウェアという概念そのものに、避けられない本質的な宿命が見えてきます。
+    そしていま、全く別のアプローチである、大規模言語モデルが現れました。それは、宿命付けられた不完全性を、ついに超克するのでしょうか。それとも、論理のさらに外を取り囲む、新たな不完全性の系なのでしょうか。人間である私たちは、エンジニア倫理をどのように確立していけばいいでしょうか。
+    という戯言を述べたいと思います。
+
+- track: "Track A"
+  start: "16:30"
+  end: "16:50"
+  title: "\"あなたが次の登壇者？一歩踏み出しきれない、プロポーザル提出までの心理的ハードルの外し方\""
+  type: talk
+  speaker: "DPon"
+  speaker_twitter: "DPontaro"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/0b6446c0-dfe7-47a8-bf63-745e6494fe33.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/c8f21fdd-4950-4311-8222-5295a4c86730"
+  abstract: |
+    カンファレンス登壇ってカッコよくないですか？
+    PHPカンファレンス関西2024に参加した際、登壇者の皆さんはとても輝いて見えました。
+    刺激を受けて私も登壇機会を頂けました。
+    登壇の最初のハードルとなるプロポーザル提出。
+    何を出したらいいか、考え出すとキリがなく、最初の提出はボタンを押す手が震えました。
+    それでも話したい欲求があったからボタンを押しました。
+    一歩踏み出しきれないそこのあなた。
+    少しでも「話してみたい」気持ちがあるなら、一緒にハードルを洗い出し、次なる一歩を踏み出しましょう
+    ターゲット
+
+    プロポーザル提出に一歩踏み出しきれてない方
+
+    お話すること
+
+    心理的ハードルの洗い出し
+    ハードルへの考え方、対策
+    ネタの出し方
+    提出時に意識していること
+    私がプロポーザルを出す理由
+
+    得られること
+
+    プロポーザルを出す勇気
+    ネタのひねり出し方
+
+- track: "Track A"
+  start: "17:05"
+  end: "17:10"
+  title: "LTオープニング"
+  type: timeslot
+
+- track: "Track A"
+  start: "17:10"
+  end: "17:15"
+  title: "AI は PHP の暗黙知を読み解けるのか"
+  type: talk
+  speaker: "勝佐拓也"
+  speaker_twitter: "kitkattsun0531"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/2156d1ca-14d7-4519-baa3-5f61b40cd30e.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/e5e4bbdb-e6cf-4d17-8fe7-f85f96175e57"
+  abstract: |
+    普段何気なく書いている PHP のコード。
+    その裏側で何が起きているか、意識したことはありますか？
+    マジックメソッドや型変換、参照など、PHP にはコードの見た目だけでは分かりにくい挙動があります。
+    PHPer は経験や知識を頼りに、こうしたコードの裏側を読み解いています。
+    では、 AI はどうでしょうか？
+    今回は、PHP のコードを AI に読み込ませ、どこに着目し、何を手掛かりに、どのような手順で理解していくのかを追ってみます。
+    AI は PHPer とは異なるアプローチで、 PHP の暗黙知を読み解くのでしょうか？
+
+- track: "Track A"
+  start: "17:15"
+  end: "17:20"
+  title: "PHPコミュニティのおかげでPHP2Shellの脆弱性対応を乗り越えられました"
+  type: talk
+  speaker: "おさない"
+  speaker_twitter: "000sak000"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/02789152-81e3-4167-b8e2-e0996eae655d.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/1dc1386f-ebea-4fbf-b9c9-0ad7098e7d5d"
+  abstract: |
+    PHPの重大な脆弱性対応に、当社の現場でも対応に追われました。
+    この対応を主導してくれたのが、スーさんです。当社のPdMがLaravel Live Japanのスタッフ活動を通じて知り合い、スーさんが仕事を探していたタイミングで声をかけ、お力添えいただいていた経緯があります。
+    さらにPHPユーザーズのSlackやTwitterで最新情報を収集できたことや、他のPHPerも同じ課題に向き合っていると感じられたことも心強い支えでした。
+    本LTでは、今回の経験を通じて、コミュニティで生まれた縁が、いざというとき現場を支える力になることをお話しします。
+
+- track: "Track A"
+  start: "17:20"
+  end: "17:25"
+  title: "PHPのsortは何ソート？"
+  type: talk
+  speaker: "Keisuke Ikeda"
+  speaker_twitter: "ike_keichan"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/14b683ba-c743-4628-9e78-27b4c355174b.png"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/67facf03-ab64-4ff9-b2d0-e011f6d450a7"
+  abstract: |
+    皆さんは sort() がどんなソートアルゴリズムで動いているか、意識したことはあるでしょうか？
+    ソートと言っても、クイックソート、マージソート、挿入ソートなど、ソートアルゴリズムには多くの種類があります。
+    そしてPHPには sort、asort、ksort、usort など十数個のソート関数がありますが、php-src を読むと、どれも最終的に同じ一つの内部関数にたどり着きます。
+    本LTでは、その内部関数が何のソートアルゴリズムで動いているのかを php-src のコードとともに解説します。その答えは PHP 5 と 7 で異なり、さらに PHP 8 ではソートアルゴリズムを変えないまま、同じ値を持つ要素の並び順が保証される「安定したソート」になりました。ソートアルゴリズム以外の何を変えたのか、その答えも合わせて解説します。
+
+- track: "Track A"
+  start: "17:25"
+  end: "17:30"
+  title: "独学でPHP学んでそのままPHP使う会社に入ってみた"
+  type: talk
+  speaker: "jirooooo"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/aeb2e2b7-9b23-462e-9cc8-424db667e930"
+  abstract: |
+    独学でPHPを覚えて、長期インターンを経てPHPを使う会社に入社し、今もPHPのプロダクトを開発しています。
+    独学のころは、引数にintと書いてあれば中身もintだろうと、特に気に留めていませんでした。入社後、古いコードをリファクタするMRをレビューしたとき、そのついでに declare(strict_types=1) を付けたところ、PHPStanのエラーが出続きました。調べると、intと宣言した引数に数字の文字列を渡している箇所がいくつもあり、暗黙の型変換で何年も動いていました。型が書いてあることと型が守られていることは別だと、このとき初めて実感しました。
+    このLTでは、この件を中心に、独学で分かったつもりだったことが実務でどう理解し直したかを話します。独学でPHPを学んでいる人、これから実務に入る人向けの発表です。
+
+- track: "Track A"
+  start: "17:30"
+  end: "17:35"
+  title: "『解約予定』をそろえたら、PHPのコードまで直したくなった話"
+  type: talk
+  speaker: "Taz"
+  speaker_twitter: "466548"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/8285877d-6cef-4d69-bf7a-aa2e44f021ab.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/81853d0d-24b0-4d89-9b92-5288262b9bb6"
+  abstract: |
+    画面の文言を見直していたとき、ひとつの状態を表す言葉が場所によって少しずつ違うことに気づきました。
+    デザイナーとして文言をそろえるだけのつもりが、たどっていくとPHPの定数名やメッセージにも同じゆれがありました。
+    このLTでは、デザイナーがAIの力を借りながら用語を棚卸しし、UIとコードの言葉をそろえていった過程を紹介します。
+
+    画面の表記ゆれは、どこから生まれるのか
+    AIを使って「同じ意味の言葉」を集めてみる
+    用語ルールを決めるとき、デザイナーとエンジニアで話し合ったこと
+    UIの文言とPHPの命名がそろうと、何がうれしいのか
+
+    対象者
+
+    デザイナーやPMとの用語のすり合わせに興味があるPHPer
+    コードが読めるデザイナー、読んでみたいデザイナー
+
+    持って帰れるもの
+
+    AIを使って用語のゆれを洗い出すやり方
+    「UIの言葉」と「コードの言葉」をそろえるための考え方
+
+- track: "Track A"
+  start: "17:35"
+  end: "17:40"
+  title: "AIの「もっともらしさ」に流されないために　～認知バイアスとレビューの工夫～"
+  type: talk
+  speaker: "小泉岳人"
+  speaker_twitter: "koitake_"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/0153fbea-b06b-4061-9e8a-45c4853b2bce.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/141f3e52-3df3-4f55-9507-8c396861bbf8"
+  abstract: |
+    AIが作った設計書や生成物は、一見よくできている。でも、なぜそう作ったのか、自分の言葉で説明できるでしょうか。
+    自分の理解を超える成果物を前に「分からない」と言えず、十分にレビューできないまま開発が進む。私自身も、AIの最初の案に引っ張られる一人です。
+    本LTでは、アンカリング・説明深度の錯覚など、認知バイアスの考え方を手掛かりに、AIが作った設計書等の生成物をレビューするコツを紹介します。「分からない」「何かおかしい」と感じたとき、どこを確かめ、どうAIに問い直すか。自分自身の認知バイアスを自覚し、成果物の前提や、AIに渡した情報に戻って確認するなど、明日から試せるレビューの工夫をお伝えします。
+
+- track: "Track A"
+  start: "17:40"
+  end: "17:45"
+  title: "フレームワークの外に出てみた"
+  type: talk
+  speaker: "yamoto95"
+  speaker_twitter: "yamoto_95"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/4305688c-451b-4464-8318-d6c5f0afda00.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/bc872840-211c-42f0-aaa1-4caf6b2e0e6f"
+  abstract: |
+    フレームワークがやってくれていること、素のPHPで書けますか？
+    私が初めて書いたPHPはCakePHPでした。
+    最初からフレームワークの中にいたので、どこまでがPHPで、どこからがフレームワークの機能なのか、明確に線引きできていませんでした。
+    本LTでは、フレームワークの機能を1つずつ外し、いつもの1リクエスト分の処理を素のPHPだけで書き直します。
+    普段のコードと並べて、フレームワークが何を肩代わりしていたのかを見ていきます。
+    フレームワークからPHPを始めた初心者の目線で、外に出て分かったことをお話しします。
+
+- track: "Track A"
+  start: "17:45"
+  end: "17:50"
+  title: "そのPHP、クラウドにどう載せる？"
+  type: talk
+  speaker: "大谷優多"
+  speaker_twitter: "y___otani"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/61f6cca6-aa04-4771-a8a7-b67cf4af688e.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/57fabb32-36ad-4440-8de8-3c9740a304f4"
+  abstract: |
+    PHPアプリをクラウドに載せるとき、どんな構成を思い浮かべますか？
+    各クラウドには実績豊富な定番の構成があります。もちろん、それらは有力な選択肢です。でも、PHPアプリの載せ方はそれだけではありません。
+    例えば、独自ドメインや証明書を用意せずにHTTPSで公開したい。アクセスが少ないなら、常時稼働は避けたい。そんなとき、いつもの構成以外にどんな選択肢があるでしょうか？
+    本LTでは、主要クラウドであるAWS・Google Cloud・Azureを題材に、実現したいことに応じて候補となるPHPアプリの載せ方を紹介します。
+
+- track: "Track A"
+  start: "17:50"
+  end: "17:55"
+  title: "関西のPHPコミュニティーの現在地"
+  type: talk
+  speaker: "あき"
+  speaker_twitter: "aki_artisan"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/17bd4491-0131-4990-b5b1-afb487e1bdad.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/dfd51651-4d66-4e72-b376-bbf29388da92"
+  abstract: |
+    PHPカンファレンス関西2024をきっかけにして、関西PHP勉強会を復活させました。
+    復活後の開催は2026年10月時点で20回を数え、ほぼ毎月の安定した開催ができるようになりました。
+    定期開催によってほぼ毎回参加してくれる方や遠方からの参加者も現れ、普段の勉強会と年に一度のPHPカンファレンス関西の循環もできつつあります。
+    2024年からの2年間をふりかえり、次の関西PHPコミュニティの形を企んでいきましょう。
+    皆さんの参加を待っています。
+    （以下のリクエストに対するトークです！ https://requestalk-2026.kphpug.jp/talks/a0e3be5e-0bb0-4d49-9e36-cdbedb533ddb）
+
+- track: "Track A"
+  start: "17:55"
+  end: "18:00"
+  title: "さあ、ここから何者になりたいか？"
+  type: talk
+  speaker: "ことみん"
+  speaker_twitter: "kotomin_m"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/f2d0d4b3-d9eb-4297-b16f-467f97fd6b57.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/ec6d573f-3b06-4e25-b2bf-42781f5b68d0"
+  abstract: |
+    新卒から5年半勤めた会社を離れ、2027年1月から新しい会社で働いています。
+    転職活動で一番悩んだのは、どの会社に行くかを決めるときでした。
+    「いい会社」はたくさんあるし、どの道も面白そう！そんな分かれ道で、自分が進む道を選ぶために必要なことは「なりたい姿」をはっきりさせることでした。
+    このトークでは、私が転職活動中に考えたキャリアの一部始終を赤裸々にお話しします！
+    さあ、ここから始まる人生の道！
+
+- track: "Track A"
+  start: "18:00"
+  end: "18:30"
+  title: "クロージング"
+  type: timeslot
+
+- track: "Track A"
+  start: "19:00"
+  end: "21:00"
+  title: "懇親会"
+  type: timeslot
+
+- track: "Track B"
+  start: "10:30"
+  end: "11:15"
+  title: "PHilosoPhy of PHP Tech Debt in the AI Era"
+  type: talk
+  speaker: "めもり〜☆"
+  speaker_twitter: "m3m0r7"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/93581814-4d98-477d-a940-68916bb74e60.png"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/4c4b96ed-018d-437b-b2c3-246cbd48abc9"
+  abstract: |
+    PHP で作られ，10年，20年と事業を支えてきたプロダクトは珍しくありません。その年月とともに技術的負債も積み上がり，「何を直すべきか」「何を残してよいのか」，時には「そもそも PHP を使い続けるべきなのか」という問いにも直面します。
+    一方，すべての負債を返済することが事業にとってあるべき姿とは限りません。AI によって開発や改修のあり方も変わりつつある今，本セッションでは，技術的負債を単なるコード品質の問題ではなく，事業価値，開発速度，運用コスト，人材，リスクといった経営上の問題として捉えます。
+    PHP で積み上げてきた資産をどう評価し，何を返し，何を残し，その先へ進むのか。技術と経営の両面から，技術的負債との向き合い方を考えます。
+
+- track: "Track B"
+  start: "11:30"
+  end: "11:50"
+  title: "PHPのシェアードナッシングはどう実現されているのか？php-srcから読み解くリクエストライフサイクル"
+  type: talk
+  speaker: "荒巻拓哉"
+  speaker_twitter: "takaram71"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/90fda5ab-f510-4500-95ce-cb741f7e9b25.png"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/ec530d14-e341-4c93-939d-4bfae3f96a57"
+  abstract: |
+    PHPでは、リクエストが終わると変数やオブジェクトなどがリセットされ、次のリクエストはまっさらな状態から始まります。これは「シェアードナッシング」と呼ばれるPHPの特徴の一つです。
+    初心者の頃の私は、てっきりリクエストごとにPHPのプロセスが起動・終了しているのだと思っていました。しかし実際には、同じプロセスが何度もリクエストを処理しています。
+    では、プロセスを再起動せずに、どうやって状態をリセットしているのでしょうか？ また、実はリクエストをまたいで保持されるデータや状態も存在します。
+    このトークでは、php-srcのコードをたどりながら、Zend Engineや拡張モジュールが行うリクエストごとの初期化・終了処理と、状態を保持する仕組みを解説します。普段当たり前に使っているPHPの動作が、どのような内部実装に支えられているのかを探っていきます。
+
+- track: "Track B"
+  start: "12:00"
+  end: "12:20"
+  title: "「破られない」守りから「破られても困らない」守りへ"
+  type: talk
+  speaker: "Roku"
+  speaker_twitter: "ad5jp"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/bed2fba0-418a-4969-92ec-0bb766422dd8.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/234ab3d1-c17f-40da-8da5-91b5ffd8e3dd"
+  abstract: |
+    2026年10月初め頃より、大手企業へのサイバー攻撃、情報漏洩が相次ぎ、個人情報を取り扱う事業者は戦々恐々としていました。
+    私たちが保守開発を請け負っているプロジェクトのひとつに、10万人の個人情報や口座情報を扱うLaravel製のWebアプリがありました。防御を強化しようにも、横行する攻撃の手法や経路もなかなか明らかにならない。
+    そこで取った選択は「破られた時のダメージを最小限に抑える」対策。
+    例えば、機微なデータの暗号化、データストアの分離、データ保持期間の見直しなど。暗号化すると検索できなくなる等の課題に直面しながらも、機能退行とのバランスや、代替手段などを考慮しながら進めていきました。
+    完璧な防御はもはや不可能とも言える情勢の中で、我々PHPerに何ができるのか。実体験をもとに、勘所や悩んだポイントも交えてお話します。
+
+- track: "Track B"
+  start: "12:20"
+  end: "13:20"
+  title: "昼休憩"
+  type: timeslot
+
+- track: "Track B"
+  start: "13:20"
+  end: "13:40"
+  title: "VMs are back! エージェントと共に作るためのPHP開発環境再入門"
+  type: talk
+  speaker: "岡本秀高"
+  speaker_twitter: "hidetaka_dev"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/fba4293f-7ded-4db5-b359-de05ca831dba.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/435cdc27-9eba-47f6-8338-7d260c9f88b9"
+  abstract: |
+    かつてVagrantで開発用VMを立てていたPHPerも多いはずです。VMは重く、私たちは軽いDockerへ移りました。しかしAIエージェントと開発する今、前提が変わりました。エージェントはパッケージを入れ、設定を書き換え、読み切れないコマンドを次々に実行します。ホストのカーネルを共有するコンテナでは、隔離が心許ありません。microVMは専用カーネルを持つVMでありながら、コンテナに近い速さで起動し、壊してもsnapshotから一瞬で戻せます。
+    本トークでは、microVM上にエージェントへの指示だけでWordPressを構築し、PHP 7.4/8.1/8.3の共存構成と、バージョンごとの並列実行構成でプラグインのテストを動かした実践を紹介します。エージェント時代のPHP開発環境を、もう一度ここから始めましょう。
+
+- track: "Track B"
+  start: "13:50"
+  end: "14:10"
+  title: "二重登録を防ぐlockForUpdate()がデッドロックを招く理由 ― data_locksで見るInnoDBのロック"
+  type: talk
+  speaker: "ayana"
+  speaker_twitter: "ayana_ktkt"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/78f2ec61-2661-450a-a4a6-e5c72b57a04e.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/07cb59a4-4fe8-4844-bb6b-74cb0274ac9d"
+  abstract: |
+    firstOrCreate()のような「あるか確認して、なければ登録する」処理は、同時に2つのリクエストが来ると二重登録になります。
+    ではユニーク制約やlockForUpdate()なら安心でしょうか？
+    Laravel 13で、何もしない・ユニーク制約・lockForUpdate()の3つに20並列でリクエストを送り、結果を比べた結果から見えてきたことを発表します。
+    挙動は、performance_schema.data_locksで確認します。
+    SQLを動かしながらDBの中を追い、最後にWebhookの再送など現実の例にも触れます。
+    対象：トランザクションやロックをもっと理解したいLaravelエンジニア
+    前提：MySQL 8.4（InnoDB、REPEATABLE READ）
+
+- track: "Track B"
+  start: "14:30"
+  end: "14:50"
+  title: "PHPはPerlから何を受け取ったのか"
+  type: talk
+  speaker: "うさみけんた"
+  speaker_twitter: "tadsan"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/6736d468-318e-4ecb-90cb-2cfdd2ae6aa7.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/8bec3394-4f88-48e5-9b07-48d8f346648c"
+  abstract: |
+    Perlをご存じでしょうか。PHPに先立って普及したサーバーサイドWebプログラミングのための言語としてのパイオニアとなった言語です。
+    Perlは1987年にリリースされた言語ですが、エンジニアというよりは言語学のバックグラウンドを持つ作者・ラリー・ウォールによって従来のプログラミング言語ではまだ一般化されていなかった機能が盛り込まれ、プログラミング言語の歴史を変えた一大特異点のひとつといえます。
+    PHPは技術的にはPerlと直接的な関連はないものの、多かれ少なかれ時代的な背景からPerlの影響が垣間見えるポイントがいくつもあります。
+    本トークではPHPの言語仕様について「どうしてこうなった」というポイントについてPerlという補助線を引くことで理解し、歴史のダイナミズムを感じましょう！
+
+- track: "Track B"
+  start: "15:05"
+  end: "15:50"
+  title: "安全なアプリケーションを保つために、私たちが日頃からできること"
+  type: talk
+  speaker: "富所 亮"
+  speaker_twitter: "hanhan1978"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/794f4448-a85c-4968-8c28-0ae10b49887a.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/89fcab24-55d0-42e2-b40f-a5ecef3e4c3c"
+  abstract: |
+    「セキュリティは気になるけど、何から始めればいい？」
+    「安全にコードを書くだけで十分？」
+    「重大な脆弱性が出たら、すぐに対応できる？」
+    サービスの安全は、インフラ・ミドルウェア・アプリケーション・仕様など、複数の層と人々によって支えられています。アプリケーションエンジニアも、その全体の中で自分にできることを考える必要があります。
+    本トークでは、PHPの重大な脆弱性への対応経験を交え、安全なアプリケーションを保つための日頃の取り組みを紹介します。
+    ・コミュニティから当たり前を学ぶ
+    ・セキュアな実装の基本を理解する
+    ・本番環境の構成を理解する
+    ・修正を速やかに届けるCI/CDを整える
+    ・改善を妨げる組織の壁を取り除く
+    ・チームを越えて協力できる関係を築く
+    特別な対応を可能にするのは、日々の地道な改善です。自分の立場で、明日から何に取り組めるかを持ち帰れるトークを目指します。
+
+- track: "Track B"
+  start: "16:00"
+  end: "16:20"
+  title: "そのテスト、なぜ小さくできない？ 〜6万行のテストを消して見えたPHPコードの境界設計〜"
+  type: talk
+  speaker: "おぎ"
+  speaker_twitter: "ogi_chotdake_se"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/d484f636-8ed5-4cf4-84d0-b8817b3aa7e4.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/5a66c402-37c5-4b3a-8b5b-5937b9ce1e9d"
+  abstract: |
+    2026年、私は大規模なPHPプロダクトで数万行のテストコードを削除しました。 その結果、「小さくできないテスト」が多数残りました。
+    APIテストでしか確認できない、DBや外部I/Oまで通さないと検証できない、それを回避しようとするとモックまみれになってしまう...
+    様々な問題を抱えたテストを調べるうちに、これらのテストコードの問題はプロダクトコードの責務や依存の境界が曖昧になっているサインなのでは？と考えるようになりました。
+    本トークでは、サンプルコードを使って「重いテスト」を分解しながら、「本当に保証したいもの」や「保証にHTTPやDBは必要か」を見直し、 テストを軽くすることではなく、テスト容易性を設計へのフィードバックとして使い、責務を適切な境界へ移していく考え方を紹介し、テストを直す前にプロダクトコードとその設計を見直すための視点を提供します。
+
+- track: "Track B"
+  start: "16:30"
+  end: "16:50"
+  title: "自分が選んでいないフレームワークの選定理由を、今からでも語れるようになろう"
+  type: talk
+  speaker: "斉田真也"
+  speaker_twitter: "saita_shinya"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/4742ecf5-470b-4ab2-af76-86670e08ce2d.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/71386876-bc1b-4aa1-a919-da6cb77ac731"
+  abstract: |
+    あなたが開発しているシステムのフレームワーク、その選定理由を語れますか？
+    多くの現場でフレームワークは自分が選んだものではなく、入社時にはもう決まっていて、選んだ人はもういないこともある。
+    しかしながら「選定理由なんて知らない」と放置するのは勿体ないです。フレームワークの特性を知ることは、パフォーマンス改善にも、セキュリティを疑う力にも直結するからです。
+    このトークでは、フレームワークを「機能の多さ」ではなく以下の軸で比較してみます。
+
+    リクエストのライフサイクル
+    ミドルウェア
+    DIコンテナとコスト
+    ORMのSQL生成とエスケープ
+    CSRF対策等のデフォルト仕様
+
+    この軸で並べると、「なぜこれが選ばれたのか」「今選ぶなら何が変わるか」が語れるようになります。
+    それが出来るようになったら、次は・・・あなたが技術選定をする人間になります。
+    これはその最初の一歩。
+
+- track: "Track C"
+  start: "10:30"
+  end: "11:15"
+  title: "1本のリクエストから追う、PHP・DB・ブラウザのメモリ使用量"
+  type: talk
+  speaker: "ma@me"
+  speaker_twitter: "ma_me"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/18e3ea89-f20a-4e84-9ceb-2533ee650a2f.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/33dcb048-acde-4af4-890d-7b7894374039"
+  abstract: |
+    メモリは限られた資源で、アプリケーションの性能にも影響します。
+    PHPは実行時に必要なメモリを管理してくれますが、一方で、データの取得方法や応答の指示によっては、DBやブラウザなど、どこにデータを保持させ、どこでメモリを担保させるかが変わります。
+    このセッションでは、通常のAPIリクエスト、大量のメモリを利用するCSV関連のリクエストを例に、
+    ブラウザからDBへ問い合わせ、結果を取得し返すまでのメモリの流れを説明します。
+    get()やcursor()などの取得メソッドでどれくらい変わるのか、
+    CSVを一度に組み立てた場合と逐次出力する場合ではどれだけ変わるのか、その違いを比較しながら、
+    各段階でメモリがどこに確保され、いつ解放されるのかを確認します。
+    大切な資源管理をAIに任せっきりにせず、開発者でコントロールできるようになりましょう。
+
+- track: "Track C"
+  start: "11:30"
+  end: "11:50"
+  title: "設計の良し悪しを結合バランスで考えてみる"
+  type: talk
+  speaker: "梶川 琢馬"
+  speaker_twitter: "kajitack"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/a5f8db9e-d67e-4138-b992-0c78625d41ce.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/84217ca1-3de3-4ecf-ad30-684dc01fdcc7"
+  abstract: |
+    大きくなったクラスを役割ごとに分けた。データアクセスを別の層に出した。サービスを分けた。
+    けれど、機能追加や仕様変更のたびに、結局いくつものファイルを直している。そんな経験はないでしょうか？
+    コードの品質は、関数の複雑さやクラス間の依存の数で計測することは可能です。
+    ただ、それだけではこの痛みは分かりません。設計の良し悪しは、モジュール間の結合の仕方に左右されるからです。
+    このセッションでは、Vlad Khononov 氏の結合バランスの考え方で、「依存先と何を共有しているか」「結合しているコード同士がどれだけ離れているか」「どれくらい変わりやすいものに依存しているか」という3つの観点を実際にどう活用できるかを紹介します。
+    設計の良し悪しを、根拠を持って判断し、チームでの議論に役立ててください！
+
+- track: "Track C"
+  start: "12:00"
+  end: "12:20"
+  title: "AIと開発するために、PHPの何を理解すべきか"
+  type: talk
+  speaker: "ok@meg"
+  speaker_twitter: "GsxP8"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/0fff69b8-45f0-489b-87c5-ef3160a1e0ab.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/f5ef4d38-e708-4e2b-8b93-39cfc416c281"
+  abstract: |
+    AIが出すPHPコード、皆さんはどのくらい自信を持って読めますか？私は、普段から不安でいっぱいです。
+    例えば、このPHPDocは要るか、この動的実装はモダンなのかハックなのか、私の知らないもっと適した設計があるのではないか…などです。
+    よく知るアンチパターンならすぐに棄却できます。しかし、自分よりphpを理解している節のあるAIは、妥当な設計なのか、過剰な抽象化・アンチパターンに近しいのか、判断に迷うコードを出すことも少なくありません。
+    本発表ではまず、実際に悩んだPHPコードと、その採否を判断した経験について話します。
+    そしてこの経験を元に、「AIの提案を読む時、何を知っていれば・どこを確認すれば良いと思うか」を発表します。
+    また「次はここから始まる」の部分として、自分の設計判断をAIが再現できるよう、試したことと今思うコツについて、結論を伝えます。
+
+- track: "Track C"
+  start: "12:20"
+  end: "13:20"
+  title: "昼休憩"
+  type: timeslot
+
+- track: "Track C"
+  start: "13:20"
+  end: "13:40"
+  title: "SaaSを守り抜け!! ― 実際に受けた攻撃から学ぶPHP実装の防御術とAIペネトレーションテスト"
+  type: talk
+  speaker: "Arimoto"
+  speaker_twitter: "ixcy"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/2025793b-2c81-4200-8e0f-6e28d713e15e.jpeg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/6c4712a7-c209-46de-bdc6-1989fd29ebd7"
+  abstract: |
+    サービス停止、情報漏洩、不正アクセス。SaaSをめぐるセキュリティインシデントのニュースが、毎週のように流れる時代になりました。インターネットに公開されたSaaSは、公開した瞬間から、ボットによる自動スキャンや標的型の攻撃にさらされ続けます。
+    私達が開発・運用しているSaaSも例外ではなく、運用の中で脆弱性スキャンやインジェクション試行などの攻撃を実際に受けてきました。
+    本セッションでは、実際に受けた攻撃の傾向をもとに、どのような攻撃があったのか、そして実装の際にどのような点に気をつけるべきかをPHPエンジニアの視点でお伝えします。
+    さらに、AIペネトレーションツールによる脆弱性診断の実践結果も紹介します。何が見つかったのか、人手の診断とどう使い分けるべきかを、実体験をもとに解説します。
+
+- track: "Track C"
+  start: "13:50"
+  end: "14:10"
+  title: "組み合わせテストと向き合う──ペアワイズ法の考え方と実践"
+  type: talk
+  speaker: "kuma"
+  speaker_twitter: "bath_poo_"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/25852558-e55c-40e5-bd99-98a811ade480.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/56f24786-a728-45ed-9e30-e506634af52f"
+  abstract: |
+    「組み合わせテスト」において、組み合わせ数の多さから全網羅することが難しいケースに遭遇したことはありませんか？
+    この問題へのアプローチの1つが「ペアワイズ法」です。「多くの不具合は1〜2条件の相互作用によって起きる」という経験則に基づき、組み合わせ数を抑えつつ効果的な検証を可能にします。
+    本セッションでは、ペアワイズ法の考え方を解説します。さらに、PHPで実装されたライブラリを用い、PHPからペアワイズ法を利用する例を紹介します。
+    想定する対象者層
+
+    ペアワイズ法を使ったことがない方
+    テストケースの選び方に根拠を持たせたい方
+
+    本トークで話すこと
+
+    組み合わせテストの難しさ
+    ペアワイズ法の基本的な考え方と向き・不向き
+    PHPUnitを使った実装例
+
+    本トークで話さないこと
+
+    アルゴリズムの詳しい実装
+    ペアワイズ法以外の組み合わせテスト技法
+
+- track: "Track C"
+  start: "14:30"
+  end: "14:50"
+  title: "責任を \"取る\" のではなく \"持つ\" 〜AI時代に人間に残る仕事 2026〜"
+  type: talk
+  speaker: "たつきち"
+  speaker_twitter: "ttskch"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/aa519880-cc26-4f55-bdc5-6a80b56b8cc3.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/6703be7c-811b-4349-acd7-28d9ebf4d714"
+  abstract: |
+    「AIは責任を取れない、だから人間が必要」と言われますが、一方で「人間も大して責任取らないじゃん」なんて声もあります。
+    私は「責任を取るのが上司の仕事」という言葉に昔から違和感がありました。上司が責任を取って罰を受けても、何が解決するわけでもないからです。
+    違和感を解く鍵は、責任を「取る」と「持つ」を分けて考える事でした。この整理は、AI責任論にも一つの明快な説明を導きます。
+    弊社ではもう人間はほぼコードを書いていませんが、それでも受託案件の請負契約では完成を約束し、成果物に責任を持っています。
+    本トークでは、責任を「持つ」とは何かを整理した上で、
+
+    AIコードのレビューで弊社が今も見ていること、もう見なくなったこと
+    Meta社のレビュー自動化の事例
+    弊社で提供している、顧客自身がAIでサイトを更新できる仕組み
+
+    などの紹介を通して、AI時代に人間に残る仕事を考察します。
+
+- track: "Track C"
+  start: "15:05"
+  end: "15:50"
+  title: "【解説】PHP-Parser 100% 45:00 Part1/1【WR】【初見さん歓迎】"
+  type: talk
+  speaker: "ydah"
+  speaker_twitter: "ydah_"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/75365143-a80b-482f-a33e-1940cdbf06d8.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/12f1d742-2a83-4250-a2c8-7276d011baf9"
+  abstract: |
+    PHPStanやRectorなど、皆さんが日々使うツールを支えるnikic/PHP-Parser。その中身をブラックボックスのまま使っていませんか？
+    本トークでは、普段はRubyの構文解析器で暮らしており、構文解析器ファンボーイの私が、偏愛を込めてPHP-Parserの中身を徹底解説します。
+    トークンを切り出し、文法定義から生成されたパーサーがASTを組み立て、NodeTraverserやPrettyPrinterがそれを書き換え、出力するまでを実際のコードで辿ります。
+    新構文を古いPHPで読む工夫やエラー回復のしくみなど、Rubyのパーサーと比べた設計の工夫にも触れます。
+    パーサーは構文の変化を最も受ける場所です。新構文が入ると何が起きるのか。
+    ブラックボックスの外の世界と、明日からASTを読み、ツールを使いこなし、自分で書くための視点を持ち帰って貰えるトークにしたいと思います。
+
+- track: "Track C"
+  start: "16:00"
+  end: "16:20"
+  title: "PHP 8.6のライセンス変更から学ぶオープンソースライセンス"
+  type: talk
+  speaker: "松尾篤"
+  speaker_twitter: "matsuo_atsushi"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/249d65d4-00db-4cb3-8bb5-03d9211a565e.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/25841706-94b8-4e3f-8744-d403f7ed4f62"
+  abstract: |
+    PHP 8.6ではライセンスが三条項BSDライセンスに変更され、長年の課題であったGNU General Public License（GPL）との両立性に関する問題が解消されました。本トークでは、このライセンス変更の内容を題材に、GPL、MIT、BSDなど主要なオープンソースライセンスの基礎知識と実務での注意点を解説します。
+    サプライチェーン攻撃のリスクを低減するためにOSS依存を減らし、AIにコードを書かせるという選択もある一方で、AI生成コードにGPLやAGPLなどのコードが知らぬ間に混入するリスクも生まれています。OSSを使うにしてもAIに書かせるにしても、ライセンスの知識は欠かせません。
+    PHPカンファレンス福岡2025での発表をベースに、PHP 8.6の最新動向を反映した情報を提供します。自信を持って「次」の一歩を踏み出すために、改めてライセンスを学びましょう。
+
+- track: "Track C"
+  start: "16:30"
+  end: "16:50"
+  title: "𠮷田さんの『𠮷』は、なぜ4トークンなのか — PHP で GPT のトークナイザを書いて、人名の値段を測る"
+  type: talk
+  speaker: "持田翼"
+  speaker_twitter: "tbsmcd"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/9c2ff307-fd2a-4f28-a282-324667135f6e.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/93ffdf56-e0e1-4a7a-a4de-303c4f3f6f7a"
+  abstract: |
+    GPT-4oでは「吉田」は2トークン、「𠮷田」は5トークンです。同じ読みの名字なのに、料金も入力の上限も違います。
+    このトークでは、GPT-4oのトークナイザ(byte-level BPE)をPHPで20行ほど書き、tiktokenと出力を照合します。すると、トークンの切れ目は文字の切れ目と一致しないと分かります。「𠮷」は語彙表に載っておらず、UTF-8の4バイトに砕けて4トークンになる。正規化しても安くならない字があり、安くなる字は別の名前になります。料金だけではありません。ローカルLLMの出力を1トークンずつ受け取ると、文字の途中で切れたバイト列が届き、json_encode()がfalseを返します。
+    数値はo200k_baseが中心で、Qwen3やllm-jp-3では違うことも示します。見慣れたstrlenとmb_strlenに続く3つ目の文字数が、請求額を決めています。
+
+- track: "バンケットホール"
+  start: "13:20"
+  end: "14:10"
+  title: "ポスターセッション"
+  type: timeslot

@@ -29,7 +29,7 @@ npm run preview  # dist/ の内容を確認
 | `/` | トップ（LP）。下記セクションを縦に並べたもの |
 | `/coc/` | 行動規範・プライバシーポリシー |
 | `/proposal_countdown/` | プロポーザル募集締切カウントダウン。応募数・新着3件をブラウザから fortee API で10秒ごとに更新。締切・本文は `site.yaml` の `proposal_countdown`。OGP画像は残り日数に応じて `public/images/ogp-countdown/<残り日数>.png` に切り替わる（ビルド時の日付で決まるため毎日自動再ビルド） |
-| `/timetable/` | タイムテーブル。fortee にデータが入ると自動で表示される（空の間は「準備中」） |
+| `/timetable/` | タイムテーブル。fortee にデータが入ると自動で表示される（空の間は「準備中」）。`timetable.mode: internal` のときは `src/data/timetable.yaml` を優先 |
 
 ### トップページのセクション（上から順）
 
@@ -187,7 +187,7 @@ fortee の NEWS に投稿すれば再ビルドで反映されます。fortee を
 | `links.proposal` | 「forteeで応募する」のリンク先 |
 | `links.timetable_external` | タイムテーブル（外部）のリンク先 |
 | `links.x` / `links.note` | SNS |
-| `timetable.mode` | `auto`（fortee にデータがあればサイト内ページ） / `internal` / `external` |
+| `timetable.mode` | `auto`（fortee にデータがあればサイト内ページ） / `internal`（サイト内ページ。`timetable.yaml` にデータがあれば fortee より優先） / `external` |
 | `message.title` / `lead` / `body` / `signature` | 実行委員長の挨拶（＝開催概要）。`body` は1要素1段落 |
 | `overview.eligibility` | 参加資格の見出しと本文 |
 | `overview.show_venue_card` | 会場・アクセスのカード（日時・住所・地図）を出すか |

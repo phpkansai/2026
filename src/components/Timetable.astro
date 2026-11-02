@@ -13,6 +13,8 @@ const items = await loadTimetable();
 const tracks = groupByTrack(items);
 // 1行目はトラック名、2行目以降が時刻の行。1列目は時刻の軸、2列目以降がトラック
 const grid = buildTimeGrid(items, 2);
+// 概要モーダルの id。トラック順・開始時刻順に連番（グリッドの枠と、後ろにまとめて置く dialog の対応付けに使う）
+const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
 ---
 
 {
@@ -41,7 +43,7 @@ const grid = buildTimeGrid(items, 2);
         <section class="tt__track" style={`--col: ${col + 2}`}>
           <h2 class="tt__track-title">{track.name}</h2>
           <ol class="tt__list">
-            {track.items.map((i) => (
+            {track.items.map((i, idx) => (
               <li
                 class:list={['tt__item', `tt__item--${i.type}`, { 'tt__item--dummy': i.dummy }]}
                 style={`grid-row: ${grid.rowOf(i)}`}
@@ -52,7 +54,11 @@ const grid = buildTimeGrid(items, 2);
                   <time datetime={i.ends_at}>{fmtTime(i.ends_at)}</time>
                 </p>
                 <h3 class="tt__title">
-                  {i.url ? (
+                  {i.abstract ? (
+                    <button class="tt__title-btn" type="button" data-dialog={dialogId(col, idx)}>
+                      {i.title}
+                    </button>
+                  ) : i.url ? (
                     <a href={i.url} target="_blank" rel="noopener noreferrer">
                       {i.title}
                     </a>
@@ -84,12 +90,6 @@ const grid = buildTimeGrid(items, 2);
                     ))}
                   </ul>
                 )}
-                {i.abstract && (
-                  <details class="tt__abstract">
-                    <summary>概要</summary>
-                    <p>{i.abstract}</p>
-                  </details>
-                )}
               </li>
             ))}
           </ol>
@@ -98,6 +98,90 @@ const grid = buildTimeGrid(items, 2);
     </div>
   )
 }
+
+{
+  /* 概要モーダル。グリッドの外にまとめて置き、枠内のタイトル（ボタン）から data-dialog で開く */
+  tracks.map((track, col) =>
+    track.items.map(
+      (i, idx) =>
+        i.abstract && (
+          <dialog class:list={['tt__dialog', { 'tt__dialog--dummy': i.dummy }]} id={dialogId(col, idx)} aria-labelledby={`${dialogId(col, idx)}-title`}>
+            <div class="tt__dialog-inner">
+              <button class="tt__dialog-close" type="button" aria-label="閉じる" data-close>
+                ×
+              </button>
+              <p class="tt__dialog-meta">
+                <span class="tt__dialog-track">{track.name}</span>
+                <time datetime={i.starts_at}>{fmtTime(i.starts_at)}</time>
+                <span aria-hidden="true">–</span>
+                <time datetime={i.ends_at}>{fmtTime(i.ends_at)}</time>
+              </p>
+              <h2 class="tt__dialog-title" id={`${dialogId(col, idx)}-title`}>
+                {i.title}
+              </h2>
+              {i.speaker && (
+                <div class="tt__dialog-speaker">
+                  {i.speaker.avatar_url ? (
+                    <img src={i.speaker.avatar_url} alt="" width="56" height="56" />
+                  ) : (
+                    <span class="tt__dialog-avatar" aria-hidden="true" />
+                  )}
+                  <div>
+                    <p class="tt__dialog-speaker-name">{i.speaker.name}</p>
+                    {i.speaker.twitter && (
+                      <a href={`https://x.com/${i.speaker.twitter}`} target="_blank" rel="noopener noreferrer">
+                        @{i.speaker.twitter}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+              {i.tags && i.tags.length > 0 && (
+                <ul class="tt__tags">
+                  {i.tags.map((t) => (
+                    <li style={`color:${t.color_text ?? '#fff'};background:${t.color_background ?? 'var(--c-purple)'}`}>
+                      {t.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p class="tt__dialog-abstract">{i.abstract}</p>
+              {i.url && (
+                <p class="tt__dialog-link">
+                  <a href={i.url} target="_blank" rel="noopener noreferrer">
+                    forteeで詳細を見る
+                    <span class="tt__arrow">
+                      <ArrowOutwardIcon />
+                    </span>
+                  </a>
+                </p>
+              )}
+            </div>
+          </dialog>
+        ),
+    ),
+  )
+}
+
+<script>
+  // タイトルのクリックで対応する dialog を開く。× ボタンと背景クリックで閉じる（Esc はブラウザ標準）
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const opener = target.closest<HTMLElement>('[data-dialog]');
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.dialog ?? '') as HTMLDialogElement | null;
+      dialog?.showModal();
+      return;
+    }
+    const closer = target.closest<HTMLElement>('[data-close]');
+    if (closer) {
+      closer.closest('dialog')?.close();
+      return;
+    }
+    // 背景（dialog 自身）をクリックしたら閉じる。中身（.tt__dialog-inner）のクリックは無視
+    if (target instanceof HTMLDialogElement) target.close();
+  });
+</script>
 
 <style>
   .tt__empty {
@@ -208,9 +292,25 @@ const grid = buildTimeGrid(items, 2);
     line-height: 1.6;
   }
 
-  .tt__title a {
+  /* タイトル（モーダルを開くボタン / fortee へのリンク）。どちらも同じ見た目にする */
+  .tt__title a,
+  .tt__title-btn {
+    display: inline;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
     color: var(--c-text);
+    text-decoration: underline;
     text-decoration-color: var(--c-pink);
+    text-underline-offset: 4px; /* 下線を文字から離す（ブラウザ標準は 2px 前後なので、約 2px 下がる） */
+    cursor: pointer;
+  }
+
+  .tt__title a:hover,
+  .tt__title-btn:hover {
+    text-decoration: none;
   }
 
   .tt__speaker {
@@ -250,35 +350,132 @@ const grid = buildTimeGrid(items, 2);
     border-radius: 999px;
   }
 
-  .tt__abstract {
-    font-size: 13px;
-    line-height: 1.8;
-  }
-
-  .tt__abstract summary {
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--c-purple);
-    list-style: none;
-  }
-
-  .tt__abstract summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .tt__abstract summary::before {
-    content: '▸ ';
-  }
-
-  .tt__abstract[open] summary::before {
-    content: '▾ ';
-  }
-
-  .tt__abstract p {
-    margin-top: 4px;
-    white-space: pre-line;
+  /* 概要モーダル */
+  .tt__dialog {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm, 12px);
+    background: var(--c-white);
     color: var(--c-text);
+    box-shadow: 0 20px 60px rgba(43, 37, 56, 0.3);
   }
+
+  .tt__dialog::backdrop {
+    background: rgba(43, 37, 56, 0.55);
+  }
+
+  .tt__dialog-inner {
+    position: relative;
+    padding: 32px 28px 28px;
+  }
+
+  .tt__dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--c-bg-lavender);
+    color: var(--c-purple-dark);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .tt__dialog-close:hover {
+    background: var(--c-purple);
+    color: var(--c-white);
+  }
+
+  .tt__dialog-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-right: 44px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-purple-dark);
+  }
+
+  .tt__dialog-track {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--c-purple);
+    color: var(--c-white);
+    font-size: 12px;
+    margin-right: 4px;
+  }
+
+  .tt__dialog-title {
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .tt__dialog-speaker {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm, 12px);
+    background: var(--c-bg-lavender);
+  }
+
+  .tt__dialog-speaker img,
+  .tt__dialog-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--c-placeholder);
+    flex-shrink: 0;
+  }
+
+  .tt__dialog-speaker-name {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .tt__dialog-speaker a {
+    font-size: 13px;
+    color: var(--c-purple);
+  }
+
+  .tt__dialog .tt__tags {
+    margin-top: 14px;
+  }
+
+  .tt__dialog-abstract {
+    margin-top: 18px;
+    font-size: 14px;
+    line-height: 1.9;
+    white-space: pre-line;
+  }
+
+  .tt__dialog-link {
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .tt__dialog-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--c-pink-dark);
+  }
+
+  .tt__dialog--dummy .tt__dialog-abstract {
+    color: #999;
+  }
+
 
   /* 開発時のダミー（グレー表示） */
   .tt__item--dummy {
@@ -287,8 +484,7 @@ const grid = buildTimeGrid(items, 2);
   }
 
   .tt__item--dummy .tt__title,
-  .tt__item--dummy .tt__speaker,
-  .tt__item--dummy .tt__abstract p {
+  .tt__item--dummy .tt__speaker {
     color: #999;
   }
 
@@ -316,5 +512,12 @@ const grid = buildTimeGrid(items, 2);
       display: grid;
       gap: 10px;
     }
+  }
+</style>
+
+<style is:global>
+  /* モーダル表示中は背景をスクロールさせない（body はこのコンポーネントの外なので is:global） */
+  body:has(dialog.tt__dialog[open]) {
+    overflow: hidden;
   }
 </style>

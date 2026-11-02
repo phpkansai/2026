@@ -90,9 +90,11 @@ preview:
 #   internal … 常にサイト内 /timetable/
 #   external … 常に links.timetable_external（fortee）
 # サイト内タイムテーブルのデータは fortee の timetable API（ビルド時取得）。fortee が空のときは src/data/timetable.yaml を使います。
+# mode を internal にして timetable.yaml にデータが入っていれば、fortee より timetable.yaml を優先します
+# （fortee の公開と同時にサイトでも公開したいときは、yaml を用意しておいて当日 mode を internal にするだけ）。
 # 開発サーバーで preview.dummy_data が true のときは、fortee の「45分枠」などの空き枠をグレーの仮トークで埋めて見た目を確認できます。
 timetable:
-  mode: external
+  mode: internal
   title: "タイムテーブル"
   button_external: "forteeで見る"
   button_internal: "タイムテーブルを見る"

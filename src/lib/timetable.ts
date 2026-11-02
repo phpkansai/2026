@@ -1,8 +1,9 @@
 /**
  * サイト内タイムテーブルのデータ。
- *   1. fortee の timetable API（ビルド時取得）
- *   2. 空なら src/data/timetable.yaml
- *   3. 開発サーバーで preview.dummy_data が true なら、空き枠（45分枠 / 20分枠 / LT など）をグレーの仮トークで埋める
+ *   1. site.yaml の timetable.mode が internal で、src/data/timetable.yaml にデータがあればそれ（fortee 公開前に手動で載せる用）
+ *   2. それ以外は fortee の timetable API（ビルド時取得）
+ *   3. fortee も空なら src/data/timetable.yaml
+ *   4. 開発サーバーで preview.dummy_data が true なら、空き枠（45分枠 / 20分枠 / LT など）をグレーの仮トークで埋める
  */
 import { site, localTimetable, type LocalTimetableItem } from './data';
 import { dummyEnabled } from './dummy';
@@ -72,7 +73,7 @@ function fromLocal(items: LocalTimetableItem[]): TimetableItem[] {
       starts_at: toIso(i.start),
       ends_at: toIso(i.end),
       url: i.url,
-      speaker: i.speaker ? { name: i.speaker, twitter: i.speaker_twitter } : undefined,
+      speaker: i.speaker ? { name: i.speaker, twitter: i.speaker_twitter, avatar_url: i.speaker_avatar } : undefined,
     };
   });
 }
@@ -100,9 +101,15 @@ function fillDummy(items: TimetableItem[]): TimetableItem[] {
 }
 
 export async function loadTimetable(): Promise<TimetableItem[]> {
+  // mode: internal かつ timetable.yaml にデータがあるときは、fortee より yaml を優先する
+  // （fortee のタイムテーブル公開と同時にサイトでも公開したいときに、先に yaml へ入れておける）。
+  // mode が auto / external の間は yaml を使わないので、公開前に /timetable/ へ内容が出ることはない。
+  // yaml のデータは確定したものなので、ダミー埋め（空き枠をグレーの仮トークにする）は fortee のデータにだけ適用する。
+  if (site.timetable.mode === 'internal' && localTimetable.length > 0) {
+    return fromLocal(localTimetable);
+  }
   const fortee = (await fetchTimetable()).map(fromFortee);
-  const items = fortee.length > 0 ? fortee : fromLocal(localTimetable);
-  return fillDummy(items);
+  return fortee.length > 0 ? fillDummy(fortee) : fromLocal(localTimetable);
 }
 
 /** トラック順 → 開始時刻順に並べて、トラックごとにまとめる */

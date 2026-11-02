@@ -188,6 +188,8 @@ export interface LocalTimetableItem {
   speaker?: string;
   /** X のハンドル（@ 無し） */
   speaker_twitter?: string;
+  /** スピーカーのアイコン画像URL（任意。fortee の画像URLなど） */
+  speaker_avatar?: string;
   abstract?: string;
   url?: string;
 }
