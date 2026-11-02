@@ -1,7 +1,7 @@
 ---
 /**
  * チケット（会場アクセスの下）。内容は site.yaml の tickets。
- * 通常チケット / お誘いチケットのカードと Peatix への購入ボタン。
+ * タイトル下に PHPerシールの案内（期限と「PHPerシールについて」）、通常チケット / お誘いチケットのカード、Peatix への購入ボタン。
  * 「お誘いチケットとは」「PHPerシールについて」はサイト内の説明ページ（tickets.invite.page / tickets.phper_sticker.page）を別タブで開く。
  */
 import { site } from '../lib/data';
@@ -16,19 +16,21 @@ const { tickets } = site;
   <div class="container tickets__inner">
     <h2 class="section-title section-title--purple">{tickets.title}</h2>
 
+    <div class="tickets__sticker">
+      <p class="tickets__note">
+        PHPerシール特典付きチケットは<strong class="tickets__deadline">{tickets.sticker_deadline_label}</strong>まで！
+      </p>
+      <a class="tickets__link" href={tickets.phper_sticker.page} target="_blank" rel="noopener noreferrer">
+        {tickets.phper_sticker.link_label}
+        <span class="tickets__arrow"><ArrowOutwardIcon /></span>
+      </a>
+    </div>
+
     <ul class="tickets__grid">
       <li class="tickets__item">
         <span class="tickets__icon"><TicketIcon name="regular" /></span>
         <h3 class="tickets__name">{tickets.regular.title}</h3>
         <p class="tickets__price">{tickets.regular.price}</p>
-        <p class="tickets__note">
-          PHPerシール特典付きチケットは<br />
-          {tickets.sticker_deadline_label}まで！
-        </p>
-        <a class="tickets__link" href={tickets.phper_sticker.page} target="_blank" rel="noopener noreferrer">
-          {tickets.phper_sticker.link_label}
-          <span class="tickets__arrow"><ArrowOutwardIcon /></span>
-        </a>
       </li>
       <li class="tickets__item">
         <span class="tickets__icon"><TicketIcon name="invite" /></span>
@@ -111,10 +113,28 @@ const { tickets } = site;
     color: var(--c-text);
   }
 
+  /* PHPerシールの案内（タイトルとカードの間） */
+  .tickets__sticker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: -8px;
+    text-align: center;
+  }
+
   .tickets__note {
-    font-size: 14px;
-    font-weight: 700;
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
     line-height: 1.7;
+    color: var(--c-text);
+  }
+
+  .tickets__deadline {
+    font-size: 1.5em;
+    font-weight: 800;
     color: var(--c-pink);
   }
 
@@ -164,6 +184,13 @@ const { tickets } = site;
     }
     .tickets__inner {
       gap: 32px;
+    }
+    .tickets__sticker {
+      gap: 16px;
+      margin-top: 0;
+    }
+    .tickets__note {
+      font-size: 14px;
     }
     .tickets__grid {
       grid-template-columns: 1fr;

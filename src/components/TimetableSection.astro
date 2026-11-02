@@ -1,7 +1,7 @@
 ---
 /**
  * トップの「タイムテーブル」セクション（チケットの下）。見出しとボタン1つ。
- * 飛び先は site.yaml の timetable.mode で決まる（fortee なら別タブ、サイト内なら /timetable/）。
+ * 飛び先は site.yaml の timetable.mode で決まる（fortee か サイト内 /timetable/）。どちらも別タブで開く。
  */
 import { site } from '../lib/data';
 import { resolveTimetableHref } from '../lib/fortee';
@@ -15,20 +15,11 @@ const label = external ? site.timetable.button_external : site.timetable.button_
 <section class="section section--purple timetable-section" id="timetable">
   <div class="container timetable-section__inner">
     <h2 class="section-title section-title--white">{site.timetable.title}</h2>
-    <a
-      class="btn timetable-section__btn"
-      href={href}
-      target={external ? '_blank' : undefined}
-      rel={external ? 'noopener noreferrer' : undefined}
-    >
+    <a class="btn timetable-section__btn" href={href} target="_blank" rel="noopener noreferrer">
       {label}
-      {
-        external && (
-          <span class="timetable-section__arrow">
-            <ArrowOutwardIcon />
-          </span>
-        )
-      }
+      <span class="timetable-section__arrow">
+        <ArrowOutwardIcon />
+      </span>
     </a>
   </div>
 </section>
