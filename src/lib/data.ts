@@ -87,6 +87,7 @@ export interface SiteConfig {
     title: string;
     button_external: string;
     button_internal: string;
+    note?: string;
   };
   news: { limit: number };
   note_articles: { limit: number; more_label?: string };

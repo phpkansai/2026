@@ -107,14 +107,8 @@
 
 - track: "Track A"
   start: "12:20"
-  end: "12:40"
+  end: "13:20"
   title: "昼休憩"
-  type: timeslot
-
-- track: "Track A"
-  start: "12:40"
-  end: "13:10"
-  title: "企画中"
   type: timeslot
 
 - track: "Track A"

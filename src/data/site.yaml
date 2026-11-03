@@ -98,6 +98,8 @@ timetable:
   title: "タイムテーブル"
   button_external: "forteeで見る"
   button_internal: "タイムテーブルを見る"
+  # サイト内タイムテーブルページ（/timetable/）の表の上に出す但し書き。空にすると出ません
+  note: "※タイムテーブルは予告なく変更になる可能性があります。"
 
 news:
   # トップページに表示する最大件数

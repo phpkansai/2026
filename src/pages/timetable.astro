@@ -10,6 +10,7 @@ import { site } from '../lib/data';
       <div class="card">
         <h1 class="section-title section-title--purple">タイムテーブル</h1>
         <p class="date">{site.event.date_label}　{site.venue.name}</p>
+        {site.timetable.note && <p class="note">{site.timetable.note}</p>}
         <Timetable />
         <p class="ext">
           <a href={site.links.timetable_external} target="_blank" rel="noopener noreferrer">forteeで見る</a>
@@ -26,6 +27,13 @@ import { site } from '../lib/data';
     margin: 12px 0 32px;
     font-weight: 700;
     color: var(--c-text-muted);
+  }
+  .note {
+    text-align: center;
+    margin: -16px 0 24px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--c-pink-dark);
   }
   .ext {
     margin-top: 40px;
