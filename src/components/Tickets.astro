@@ -2,6 +2,7 @@
 /**
  * チケット（会場アクセスの下）。内容は site.yaml の tickets。
  * タイトル下に PHPerシールの案内（期限と「PHPerシールについて」）、通常チケット / お誘いチケットのカード、Peatix への購入ボタン。
+ * tickets.peatix_url が空のあいだは購入ボタンの代わりに tickets.sale_notice（後日公開の注意書き）を出す。
  * 「お誘いチケットとは」「PHPerシールについて」はサイト内の説明ページ（tickets.invite.page / tickets.phper_sticker.page）を別タブで開く。
  */
 import { site } from '../lib/data';
@@ -43,10 +44,16 @@ const { tickets } = site;
       </li>
     </ul>
 
-    <a class="btn tickets__btn" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
-      {tickets.button}
-      <span class="tickets__arrow"><ArrowOutwardIcon /></span>
-    </a>
+    {
+      tickets.peatix_url ? (
+        <a class="btn tickets__btn" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
+          {tickets.button}
+          <span class="tickets__arrow"><ArrowOutwardIcon /></span>
+        </a>
+      ) : (
+        <p class="tickets__sale-notice">{tickets.sale_notice}</p>
+      )
+    }
   </div>
 </section>
 
@@ -163,6 +170,16 @@ const { tickets } = site;
     background: var(--c-pink);
     color: var(--c-white);
     transform: translateY(-2px);
+  }
+
+  /* 販売開始前の注意書き（peatix_url が空のとき） */
+  .tickets__sale-notice {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    color: var(--c-text);
   }
 
   .tickets__btn {

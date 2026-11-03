@@ -119,10 +119,16 @@ const peatixHelp = [
         </div>
 
         <div class="invite__cta">
-          <a class="btn btn--lg" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
-            {tickets.button}
-            <span class="invite__arrow"><ArrowOutwardIcon /></span>
-          </a>
+          {
+            tickets.peatix_url ? (
+              <a class="btn btn--lg" href={tickets.peatix_url} target="_blank" rel="noopener noreferrer">
+                {tickets.button}
+                <span class="invite__arrow"><ArrowOutwardIcon /></span>
+              </a>
+            ) : (
+              <p class="invite__sale-notice">{tickets.sale_notice}</p>
+            )
+          }
         </div>
 
         <p class="back"><a href="/#tickets">トップページへ戻る</a></p>
@@ -161,6 +167,11 @@ const peatixHelp = [
   .invite__cta {
     margin-top: 40px;
     text-align: center;
+  }
+
+  .invite__sale-notice {
+    font-weight: 700;
+    color: var(--c-text);
   }
 
   .invite__arrow {

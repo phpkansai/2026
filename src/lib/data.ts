@@ -104,8 +104,10 @@ export interface SiteConfig {
   };
   tickets: {
     title: string;
+    /** 空のあいだは購入ボタンの代わりに sale_notice を表示 */
     peatix_url: string;
     button: string;
+    sale_notice?: string;
     sticker_deadline_label: string;
     regular: { title: string; price: string };
     invite: {
