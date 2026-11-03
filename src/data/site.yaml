@@ -148,7 +148,7 @@ overview:
 tickets:
   title: "チケット"
   # Peatix のイベントページ。空のあいだは購入ボタンの代わりに sale_notice の注意書きを表示します（販売開始時に URL を入れる）
-  peatix_url: ""
+  peatix_url: "https://phpcon-kansai-2026.peatix.com/"
   button: "Peatixで購入"
   sale_notice: "※チケット購入のリンクは後日公開します。"
   # PHPerシールが保証されるチケット購入・譲渡・フォーム投稿の期限（トップのチケットカードに出す短い表記。詳細は下の phper_sticker）
