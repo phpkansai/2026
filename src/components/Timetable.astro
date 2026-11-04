@@ -4,13 +4,17 @@
  * データは lib/timetable.ts（fortee → timetable.yaml → 開発時はダミーで空き枠を埋める）。
  * PC では全トラックを1つのグリッドに置き、開始・終了時刻を行境界にする（同じ時刻の枠は同じ縦位置に揃う）。
  * 左端に時刻の軸を出す。スマホではトラックごとに縦に積む（グリッドは使わない）。
+ * トークの無いトラック（懇親会の会場など）は列を作らず、全列にまたがる横長の枠にする（lib/timetable.ts の layoutTimetable）。
+ * 全列に同じ休憩などがあるときも横長の枠1つにまとめる（スマホでは各トラックに残す）。
  */
 import { site } from '../lib/data';
-import { loadTimetable, groupByTrack, buildTimeGrid, fmtTime } from '../lib/timetable';
+import { loadTimetable, layoutTimetable, mergedKeys, isMerged, buildTimeGrid, fmtTime } from '../lib/timetable';
 import ArrowOutwardIcon from './icons/ArrowOutwardIcon.astro';
 
 const items = await loadTimetable();
-const tracks = groupByTrack(items);
+const layout = layoutTimetable(items);
+const { tracks, spans } = layout;
+const merged = mergedKeys(layout);
 // 1行目はトラック名、2行目以降が時刻の行。1列目は時刻の軸、2列目以降がトラック
 const grid = buildTimeGrid(items, 2);
 // 概要モーダルの id。トラック順・開始時刻順に連番（グリッドの枠と、後ろにまとめて置く dialog の対応付けに使う）
@@ -45,8 +49,12 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
           <ol class="tt__list">
             {track.items.map((i, idx) => (
               <li
-                class:list={['tt__item', `tt__item--${i.type}`, { 'tt__item--dummy': i.dummy }]}
-                style={`grid-row: ${grid.rowOf(i)}`}
+                class:list={[
+                  'tt__item',
+                  `tt__item--${i.type}`,
+                  { 'tt__item--dummy': i.dummy, 'tt__item--merged-copy': isMerged(merged, i) },
+                ]}
+                style={`--row: ${grid.rowOf(i)}`}
               >
                 <p class="tt__time">
                   <time datetime={i.starts_at}>{fmtTime(i.starts_at)}</time>
@@ -95,6 +103,32 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
           </ol>
         </section>
       ))}
+      {spans.length > 0 && (
+        <ol class="tt__spans">
+          {spans.map(({ item: i, location, merged: isMergedSpan }) => (
+            <li
+              class:list={['tt__item', 'tt__item--timeslot', 'tt__item--span', { 'tt__item--merged-span': isMergedSpan }]}
+              style={`--row: ${grid.rowOf(i)}`}
+            >
+              <p class="tt__time">
+                <time datetime={i.starts_at}>{fmtTime(i.starts_at)}</time>
+                <span aria-hidden="true">–</span>
+                <time datetime={i.ends_at}>{fmtTime(i.ends_at)}</time>
+              </p>
+              <h3 class="tt__title">
+                {i.url ? (
+                  <a href={i.url} target="_blank" rel="noopener noreferrer">
+                    {i.title}
+                  </a>
+                ) : (
+                  i.title
+                )}
+              </h3>
+              {location && <span class="tt__location">{location}</span>}
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   )
 }
@@ -202,7 +236,8 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
 
   /*
    * PC: 1つのグリッド。1列目が時刻の軸、2列目以降がトラック。
-   * 行は開始・終了時刻の境界（lib/timetable.ts の buildTimeGrid）。各枠は inline style の grid-row で開始行〜終了行に置く。
+   * 行は開始・終了時刻の境界（lib/timetable.ts の buildTimeGrid）。各枠は inline style の --row（"開始行 / 終了行"）で置く。
+   * （inline で grid-row を直接書くとスマホのグリッドにも効いて空行ぶんの隙間ができるので、カスタムプロパティ経由にしている）
    * section / ol は display: contents で中身を直接グリッドに参加させる。
    */
   .tt {
@@ -215,7 +250,8 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
 
   .tt__track,
   .tt__list,
-  .tt__axis {
+  .tt__axis,
+  .tt__spans {
     display: contents;
   }
 
@@ -227,6 +263,7 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
 
   .tt__item {
     grid-column: var(--col);
+    grid-row: var(--row);
   }
 
   /* 時刻の軸（何かが始まる時刻だけ出す） */
@@ -275,6 +312,31 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
   .tt__item--timeslot .tt__title {
     font-size: 14px;
     font-weight: 700;
+  }
+
+  /* 全列にまたがる横長の枠（懇親会・昼休憩など）。時刻・タイトル・場所を1行に並べて中央寄せ */
+  .tt__item--span {
+    grid-column: 2 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 14px;
+    text-align: center;
+  }
+
+  .tt__location {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+
+  /* 横長の枠にまとめた休憩などは、PC では各トラック側を出さない */
+  .tt__item--merged-copy {
+    display: none;
   }
 
   .tt__time {
@@ -488,7 +550,7 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
     color: #999;
   }
 
-  /* スマホ: グリッドをやめてトラックごとに縦に積む（inline の grid-row は親がグリッドでないので効かない） */
+  /* スマホ: グリッドをやめてトラックごとに縦に積む。PC 用の行・列指定は解除する */
   @media (max-width: 860px) {
     .tt {
       display: flex;
@@ -511,6 +573,25 @@ const dialogId = (col: number, idx: number) => `tt-dialog-${col}-${idx}`;
     .tt__list {
       display: grid;
       gap: 10px;
+    }
+
+    .tt__item {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    /* 横長の枠はトラックの後ろに縦に積む。まとめた休憩などは各トラック側に戻すので、まとめた方を消す */
+    .tt__spans {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tt__item--merged-copy {
+      display: flex;
+    }
+
+    .tt__item--merged-span {
+      display: none;
     }
   }
 </style>

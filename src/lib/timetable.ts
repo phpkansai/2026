@@ -124,6 +124,61 @@ export function groupByTrack(items: TimetableItem[]): TimetableTrack[] {
   }));
 }
 
+/** 全トラックにまたがる横長の枠 */
+export interface TimetableSpan {
+  item: TimetableItem;
+  /** 場所（トークの無いトラックの枠のとき、そのトラック名。例: 懇親会の「アトリウム（1号館）」） */
+  location?: string;
+  /** 全列に同じ枠（昼休憩など）があるのを1つにまとめたものか。まとめた元の枠は各トラックにも残っている */
+  merged: boolean;
+}
+
+export interface TimetableLayout {
+  /** 列になるトラック（トークが1件でもあるもの） */
+  tracks: TimetableTrack[];
+  /** 全トラックにまたがる横長の枠（開始時刻順） */
+  spans: TimetableSpan[];
+}
+
+/** 枠の同一性（まとめ判定用） */
+const itemKey = (i: TimetableItem) => `${i.type}|${i.title}|${i.starts_at}|${i.ends_at}`;
+
+/**
+ * 表示用のレイアウトに振り分ける。
+ *   - トークの無いトラック（懇親会の会場など、ごく短い時間しか使わないもの）は列を作らず、
+ *     その枠を全列にまたがる横長の枠にして、トラック名を場所として添える
+ *   - 全列に同じ時刻・同じタイトルの timeslot（昼休憩など）があれば、1つの横長の枠にまとめる
+ *     （スマホはトラックごとに縦に積むので、各トラック側の枠もそのまま残す）
+ *   どのトラックにもトークが無いときは、全トラックをそのまま列にする
+ */
+export function layoutTimetable(items: TimetableItem[]): TimetableLayout {
+  const all = groupByTrack(items);
+  const withTalks = all.filter((t) => t.items.some((i) => i.type === 'talk'));
+  const tracks = withTalks.length > 0 ? withTalks : all;
+  const spans: TimetableSpan[] = [];
+
+  for (const t of all) {
+    if (tracks.includes(t)) continue;
+    for (const item of t.items) spans.push({ item, location: t.name, merged: false });
+  }
+
+  if (tracks.length > 1) {
+    const keysOf = tracks.map((t) => new Set(t.items.map(itemKey)));
+    for (const item of tracks[0].items) {
+      if (item.type !== 'timeslot') continue;
+      const key = itemKey(item);
+      if (keysOf.every((keys) => keys.has(key))) spans.push({ item, merged: true });
+    }
+  }
+
+  spans.sort((a, b) => new Date(a.item.starts_at).getTime() - new Date(b.item.starts_at).getTime());
+  return { tracks, spans };
+}
+
+/** まとめられた枠（layoutTimetable の merged）かどうかを引くための Set */
+export const mergedKeys = (layout: TimetableLayout) => new Set(layout.spans.filter((s) => s.merged).map((s) => itemKey(s.item)));
+export const isMerged = (keys: Set<string>, i: TimetableItem) => keys.has(itemKey(i));
+
 /**
  * 全トラックの開始・終了時刻を集めて、時刻 → グリッドの行番号の対応を作る。
  * 同じ時刻は同じ行境界に乗るので、トラックごとに内容量が違っても縦位置が揃う。
