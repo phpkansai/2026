@@ -480,15 +480,18 @@
 - track: "Track B"
   start: "13:25"
   end: "13:45"
-  title: "VMs are back! エージェントと共に作るためのPHP開発環境再入門"
+  title: "ネストした関数呼び出しは安全に Pipe Operator へ変換できるのか？"
   type: talk
-  speaker: "岡本秀高"
-  speaker_twitter: "hidetaka_dev"
-  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/fba4293f-7ded-4db5-b359-de05ca831dba.jpg"
-  url: "https://fortee.jp/phpcon-kansai2026/proposal/435cdc27-9eba-47f6-8338-7d260c9f88b9"
+  speaker: "LuckyWind"
+  speaker_twitter: "LuckyWind_sck"
+  speaker_avatar: "https://fortee.jp/files/phpcon-kansai2026/speaker/7574706f-e08e-4736-8d9c-e3700aa5ca81.jpg"
+  url: "https://fortee.jp/phpcon-kansai2026/proposal/edcdc9d5-d18a-456f-b791-83e1708642db"
   abstract: |
-    かつてVagrantで開発用VMを立てていたPHPerも多いはずです。VMは重く、私たちは軽いDockerへ移りました。しかしAIエージェントと開発する今、前提が変わりました。エージェントはパッケージを入れ、設定を書き換え、読み切れないコマンドを次々に実行します。ホストのカーネルを共有するコンテナでは、隔離が心許ありません。microVMは専用カーネルを持つVMでありながら、コンテナに近い速さで起動し、壊してもsnapshotから一瞬で戻せます。
-    本トークでは、microVM上にエージェントへの指示だけでWordPressを構築し、PHP 7.4/8.1/8.3の共存構成と、バージョンごとの並列実行構成でプラグインのテストを動かした実践を紹介します。エージェント時代のPHP開発環境を、もう一度ここから始めましょう。
+    PHP 8.5 で Pipe Operator が導入されました。
+    Pipe Operator を使うと、関数呼び出しの深いネストを避けられ、コードが読みやすくなることがあります。PHP コードを自動変換する Rector で、既存コードも一括変換できたら便利そうです。
+    実際に Rector にはそのための rule が追加されていました。しかし実装を読んでいると、AST の形だけを見て変換して、本当に元と同じ意味になるのか気になりました。
+    そこで、引数の渡し方や関数の呼び出し方が異なるケースを用意し、変換前後を PHP 8.5 で実行して比べました。すると、エラーになるだけでなく、正常終了して戻り値も同じなのに挙動だけが変わる例も見つかりました。
+    本発表では、この rule の実装と検証を通じて、自動リファクタリングが意味を保つために何を確かめる必要があるのかを紹介します。
 
 - track: "Track B"
   start: "13:55"

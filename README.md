@@ -117,7 +117,7 @@ sections:
 `site.yaml` の `recruit.items` を編集します。1項目 = 1カードです。
 
 ```yaml
-- icon: sponsor             # proposal / sponsor / request（アイコンの種類）
+- icon: sponsor             # proposal / sponsor / request / poster（アイコンの種類）
   title: "スポンサー"
   status: open              # open（募集中・上段に大きく） / closed（受付終了・下段に小さく薄く）。省略時は open
   deadline: "締切：2026年11月6日（金）"

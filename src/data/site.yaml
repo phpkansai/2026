@@ -186,7 +186,16 @@ recruit:
   title_closed: "募集情報"       # open のカードが1つも無いときの見出し
   closed_label: "受付終了"       # closed カードのバッジと下段の小見出し
   items:
-    - icon: sponsor           # proposal / sponsor / request
+    - icon: poster            # proposal / sponsor / request / poster
+      title: "ポスターセッション"
+      status: open
+      deadline: "締切：2026年11月30日（月）"
+      description: |
+        事前に提出いただいたスライドを運営が印刷し、会場に掲示して行う発表です。採択された方には参加チケットを進呈します。
+        11月17日（火）までの1次募集にご応募いただくと、11月22日（日）までに採択結果をお知らせします。
+      button: "forteeで応募する"
+      url: "https://fortee.jp/phpcon-kansai2026/speaker/callfor/poster/callfor"
+    - icon: sponsor
       title: "スポンサー"
       status: open
       deadline: "締切：2026年11月6日（金）"
