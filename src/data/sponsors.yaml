@@ -82,3 +82,8 @@
   tier: bronze
   url: "https://splout.co.jp/"
   logo: "splout.png"
+
+- name: "SSL Shop BtoB"
+  tier: bronze
+  url: "https://ssl-shop.jp/acme"
+  logo: "itcom.png"
