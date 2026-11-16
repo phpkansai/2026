@@ -30,6 +30,10 @@ export interface RecruitItem {
   status?: 'open' | 'closed';
   deadline?: string;
   description?: string;
+  /** open のカードのタイトル上に出す目立つラベル（例: 締切延長） */
+  badge?: string;
+  /** open のカード内に「受付終了」バッジ付きで出す、すでに締め切った対象（例: 一部プランだけ募集を続けるとき） */
+  closed_note?: string;
   button: string;
   url: string;
   /** open のカードを1列で横いっぱいに表示する */

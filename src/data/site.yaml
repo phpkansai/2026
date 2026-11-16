@@ -180,6 +180,8 @@ tickets:
 # スタッフとフッターの間のリンク集
 # status が open のカードは上段に大きく、closed のカードは下段「受付終了」に小さく薄く並びます（参考情報として残す用）。
 # closed にしたら button / url も「見る」用に差し替えてください。
+# open のカードには任意で badge（タイトル上の目立つラベル。例: 締切延長）と
+# closed_note（カード内に「受付終了」バッジ付きで出す、すでに締め切った対象。例: 一部プランだけ募集を続けるとき）を書けます。
 # open が1つも無いときは見出しが title_closed になります。全部不要になったら sections.recruit を false に。
 recruit:
   title: "絶賛募集中！"
@@ -196,9 +198,13 @@ recruit:
       button: "forteeで応募する"
       url: "https://fortee.jp/phpcon-kansai2026/speaker/callfor/poster/callfor"
     - icon: sponsor
-      title: "スポンサー"
+      title: "ブロンズスポンサー"
       status: open
-      deadline: "締切：2026年11月6日（金）"
+      badge: "締切延長"
+      deadline: "締切：2026年12月11日（金）"
+      description: |
+        ブロンズスポンサーに限り、募集期間を延長しました。
+      closed_note: "プラチナ・ゴールド・シルバースポンサー"
       button: "資料を見る"
       url: "https://docs.google.com/presentation/d/1L8lzrsSyK7unjY8-43bz7bi_nQ_M-DJkz5hGH_EkiD8/edit?slide=id.g33ec3a8be6e_0_102#slide=id.g33ec3a8be6e_0_102"
     - icon: proposal
