@@ -55,6 +55,7 @@
 - name: "転職サイトtype"
   tier: silver
   url: "https://type.jp/"
+  logo: "type.png"
 
 - name: "有限会社咲楽屋"
   tier: silver
