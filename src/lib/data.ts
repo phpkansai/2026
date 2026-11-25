@@ -199,6 +199,12 @@ export interface LocalTimetableItem {
   speaker_avatar?: string;
   abstract?: string;
   url?: string;
+  /**
+   * タグ名（任意。例: ["初登壇", "初心者向け"]）。
+   * 普段は書かなくてよい。url が fortee のトークと一致すれば fortee のタグがビルド時に付く（lib/timetable.ts）。
+   * 書いた場合はこちらが優先され、色は fortee の同名タグから引く
+   */
+  tags?: string[];
 }
 
 export interface StaffLeader {

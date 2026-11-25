@@ -1,6 +1,7 @@
 /**
  * サイト内タイムテーブルのデータ。
  *   1. site.yaml の timetable.mode が internal で、src/data/timetable.yaml にデータがあればそれ（fortee 公開前に手動で載せる用）
+ *      このとき、yaml の url が fortee のトークと一致すれば、fortee のタグ（初登壇 / 初心者向け / 関西在住者 など）を付ける
  *   2. それ以外は fortee の timetable API（ビルド時取得）
  *   3. fortee も空なら src/data/timetable.yaml
  *   4. 開発サーバーで preview.dummy_data が true なら、空き枠（45分枠 / 20分枠 / LT など）をグレーの仮トークで埋める
@@ -15,6 +16,12 @@ export interface TimetableSpeaker {
   avatar_url?: string;
 }
 
+export interface TimetableTag {
+  name: string;
+  color_text?: string;
+  color_background?: string;
+}
+
 export interface TimetableItem {
   type: 'talk' | 'timeslot';
   title: string;
@@ -24,7 +31,8 @@ export interface TimetableItem {
   ends_at: string; // ISO
   url?: string;
   speaker?: TimetableSpeaker;
-  tags?: { name: string; color_text?: string; color_background?: string }[];
+  /** fortee のタグ（初登壇 / 初心者向け / 関西在住者 など） */
+  tags?: TimetableTag[];
   /** 開発サーバー用の仮データ */
   dummy?: boolean;
 }
@@ -74,7 +82,26 @@ function fromLocal(items: LocalTimetableItem[]): TimetableItem[] {
       ends_at: toIso(i.end),
       url: i.url,
       speaker: i.speaker ? { name: i.speaker, twitter: i.speaker_twitter, avatar_url: i.speaker_avatar } : undefined,
+      tags: i.tags?.map((name) => ({ name })),
     };
+  });
+}
+
+/**
+ * yaml のトークに fortee のタグを付ける。url（fortee のプロポーザルURL）で突き合わせる。
+ * yaml 側に tags が書いてあればそれを優先し、色は fortee の同名タグから引く（fortee に無ければ既定色）。
+ */
+function mergeForteeTags(items: TimetableItem[], fortee: ForteeTimetableItem[]): TimetableItem[] {
+  const byUrl = new Map(fortee.filter((f) => f.url).map((f) => [f.url as string, f]));
+  const colorOf = new Map<string, TimetableTag>();
+  for (const f of fortee) for (const t of f.tags ?? []) colorOf.set(t.name, t);
+  return items.map((i) => {
+    const tags: TimetableTag[] | undefined = i.tags
+      ? i.tags.map((t) => ({ ...colorOf.get(t.name), ...t }))
+      : i.url
+        ? byUrl.get(i.url)?.tags
+        : undefined;
+    return tags && tags.length > 0 ? { ...i, tags } : { ...i, tags: undefined };
   });
 }
 
@@ -105,8 +132,9 @@ export async function loadTimetable(): Promise<TimetableItem[]> {
   // （fortee のタイムテーブル公開と同時にサイトでも公開したいときに、先に yaml へ入れておける）。
   // mode が auto / external の間は yaml を使わないので、公開前に /timetable/ へ内容が出ることはない。
   // yaml のデータは確定したものなので、ダミー埋め（空き枠をグレーの仮トークにする）は fortee のデータにだけ適用する。
+  // yaml にタグは書かなくてよい。fortee のタグ（初登壇 / 初心者向け / 関西在住者）を url で突き合わせて付ける。
   if (site.timetable.mode === 'internal' && localTimetable.length > 0) {
-    return fromLocal(localTimetable);
+    return mergeForteeTags(fromLocal(localTimetable), await fetchTimetable());
   }
   const fortee = (await fetchTimetable()).map(fromFortee);
   return fortee.length > 0 ? fillDummy(fortee) : fromLocal(localTimetable);
