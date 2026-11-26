@@ -4,7 +4,12 @@ import Timetable from '../components/Timetable.astro';
 import { site } from '../lib/data';
 ---
 
-<Base title="タイムテーブル" subpage description={`${site.event.name} タイムテーブル`}>
+<Base
+  title="タイムテーブル"
+  subpage
+  description={`${site.event.name} タイムテーブル`}
+  ogImage="/images/ogp-timetable.png"
+>
   <section class="section section--pink">
     <div class="container">
       <div class="card">
